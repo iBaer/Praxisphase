@@ -1,0 +1,313 @@
+\section{Grundgleichungen der Strömungsmechanik}
+
+{\bf Gleichungen} 
+
+Grundlage dieser Einführung ist das Buch von Ferziger und Peric
+\cite{cfd}. Für Materie oder {\it control mass} (CM) gelten die
+Grundgleichungen
+\begin{equation}
+\frac{dm}{dt} = 0 \qquad \frac{dm \vec{v}}{dt} = \sum \vec{F}.
+\end{equation}
+Zur Beschreibung von Fluiden muss der Übergang von Massen zu Volumen
+({\it control volume} CV) vollzogen werden.
+Für eine intensive erhaltene Größe $\phi$ pro Einheitsmasse gilt
+\begin{equation}
+\Phi = \int_{\Omega_{CM}} \rho \phi d \Omega,
+\end{equation} 
+wobei $\Omega_{CM}$ für das von CM eingenommene Volumen steht. Es gilt
+\begin{equation}
+\frac{d}{dt} \int_{\Omega_{CM}} \rho \phi d \Omega 
+=
+\frac{d}{dt} \int_{\Omega_{CV}} \rho \phi d \Omega 
++
+\int_{S_{CV}} \rho \phi (\vec{v}-\vec{v}_b)\cdot \vec{n} d S.\label{eq:cm_cv}
+\end{equation} 
+$\vec{v}_b$ ist Strömungsgeschwindigkeit der Oberfläche und kann im folgenden
+$= 0$ gesetzt werden. Weiterhin werden keine Quellen berücksichtigt.
+
+{\bf Massengleichung}
+
+Setze $\phi=1$.
+\begin{equation}
+\frac{\partial}{\partial t} \int_{\Omega_{CV}} \rho d \Omega
++
+\int_{S_{CV}} \rho (\vec{v} \cdot \vec{n}) d S
+= 0.
+\end{equation}
+In differentieller Form ergibt sich mit dem Gaußschen Satz die
+Kontinuitätsgleichung
+\begin{equation}
+\frac{\partial \rho }{\partial t} + \d (\rho \vec{v}) =
+0.\label{eq:masse_diff}
+\end{equation}
+
+
+{\bf Impulsgleichung}
+
+Setze $\phi=\vec{v}$. Dann gilt für ein festes Volumen
+\begin{equation}
+\frac{\partial}{\partial t} \int_{\Omega} \rho \vec{v} d \Omega +
+\int_{S} \rho \vec{v} \; (\vec{v}\cdot \vec{n}) d S = \sum \vec{F}
+\end{equation} 
+
+Der Kraftterm setzt sich aus 2 Anteilen zusammen:
+\begin{itemize}
+\item Oberflächenkräfte: Druck (pressure), Normal- und Scherspannung (normal
+  and shear stresses), Oberflächenspannung (surface tension) etc.;
+\item Körperkräfte: Gravitation, Zentrifugal- und Corioliskraft,
+  elektromagnetische Kraft etc..
+\end{itemize}
+
+Für sogenannte Newtonsche Strömungen können die Oberflächenkräfte durch den
+folgenden Spannungstensor $T$ beschrieben
+werden
+\begin{eqnarray*}
+T &=& S - p I \\
+S &=& \mu \left( 2 D - \frac{2}{3} (\d \vec{v})\; I \right) .
+\end{eqnarray*}
+Dabei ist $\mu$ die dynamische Viskosität, $I$ der Einheitstensor und
+$p$ der statische Druck.  Bei Ferziger und Peric und bei Wikipedia
+wird $T$ als Spannungstensor bezeichnet, während im Fluent-Handbuch
+$S$ als Spannungstensor bezeichnet wird, also ohne den Term
+proportional zu $p$, sondern nur der Term proportional zur
+Viskosität. Der Tensor $D$ (strain deformation tensor) ergibt sich zu
+\begin{eqnarray*}
+D &=&\frac{1}{2}\left[ (\nabla \otimes \vec{v})^T + (\nabla \otimes \vec{v})\right]\\
+D_{ij} &=& \frac{1}{2}\left(\frac{\partial v_i}{\partial x_j} 
+                         +\frac{\partial v_j}{\partial x_i} \right).
+\end{eqnarray*}
+Im Falle von reibungsfreien Fluide ist $\mu=0$. Mit der Körperkraft
+pro Einheitsmasse $f$ lautet nun die Impulsgleichung
+\begin{equation}
+\frac{\partial}{\partial t} \int_{\Omega} \rho \vec{v} d \Omega 
++
+\int_{S} \rho \vec{v} \; (\vec{v}\cdot n) d S 
+= 
+\int_{S} (T \cdot \vec{n}) d S 
++
+\int_{\Omega} \rho \vec{f} d \Omega
+\end{equation} 
+
+Damit lautet die differentielle Form der Impulsgleichung, wieder über
+den Gaußschen Satz, wobei bei der Umwandlung des Oberflächenintetrals
+in ein Volumenintegral der Term $\vec{v} \; (\vec{v}\cdot n)$ in $v$
+zu einem dyadischen Produkt wird, also zu $\vec{v}\vec{v}^T =
+\vec{v}\otimes\vec{v}$
+
+\begin{equation}
+\frac{\partial (\rho \vec{v})}{\partial t} + \d (\rho \vec{v}\otimes
+\vec{v}) = - \nabla p + \d S + \rho \vec{f}\label{eq:impuls_diff}
+\end{equation}
+
+Fluent bietet verschiedene Optionen für nicht-Newton\-sche Strömungen mit
+verschiedenen Gesetzmäßigkeiten für die Viskosität an, auf die im Ferziger
+nicht weiter eingegangen wird.  Die Kontinuitätsgleichung und die
+Impulsgleichung zusammen heißen Navier-Stokes Gleichungen.  Daneben können
+weitere Gleichungen aufgestellt werden, wobei z.B. als erhaltene Größe $\phi$
+die Energie eingesetzt wird.
+
+
+{\bf Energiegleichung}
+
+Wird in Gleichung \ref{eq:cm_cv} für $\phi$ die Energie eingesetzt,
+folgt (ohne Begründung und nach Wikipedia)
+\begin{equation}
+\frac{\partial (\rho E)}{\partial t} + \d (\rho \vec{v} H) = 
+\d \left(S \vec{v} - \vec{W} \right) + q - \rho
+\vec{v}\vec{g} \label{eq:transport_E}
+\end{equation}
+mit der Enthalpie pro Einheitsmasse 
+\[
+H = E+p/\rho,
+\] dem Wärmefluss
+\[
+\vec{W} = - \kappa \nabla T
+\]
+mit dem Wärmeleitkoeffizienten $\kappa$, dem Anteils $s_{i,j}$ des
+Spannungstensors und einem allgemeinen Quellterm $q$. Die totale
+Energie pro Einheitsmasse ist die Summe aus der inneren Energie $e$,
+der kinetischen und der potentiellen Energie
+\[
+E = e + \frac{1}{2} |\vec{v}^2| - h |g|
+\]
+
+Der Druck wird über die Zustandsgleichung
+\[
+p = (\gamma-1) \rho \left(E -  \frac{1}{2} |\vec{v}^2|  - h |g|\right)
+  = (\gamma-1) \rho e
+\]
+mit dem adiabatischem Koeffizienten 
+\[
+\gamma = \frac{c_p}{c_v}
+\]
+berechnet. Mit der Anzahl der Freiheitsgrade $f = f_{trans} + f_{rot}
++ f_{vib}$ ergibt sich in guter Näherung
+\[
+\gamma = \frac{f+2}{f}.
+\]
+
+Ein einfache Gleichung erhält man über die ideale Gasgleichung. Dann gilt
+\[
+\rho R T = p \quad \mbox{und} \quad e = c_v T = \frac{RT}{\gamma-1} =
+\frac{p}{\rho (\gamma-1)}
+\]
+
+Der Druck ist also unabhängig von der Anzahl der Freiheitsgrade, da
+die innere Energie gerade den Faktor $\gamma-1$ auffängt.
+
+%\newpage
+
+{\bf Erhaltungsgleichung skalarer Größen}
+
+Analog zu Gleichung (\ref{eq:cm_cv}) lässt sich eine Erhaltungsgleichung für
+eine allgemeine skalare Größe $\phi$ aufstellen
+\begin{equation}
+\frac{d}{dt} \int_{\Omega_{CM}} \rho \phi \; d \Omega = \frac{d}{dt}
+\int_{\Omega_{CV}} \rho \phi \; d \Omega + \int_{S_{CV}} \rho \phi \;
+\vec{v}\cdot \vec{n} \; d S  = \sum f_\phi
+\end{equation} 
+wobei die rechte Seite jetzt nicht ein Kraftterm ist wie für die
+Impulsgleichung sondern den Transport der Größe $\phi$ durch Diffusion
+(Übertragung, Transport durch Werteunterschiede wie z.B.
+Temperaturunterschiede) aus dem Volumen oder eine Quelle bzw. Senke
+beschreibt. Generell ist ein Diffusionsterm (Ausgleich bei unterschiedlichen
+Werten) zu berücksichtigen, der durch das {\it Fourier Gesetz} (Wärmeleitung)
+für die Wärme und durch das {\it Ficksche Gesetz} (Transport durch
+Konzentrationsunterschiede) für die Masse als Gradiententerm genähert werden
+kann.
+\begin{equation}
+f_\phi^d = \int_S \Gamma (\g \phi \cdot n)  \; d S
+\end{equation} 
+$\Gamma$ ist der Diffusionskoeffizient der Größe $\phi$. Ein Beispiel für eine
+Transportgleichungen erhält man z.B. beim Betrachten der Energie bzw.
+Temperatur. Für unser Problem werden jedoch keine weiteren Gleichungen
+benötigt.
+
+Für allgemeine Betrachtungen numerischer Methoden wird mit diesem Ansatz von
+folgender allgemeinen Form einer Erhaltungsgleichung ausgegangen
+\begin{equation}
+\frac{d}{dt} \int_{\Omega_{CV}} \rho \phi d \Omega 
++
+\int_{S_{CV}} \rho \phi \; \vec{v}\cdot \vec{n} d S.
+= 
+\int_S \Gamma (\g \phi \cdot n)  \; d S
++
+\int_{\Omega_{CV}} q_\phi d \Omega \label{eq:transport_int}
+\end{equation} 
+wobei $q_\phi$ eine Quelle bzw. Senke der Größe $\phi$ ist.
+In differentieller Form lautet die Gleichung
+\begin{equation}
+\frac{\partial (\rho \phi)}{\partial t} + \d (\rho \phi \vec{v}) =
+\d (\Gamma \g \phi)  + q_\phi \label{eq:transport_dif}
+\end{equation}
+
+
+Analysen der Gleichungen werden meist in dimensionsloser Form
+durchgeführt. Dabei werden die auftretenden Größen mit Referenzgrößen skaliert.
+Es treten 3 die Strömung bestimmende Konstanten auf:
+\begin{eqnarray}
+St  = & \frac{L_0}{v_0 t_0} &\qquad \mbox{Strouhal Zahl} \\
+Re  = & \frac{\rho v_0 L_0}{\mu} &\qquad \mbox{Reynolds Zahl}
+\label{eq:reynold_ferziger} \\
+Fr  = & \frac{v_0}{\sqrt{L_0 g}} &\qquad \mbox{Froude Zahl} 
+\end{eqnarray}
+Meist bedeutet $v_0$ die Durchschnittsgeschwindigkeit und $L_0$ die Ausdehnung
+des Systems.
+
+
+
+%\newpage
+
+{\bf Zusammenfassung Navier-Stokes Gleichungen}
+
+Kontinuitätsgleichung:
+\begin{equation}
+\frac{\partial \rho }{\partial t} + \d (\rho \vec{v}) = 0
+\end{equation}
+
+Impulsgleichung mit dem Spannungstensor $T$ bzw. $S$ und der Körperkraft $f$:
+\begin{equation}
+\frac{\partial (\rho \vec{v})}{\partial t} + \d (\rho \vec{v}\otimes\vec{v})
+= - \nabla p + \d S  + \rho \vec{f}
+\end{equation}
+
+Energiegleichung:
+\begin{equation}
+\frac{\partial (\rho E)}{\partial t} + \d (\rho \vec{v} H) = 
+\d \left(S \vec{v} + \kappa \nabla T
+\right) + q - \rho
+\vec{v}\vec{g}
+\end{equation}
+
+{\bf Inkompressible Fluide}
+
+Da die Dichte konstant ist, vereinfacht sich die Kontinuitätsgleichung
+zu
+\[
+\d \vec{v} = 0
+\]
+Der Spannungstensor vereinfacht sich dann zu
+\[
+S = 2 \mu D = \mu\left[ (\nabla \otimes \vec{v})^T + (\nabla \otimes \vec{v})\right]
+\]
+
+{\bf Eulergleichungen}
+
+Die Eulergleichungen beschreibt reibungslose Fluide, also mit der Viskosität $\mu=0$.
+
+{\bf Kontinuitätsgleichung:} Keine Änderung
+
+Impulsgleichung: Hier verschwindet der Term $S$ des
+Spannungstensors, es verbleibt nur der Druckterm.
+\begin{equation}
+\frac{\partial (\rho \vec{v})}{\partial t} + \d (\rho \vec{v} \vec{v})
+= \nabla p + \rho \vec{f}
+\end{equation}
+
+
+Energiegleichung: Auch hier verschwindet der Term $S$
+\begin{equation}
+\frac{\partial (\rho E)}{\partial t} + \d (\rho \vec{v} H) = - \d
+W + q - \rho \vec{v}\vec{g}
+\end{equation}
+In Wikipedia unter Eulergleichung werden alle Quellterme gleich Null gesetzt
+\begin{equation}
+\frac{\partial (\rho E)}{\partial t} + \d (\rho \vec{v} H) = 0.
+\end{equation}
+
+Alle Gleichungen habe dieselbe Form (ohne Quell-Terme):
+\[
+\frac{\partial (\mbf{u})}{\partial t} + \d \mbf{f(u)} = S(u)
+\]
+
+Kontinuitätsgleichung: 
+\begin{eqnarray*}
+\mbf{u} &=& \rho\\
+\mbf{f(u)} &=& \rho \vec{v}\\
+S(\mbf{u}) &=& 0
+\end{eqnarray*}
+
+Impulsgleichung: 
+\begin{eqnarray*}
+\mbf{u} &=& \rho \vec{v}\\
+\mbf{f(u)} &=& \rho \vec{v}\otimes\vec{v}\\
+S(\mbf{u}) &=& \d (S - p I)  + \rho \vec{f}
+\end{eqnarray*}
+
+Energiegleichung: 
+\begin{eqnarray*}
+\mbf{u} &=& \rho E\\
+\mbf{f(u)} &=& \rho \vec{v} H = 
+\rho \vec{v} \left(E + \frac{p}{\rho} \right)\\
+S(\mbf{u}) &=& \d \left(S \vec{v} - \vec{W}
+\right) + q - \rho \vec{v}\vec{g} 
+\end{eqnarray*}
+
+
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "cfd_multiflow"
+%%% End: 

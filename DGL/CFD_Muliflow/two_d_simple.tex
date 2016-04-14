@@ -1,0 +1,274 @@
+\section{Zwei-Phasen-Strömung in 2 Dimensionen}
+
+\subsection{Ein einfaches Modell in 2-D}
+
+Es gibt zahlreiche Modelle und Simulationen, die bereits mit
+Experimenten verglichen wurden. Die meisten nehmen jedoch an, dass die
+Relativgeschwindigkeit zwischen den beiden Phasen zu vernachlässigen
+ist. Hier soll die Relativgeschwindigkeit explizit berücksichtigt
+werden. Eine einfache Erweiterung der Gleichungen
+\ref{eq:dia_2009_k}\ref{eq:dia_2009_i} und \ref{eq:dia_2009_r} von
+einer zu zwei Dimensionen ohne Quellterme kann über die Gleichungen
+\ref{eq:masse_diff} und \ref{eq:impuls_diff} gewonnen werden. Die
+lauten in Komponentenschreibweise für jede Phase
+
+\begin{eqnarray}
+\frac{\partial }{\partial t} (\alpha_i \rho_i) + 
+\frac{\partial }{\partial x} (\alpha_i\rho_i v_{i,x}) +
+\frac{\partial }{\partial y} (\alpha_i\rho_i v_{i,y}) &=& 0 \label{eq:rho_2}\\
+%
+\frac{\partial }{\partial t} (\alpha_i\rho_i v_{i,x}) +
+\frac{\partial }{\partial x} (\alpha_i\rho_i v_{i,x}v_{i,x} + P) +
+\frac{\partial }{\partial y} (\alpha_i\rho_i v_{i,x} v_{i,y}) &=& 0 \\
+%
+\frac{\partial }{\partial t} (\alpha_i\rho_i v_{i,y}) +
+\frac{\partial }{\partial x} (\alpha_i\rho_i v_{i,x} v_{i,y}) +
+\frac{\partial }{\partial y} (\alpha_i\rho_i v_{i,y}v_{i,y} + P)  &=& 0 
+\end{eqnarray}
+Die Rechnungen verlaufen ganz analog zu den Rechnungen aus Kapitel
+\ref{sec:3pdfs_1d}. In den ersten beiden Gleichungen kommt nur der
+Term mit der Ableitung nach $y$ hinzu, und die dritte Gleichung ist
+symmetrisch zur zweiten aufgebaut. Aus diesem Grunde brauchen nur die
+beiden zusätzlichen Terme der ersten beiden Gleichungen genauer
+betrachtet werden. Addition von Gleichung \ref{eq:rho_2} für beide
+Phasen ergibt eine Kontinuitätsgleichung wie gehabt.
+\begin{equation}
+\frac{\partial}{\partial t}\rho + \frac{\partial}{\partial x} \rho u_x
++ \frac{\partial}{\partial y} \rho u_y
+=  0\label{eq:2d_simple_d}
+\end{equation}
+Bei der Impulsgleichung für die $x$-Komponente kommt folgender Term
+hinzu
+\[
+\frac{\partial }{\partial y}(\phi_1+\phi_2):= \frac{\partial
+}{\partial y} \left(\alpha_1\rho_1 v_{1,x} v_{1,y} + \alpha_2\rho_2
+v_{2,x} v_{2,y}\right),
+\]
+bezeichnet mit $\phi_+$, der umgeformt werden
+muss. Mit den analogen Gleichungen wie im 1-dimensionalen Fall:
+\begin{eqnarray*}
+u_{r,x} &=& v_{2,x}-v_{1,x}\\
+u_x    &=& (1-c) v_{1,x} + c v_{2,x}
+\end{eqnarray*}
+folgt
+\begin{eqnarray*}
+v_{1,x} &=& u_{x}-c u_{r,x}\\
+v_{2,x} &=& u_x + (1-c) u_{r,x}
+\end{eqnarray*}
+und damit
+\begin{eqnarray*}
+ \phi_+ = \alpha_1\rho_1 v_{1,x} v_{1,y} +
+  \alpha_2\rho_2 v_{2,x} v_{2,y} &=& (1-c)\rho \left( u_{x}-c u_{r,x} \right)
+\left( u_{y}-c u_{r,y} \right)\\
+%
+&& + c\rho \left( u_x + (1-c) u_{r,x} \right) \left( u_y + (1-c) u_{r,y} \right) \\
+&=& \rho u_x u_y + \rho c(1-c) u_{r,x} u_{r,y} 
+\end{eqnarray*}
+mit $\alpha_1\rho_1 = (1-c)\rho$ bzw. $\alpha_2\rho_2 = c\rho$. Damit
+ergeben sich die beiden Impulsgleichungen
+%
+\begin{eqnarray}
+\frac{\partial}{\partial t} \rho u_x + \frac{\partial}{\partial x}
+\left( \rho u_x^2 + \rho c (1-c) u_{r,x}^2 + P\right) +
+\frac{\partial}{\partial y} \left(\rho u_x u_y + \rho c(1-c) u_{r,x} u_{r,y}\right)
+ &=& 0 \label{eq:2d_simple_i_x}\\
+%
+\frac{\partial}{\partial t} \rho u_y + \frac{\partial}{\partial y} \left(
+\rho u_y^2 + \rho c (1-c) u_{r,y}^2 + P\right)
+ + \frac{\partial}{\partial x} \left(\rho u_x u_y + \rho c(1-c) u_{r,x} u_{r,y}\right) &=& 0\label{eq:2d_simple_i_y}
+\end{eqnarray}
+Die Herleitung der Gleichung für $u_{r,i}$ erfolgt analog zu
+eindimensionalen Fall. Dort wurden zur Herleitung von Gleichung
+\ref{eq:ur_1d} zuerst in der Gleichung für jede Phase einige
+Umformungen vorgenommen und durch ${\alpha_i\rho_i}$ geteilt und dann
+die Differenz beider Gleichungen betrachtet. Dementsprechend käme
+jetzt nur der Term
+\begin{eqnarray*}
+\phi_- &=& v_{2,x} v_{2,y} - v_{1,x} v_{1,y}\\ 
+&=& \left(u_x + (1-c) u_{r,x}\right) \left(u_y + (1-c) u_{r,y}\right)
+- \left(u_{x}-c u_{r,x}\right)\left(u_{y}-c u_{r,y}\right)\\
+&=&
+u_x u_{r,y} + u_y u_{r,x} + (1-2c) u_{r,x} u_{r,y}
+\end{eqnarray*}
+hinzu. Damit lauten die beiden Gleichungen für die Relativgeschwindigkeit
+\begin{eqnarray}
+\frac{\partial}{\partial t} u_{r,x} + \frac{\partial}{\partial x}
+\left( u_x u_{r,x} + \frac{1-2c}{2} u_{r,x}^2 + \Psi(P)\right) +
+\frac{\partial}{\partial y}
+\left(u_x u_{r,y} + u_y u_{r,x} + (1-2c)u_{r,x} u_{r,y} \right)
+&=& 0.\qquad \label{eq:2d_simple_r_x}\\
+%
+\frac{\partial}{\partial t} u_{r,y} + \frac{\partial}{\partial y} \left(
+u_y u_{r,y} + \frac{1-2c}{2} u_{r,y}^2 + \Psi(P)\right) 
++ \frac{\partial}{\partial x}
+\left(u_x u_{r,y} + u_y u_{r,x} + (1-2c)u_{r,x} u_{r,y} \right)
+&=& 0.\qquad  \label{eq:2d_simple_r_y}
+\end{eqnarray}
+mit $\Psi = \frac{\gamma}{\gamma-1} \frac{P}{\rho_2} -
+\frac{P}{\rho_1}$ aus Gleichung \ref{eq:ur_Psi}. 
+
+Die 5 Differentialgleichungen \ref{eq:2d_simple_d},
+\ref{eq:2d_simple_i_x}, \ref{eq:2d_simple_i_y}, \ref{eq:2d_simple_r_x}
+und \ref{eq:2d_simple_r_y} zusammen mit den gleichen Annahmen wie in
+Kapitel \ref{sec:1d_simple}, also $\rho_1 = const$ und
+\begin{equation}
+P = K_2 \rho^\gamma_2\quad\mbox{und/oder}\quad P = K_\rho \rho^\gamma
+\end{equation}
+können ganz analog zum 1-dimensionalen Fall gelöst werden. Die
+Ableitungen bzw. Flüsse in einer Richtung werden in zwei Richtungen
+erweitert.
+
+
+\subsection{Matrixschreibweise des Gleichungssystems in 2-d}
+
+In erster Näherung kann auch dieselbe Gleichung für die CFL\_Bedingung
+verwendet werden, falls mit analogen Anfangs- und Randbedingungen
+gearbeitet wird. Besser ist es jedoch die Jacobi-Matrix wie für den
+1-dimensionalen Fall in Kapitel \ref{sec:matrix_1d} beschrieben
+herzuleiten.
+
+\begin{equation}
+  \frac{\partial U}{\partial t} + \frac{\partial F(U)}{\partial x}
+  + \frac{\partial G(U)}{\partial y}=
+0,\qquad t > 0, -\infty < x < \infty
+\end{equation}
+mit
+\[
+U = \left[\begin{array}{c}\rho \\ \rho u_x \\ \rho u_y \\ u_{r,x}
+      \\ u_{r,y} \end{array}\right],
+\quad 
+%
+F(U) = \left[\begin{array}{c}
+    \rho u_x \\[2mm]
+    \rho u_x^2 + \rho c (1-c) u_{r,x}^2 + P  \\[2mm]
+    \rho u_x u_y + \rho c(1-c) u_{r,x} u_{r,y}\\[2mm]
+    u_x u_{r,x} + \frac{1-2c}{2} u_{r,x}^2 + \Psi\\[2mm]
+    u_x u_{r,y} + u_y u_{r,x} + (1-2c)u_{r,x} u_{r,y}\\[2mm]
+  \end{array}\right]. 
+\quad
+G(U) = \left[\begin{array}{c}
+    \rho u_y \\[2mm]
+    \rho u_x u_y + \rho c(1-c) u_{r,x} u_{r,y}\\[2mm]
+    \rho u_y^2 + \rho c (1-c) u_{r,y}^2 + P\\[2mm]
+    u_x u_{r,y} + u_y u_{r,x} + (1-2c)u_{r,x} u_{r,y}\\[2mm]
+    u_y u_{r,y} + \frac{1-2c}{2} u_{r,y}^2 + \Psi\\[2mm]
+  \end{array}\right]. 
+\]
+bzw. in der Schreibweise der Variablen
+\[
+U = \left[\begin{array}{c} u_1 \\ u_2 \\ u_3 \\ u_{4}
+      \\ u_{5} \end{array}\right],
+\quad 
+%
+F(U) = \left[\begin{array}{c}
+    u_2 \\[2mm]
+    \frac{u_2^2}{u_1} + c (1-c) u_1 u_{4}^2 + P(u_1)  \\[2mm]
+    \frac{u_2u_3}{u_1} + c(1-c) u_1 u_{4} u_{5}\\[2mm]
+    \frac{u_2 u_{4}}{u_1}  + \frac{1-2c}{2} u_{4}^2 + \Psi(u_1)\\[2mm]
+    \frac{u_2 u_{5}}{u_1}  + \frac{u_3}{u_1} u_{4} + (1-2c)u_{4} u_{5}\\[2mm]
+  \end{array}\right]. 
+\quad
+G(U) = \left[\begin{array}{c}
+    u_3 \\[2mm]
+    \frac{u_2u_3}{u_1} + c(1-c) u_1 u_{4} u_{5}\\[2mm]
+    \frac{u_3^2}{u_1} + c (1-c) u_1 u_{5}^2 + P(u_1) \\[2mm]
+    \frac{u_2 u_{5}}{u_1}  + \frac{u_3 u_{4}}{u_1}  + (1-2c)u_{4} u_{5}\\[2mm]
+    \frac{u_3 u_{5}}{u_1} + \frac{1-2c}{2} u_{5}^2 + \Psi(u_1)\\[2mm]
+  \end{array}\right]. 
+\]
+Jetzt werden wieder die Ableitungen per Kettenregel ausgeführt, wobei
+es eine Jacobi-Matrix für die Geschwindigkeiten in x-Richung und eine
+für die Geschwindigkeiten in y-Richtung gibt.  Beide Matrizen sind in
+wesentlichen Teilen identisch mit dem 1-dimensionalen Fall, d.h. bei
+$J_x$ und bein $J_y$ kommen nur 2 neue Spalten bzw. Zeilen hinzu. Um
+sich hier die Fallunterscheidungen zu ersparen, wird die Funktion
+$\Psi$ und die Größe $P$ offen gelassen und müssen analog zum
+1-dimensionalen Fall je nach Version ersetzt werden.
+
+Für $J_x$:
+\begin{eqnarray*}
+%u_2
+&& \partial_x (\frac{u_2^2}{u_1} + u_1 c (1-c) u_4^2 + P(u_1))\\
+&& = \frac{2 u_2}{u_1} \partial_x u_2
+                    - \frac{u_2^2}{u_1^2} \partial_x u_1
+                    + c (1-c) u_4^2  \partial_x u_1
+                    + u_1 c (1-c) 2 u_4  \partial_x u_4
+                    + \partial_{u_1}P(u_1) \partial_x u_1\\
+%u_3 NEU
+&& \partial_x (\frac{u_2u_3}{u_1} + c(1-c) u_1 u_{4} u_{5})\\
+&& = - \frac{u_2u_3}{u_1^2} \partial_x u_1 + \frac{u_3}{u_1} \partial_x u_2
+     + \frac{u_2}{u_1} \partial_x u_3     
+     + c (1-c) (u_4 u_5  \partial_x u_1 + u_1 u_5  \partial_x u_4
+                + u_1 u_4  \partial_x u_5)
+\\
+%u_4                  
+&& \partial_x (\frac{u_2 u_4}{u_1} + \frac{1-2c}{2}
+                    u_4^2 + \Psi(u_1))\\
+&& - \frac{u_2 u_4}{u_1^2}  \partial_x u_1
+                    + \frac{1}{u_1} u_4 \partial_x u_2
+                    + \frac{u_2}{u_1} \partial_x u_4 
+                    + (1-2c) u_4 \partial_x u_4 
+                    + \partial_{u_1}\Psi(u_1) \partial_x u_1\\
+%u_5 NEU
+&& \partial_x (\frac{u_2 u_{5}}{u_1} + \frac{u_3}{u_1}u_{4} + (1-2c)u_{4}u_{5})\\
+&& - \frac{u_2 u_5}{u_1^2} \partial_x u_1 + \frac{u_5}{u_1} \partial_x u_2
+   + \frac{u_2}{u_1} \partial_x u_5
+   - \frac{u_3 u_4}{u_1^2} \partial_x u_1 + \frac{u_4}{u_1} \partial_x u_3
+   + \frac{u_3}{u_1} \partial_x u_4
+   + (1-2c)(u_{5}\partial_x u_{4} + u_{4}\partial_x u_{5})
+\\
+\end{eqnarray*}
+Daraus lässt sich jetzt die Jacobi-Matrix für die $x$-Richtung ablesen.
+
+\begin{equation}
+J_x = \left(\begin{array}{ccccc}
+%Zeile \rho
+  0 & 1 & 0 & 0 & 0\\
+%Zeile \rho u_x
+ - \frac{u_2^2}{u_1^2} + c(1-c) u_4^2 + \partial_{u_1} P & \frac{2 u_2}{u_1} &  
+ 0 & c (1-c) 2 u_1 u_4 & 0 \\
+%Zeile \rho u_y
+ - \frac{u_2u_3}{u_1^2} +  c (1-c) u_4 u_5 & \frac{u_3}{u_1}  & \frac{u_2}{u_1} &
+ c (1-c) u_1 u_5 & c (1-c)  u_1 u_4 \\
+%Zeile u_rx
+- \frac{u_2 u_4}{u_1^2} + \partial_{u_1} \Psi(u_1) &  \frac{u_4}{u_1}  & 0 &
+ \frac{u_2}{u_1} + (1-2c) u_4 & 0\\
+%Zeile u_ry
+- \frac{u_2 u_5}{u_1^2} - \frac{u_3 u_4}{u_1^2} & \frac{u_5}{u_1} &
+\frac{u_4}{u_1} & \frac{u_3}{u_1} + (1-2c) u_{5} & \frac{u_2}{u_1} + (1-2c)u_{4}
+\end{array}\right)\qquad\label{eq:jacobi_x_2d_allgemein}
+\end{equation}
+Für die Jacobi-Matrix $J_y$ ist die 2. Zeile identisch mit der 3. von
+$J_x$ und die 4. Zeile mit der 5. von $J_x$. In den anderen 3 Zeilen
+wird $u_2$ durch $u_3$ und $u_4$ durch $u_5$ ersetzt, also
+dementsprechend werden die Einträge in den Spalten der Zeilen 1, 2 und
+4 vertauscht. Damit ergibt sich
+
+\begin{equation}
+J_y = \left(\begin{array}{ccccc}
+%Zeile \rho
+  0 & 0 & 1 & 0 & 0\\
+%Zeile \rho u_x
+ - \frac{u_2u_3}{u_1^2} +  c (1-c) u_4 u_5 & \frac{u_3}{u_1}  & \frac{u_2}{u_1} &
+ c (1-c) u_1 u_5 & c (1-c)  u_1 u_4 \\
+%Zeile \rho u_y
+%umdrehen
+ - \frac{u_3^2}{u_1^2} + c(1-c) u_5^2 + \partial_{u_1} P & 0 & \frac{2 u_3}{u_1} & 0 &  
+ c (1-c) 2 u_1 u_5  \\
+%Zeile u_rx
+- \frac{u_2 u_5}{u_1^2} - \frac{u_3 u_4}{u_1^2} & \frac{u_5}{u_1} &
+\frac{u_4}{u_1} & \frac{u_3}{u_1} + (1-2c) u_{5} & \frac{u_2}{u_1} + (1-2c)u_{4}\\
+%Zeile u_ry
+%umdrehen
+- \frac{u_3 u_5}{u_1^2} + \partial_{u_1} \Psi(u_1) &  0 & \frac{u_5}{u_1}  & 0 &
+ \frac{u_3}{u_1} + (1-2c) u_5 
+\end{array}\right)\qquad\label{eq:jacobi_y_2d_allgemein}
+\end{equation}
+
+
+Für die noch zu berechnen Terme
+\[
+\partial_{\rho} P\quad\mbox{und}\quad \partial_{\rho} \Psi(\rho)
+\]
+ergbit sich das Gleiche wie in den 3 Varianten von Kapitel
+\ref{sec:matrix_1d}.

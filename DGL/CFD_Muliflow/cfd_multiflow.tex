@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage{epsfig}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage[usenames]{color}
+\usepackage{german}
+\usepackage[utf8]{inputenc}
+
+\textheight=24.5 true cm
+\textwidth=15.4 true cm
+%\voffset=-1.0 true cm
+%\hoffset=-0.5 true cm
+\topmargin 0pt
+\headheight 0pt
+\headsep 0pt
+\hfuzz 0.3 cm
+\oddsidemargin 0cm
+\evensidemargin 0cm
+\parindent 0pt
+\parskip 10pt
+
+\newcommand{\bes}{\begin{eqnarray}}
+\newcommand{\ees}{\end{eqnarray}}
+\newcommand{\nn}{\nonumber }
+\newcommand{\nnn}{\nonumber \\}
+%\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\renewcommand{\d}{\;\nabla \cdot }
+%\renewcommand{\d}{\;\mbox{div}\;}
+\newcommand{\g}{\;\mbox{grad}\;}
+\newcommand{\mbf}{\mathbf}
+
+\definecolor{dred}{rgb}{.6,0,0}
+\newcommand{\drd} {\color{dred}}
+
+%========================================================================
+\begin{document} 
+%========================================================================
+%\tableofcontents
+
+\input riemann.tex
+\newpage
+%\setcounter{page}{2}
+%\setcounter{section}{1}
+\input pde.tex
+\newpage
+\setcounter{equation}{0}
+\input ns.tex
+\newpage
+\setcounter{equation}{0}
+\input fluent_multiphase_flow.tex
+\newpage
+\setcounter{equation}{0}
+\input dia_multiphase_flow_2009.tex
+\newpage
+\setcounter{equation}{0}
+\input dia_multiphase_flow_2014.tex
+\newpage
+\setcounter{equation}{0}
+\input two_d_simple.tex
+\newpage
+\setcounter{equation}{0}
+\input anwendungen.tex
+\newpage
+\setcounter{equation}{0}
+\input literatur.tex
+%\newpage
+
+%========================================================================
+\end{document}
+%========================================================================

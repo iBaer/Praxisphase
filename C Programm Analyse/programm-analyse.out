@@ -1,0 +1,29 @@
+\BOOKMARK [1][-]{section.1}{Ablauf}{}% 1
+\BOOKMARK [1][-]{section.2}{Dateien}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{main.cpp}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{LaxFriedrichMethode.*}{section.2}% 4
+\BOOKMARK [3][-]{subsubsection.2.2.1}{calc\137method\137flux\(\)}{subsection.2.2}% 5
+\BOOKMARK [2][-]{subsection.2.3}{FORCE.*}{section.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.3.1}{calc\137method\137flux\(\)}{subsection.2.3}% 7
+\BOOKMARK [2][-]{subsection.2.4}{numerische\137methode.cpp}{section.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.4.1}{Konstruktor}{subsection.2.4}% 9
+\BOOKMARK [3][-]{subsubsection.2.4.2}{start\137method\(\)}{subsection.2.4}% 10
+\BOOKMARK [3][-]{subsubsection.2.4.3}{cflcon\(\)}{subsection.2.4}% 11
+\BOOKMARK [3][-]{subsubsection.2.4.4}{update\(\)}{subsection.2.4}% 12
+\BOOKMARK [3][-]{subsubsection.2.4.5}{write\(\)}{subsection.2.4}% 13
+\BOOKMARK [3][-]{subsubsection.2.4.6}{matrix\1371d\(\)}{subsection.2.4}% 14
+\BOOKMARK [2][-]{subsection.2.5}{raster.*}{section.2}% 15
+\BOOKMARK [3][-]{subsubsection.2.5.1}{Konstruktoren}{subsection.2.5}% 16
+\BOOKMARK [3][-]{subsubsection.2.5.2}{Getter \046 Setter}{subsection.2.5}% 17
+\BOOKMARK [3][-]{subsubsection.2.5.3}{bcondi}{subsection.2.5}% 18
+\BOOKMARK [2][-]{subsection.2.6}{zelle.*}{section.2}% 19
+\BOOKMARK [3][-]{subsubsection.2.6.1}{Konstruktor}{subsection.2.6}% 20
+\BOOKMARK [2][-]{subsection.2.7}{Konstanten.*}{section.2}% 21
+\BOOKMARK [3][-]{subsubsection.2.7.1}{Konstruktor}{subsection.2.7}% 22
+\BOOKMARK [2][-]{subsection.2.8}{Gleichungssystem.*}{section.2}% 23
+\BOOKMARK [3][-]{subsubsection.2.8.1}{Konstruktoren}{subsection.2.8}% 24
+\BOOKMARK [3][-]{subsubsection.2.8.2}{compute\137u\1371d}{subsection.2.8}% 25
+\BOOKMARK [3][-]{subsubsection.2.8.3}{compute\137u\1371d}{subsection.2.8}% 26
+\BOOKMARK [3][-]{subsubsection.2.8.4}{compute\137f\1371d}{subsection.2.8}% 27
+\BOOKMARK [1][-]{section.3}{Umstrukturierung - Ideen}{}% 28
+\BOOKMARK [2][-]{subsection.3.1}{Variablennamen}{section.3}% 29
