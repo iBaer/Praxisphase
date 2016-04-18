@@ -66,8 +66,8 @@ Der grobe Ablauf des Programms.
 	\item Auswahl Splitting/Unsplitting $|$ numerische\_methode
 	\item Solange keine Abbruchbedingung erfüllt worde (maximale Schritte,maximale Zeit)
 	\begin{enumerate}
-		\item Setzen der Anfangswerte (Boundary Conditions) $|$ numerische\_methode $\rightarrow$ raster
-		\item Zeitschritt über höchsten Eigenwert berechnen $|$ numerische\_methode . cflcon(
+		\item Setzen der Randbedingungen (Boundary Conditions) $|$ numerische\_methode $\rightarrow$ raster
+		\item Zeitschritt über höchsten Eigenwert berechnen $|$ numerische\_methode . cflcon()
 		\item Update Schritt
 		\begin{enumerate}
 			\item Fluss über gewählte Methode berechnen (U \& F $\rightarrow F^{LF}$)
