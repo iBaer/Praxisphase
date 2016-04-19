@@ -53,7 +53,7 @@ numerische_methode::numerische_methode(string method, string const_in,
     dt = 0.0;
 
     double rhol = konstanten.rhol;
-    
+
     double alfll = 1.0 - rhol/done + ccl *(rhol/done);
     double dll = ccl * (rhol/alfll);
     double pll = cref*pow(dll,g);
@@ -64,7 +64,7 @@ numerische_methode::numerische_methode(string method, string const_in,
     if (dimension == 2)
       {
 	std::cout << "Wahl!" << endl << " 1: unsplitting, 2: splitting:" ;
-	std::cin >> splitting;	
+	std::cin >> splitting;
       }
 }
 
@@ -88,7 +88,7 @@ void numerische_methode::start_method()
 	  cout << "do splitting updates" << endl;
       }
 
-	    
+
     if (	step_output==1) write();
 
     for( int n = 1 ; n <= maxnt && timedif > timetol ; n++)
@@ -116,7 +116,7 @@ void numerische_methode::start_method()
 	  // ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
 	  // ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
 	  // DEN NEUEN WERTEN, SONST KANN EINEM DAS SYSTEM DIVERGIEREN!
-	  update(calc_method_flux(2),2);	  
+	  update(calc_method_flux(2),2);
 	}
         timedif = fabs(time-timeou);
         steps = n;
@@ -138,11 +138,11 @@ double numerische_methode::cflcon(int n, double time)
   double ccl = konstanten.ccl;
   double done = konstanten.done;
   double gi = 1.0/g;
-  
+
   double maxd = 0.0 , maxu = 0.0 , maxur = 0.0, maxuy = 0.0, maxuyr = 0.0;
-  
+
   double smax=0.0,maxs=0.0;
-  
+
   int n_eqns;  // number of equations, up in a first line in "formeln....in"
 
   double uone;
@@ -150,14 +150,14 @@ double numerische_methode::cflcon(int n, double time)
   double uthree;
   double ufour;
   double ufive;
-		
+
   if(dimension == 1)
     n_eqns = 3;
   else
     n_eqns = 5;
 
   string line;
-  
+
   double p=0.0,ux=0.0,d=0.0,uxr=0.0,dtwo=0.0, uy = 0.0, uyr = 0.0;
 
   switch(dimension)
@@ -172,8 +172,8 @@ double numerische_methode::cflcon(int n, double time)
 	    LaVectorDouble real(3);
 	    LaVectorDouble img(3);
 	    LaGenMatDouble vr(3,3);
-	    
-	    //Schritt 1: Maxima finden 
+
+	    //Schritt 1: Maxima finden
 	    for(int x = 0 ; x < CELLS[0]+2*ordnung+1 ; x++)
 	      {
 
@@ -198,9 +198,9 @@ double numerische_methode::cflcon(int n, double time)
 		  }
 		uone = raster.get_Zelle(x).d;
 		utwo = raster.get_Zelle(x).ux * uone;
-		uthree = raster.get_Zelle(x).uxr;		
-				
-		//Schritt 2: Einsetzen in die Jacobi-Matrix		
+		uthree = raster.get_Zelle(x).uxr;
+
+		//Schritt 2: Einsetzen in die Jacobi-Matrix
 		matrix_1d(values, n, uone, utwo, uthree, p, done, dtwo,
 			  ccl, g, ct, cref, variante);
 
@@ -214,21 +214,21 @@ double numerische_methode::cflcon(int n, double time)
 		    if(smax < fabs(real(n))) smax = fabs(real(n));
 		  }
 	      }
-	    
+
 	    printf("using eig, computed in all cells: %10.4e\n",smax);
-	    
+
 	    dt = cfl*dx/smax;
-	    
+
 	    if(n <= teilerend)
 	      dt = dt * teiler;
-	    
+
 	    if((time+dt)> timeou)dt=timeou-time;
 	    time = time + dt;
 	    cout << "Neues delta t ist: \t" << dt
 		 << " Zeit insgesamt: \t" << time << endl;
-	    
+
 	  }
-	
+
 	else
 	  {
 	    //dt über Näherung berechnen
@@ -237,7 +237,7 @@ double numerische_methode::cflcon(int n, double time)
 		d = raster.get_Zelle(i).d;
 		uxr = raster.get_Zelle(i).uxr;
 		ux = raster.get_Zelle(i).ux;
-				
+
 		switch(variante)
 		  {
 		  case(1):
@@ -262,37 +262,37 @@ double numerische_methode::cflcon(int n, double time)
 		      break;
 		    }
 		  }
-		
+
 		maxs = fabs(ux)+ AM_1d(g,p,d)+XS_1d(d,dtwo,done,ccl,uxr);
-		
+
 		if(maxs > smax) smax = maxs;
-	      }	    
+	      }
 	    printf("using lambda exact %10.4e\n",smax);
-	    
+
 	    dt = cfl*dx/smax;
-	    
+
 	    if(n <= teilerend)
 	      dt = dt * teiler;
-	    
+
 	    if((time+dt)> timeou) dt=timeou-time;
 	    time = time + dt;
 	    cout << "Neues delta t ist: \t" << dt
 		 << " Zeit insgesamt: \t" << time << endl;
 	  }
-	
-	break;	
-	
+
+	break;
+
       }
     case(2):
       {
 	//2 Dimensionen
-	
+
 	double smax1=0, smax2=0;
-	
+
 	// 0 heisst, 1-d analytische Loseung verwenden,
 	// 1 heisst, smax wird über Eigenwerte bestimmt
-	
-	if ((int) konstanten.calceigv == 0) 
+
+	if ((int) konstanten.calceigv == 0)
 	  {
 	    //über Näherung
 	    for(int x = 0 ; x < CELLS[0]+2*ordnung+1 ; x++)
@@ -303,37 +303,37 @@ double numerische_methode::cflcon(int n, double time)
 		    uxr = raster.get_Zelle(x,y).uxr;
 		    ux = raster.get_Zelle(x,y).ux;
 		    uy = raster.get_Zelle(x,y).uy;
-		    uyr = raster.get_Zelle(x,y).uyr;		    
+		    uyr = raster.get_Zelle(x,y).uyr;
 		    p = ct* pow(d,g);
-		    raster.set_Zelle_p(p,x,y);		    
+		    raster.set_Zelle_p(p,x,y);
 		    dtwo = pow((p/cref),gi);
 
 		    maxs = fabs(ux)+fabs(uy)+AM_2d(g,p,d)+XS_2d(d,dtwo,done,ccl,uxr,uxy);
-		    
+
 		    if(maxs > smax) {
 		      smax = maxs;
 		    }
 		  }
 	      }
-	    
+
 	    cout << "Größte geratene Eigenwerte: " << smax << endl;
-	    
+
 	    dt = cfl*min(dx,dy)/smax;
-	    
+
 	    if(n <= teilerend)
 	      dt = dt * teiler;
-	    
+
 	    if((time+dt)> timeou)dt=timeou-time;
 	    time = time + dt;
 	    cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 	  }
-	
+
 	// 0 heisst, 1-d analytische Loseung verwenden,
-	// 1 heisst, smax wird über Eigenwerte bestimmt	
+	// 1 heisst, smax wird über Eigenwerte bestimmt
 	else
 	  {
 	    //ueber Eigenwerte
-	    
+
 	    int n_eqns2 = n_eqns*n_eqns;
 	    double values1[n_eqns2];
 	    double values2[n_eqns2];
@@ -348,20 +348,20 @@ double numerische_methode::cflcon(int n, double time)
 		    maxuy = raster.get_Zelle(x).uy;
 		    maxur = raster.get_Zelle(x).uxr;
 		    maxuyr = raster.get_Zelle(x).uyr;
-		       
+
 		    p = ct* pow(raster.get_Zelle(x,y).d,g);
 		    raster.set_Zelle_p(p,x,y);
 		    dtwo = pow((p/cref),gi);
-		    
+
 		    maxu = maxu * maxd;
 		    maxuy = maxuy * maxd;
-		    
+
 		    //Schritt 2: Einsetzen
 		    uone = maxd;
 		    utwo = maxu;
 		    uthree = maxuy;
 		    ufour = maxur;
-		    ufive = maxuyr;		    
+		    ufive = maxuyr;
 		    matrix_2d(values1, values2, n_eqns2, uone, utwo, uthree, ufour, ufive,
 			      p, done, dtwo, ccl, g, ct, cref);
 
@@ -374,10 +374,10 @@ double numerische_methode::cflcon(int n, double time)
 		    LaVectorDouble img_b(n_eqns);
 		    LaGenMatDouble vr(n_eqns,n_eqns);
 		    LaGenMatDouble vr_b(n_eqns,n_eqns);
-		    
+
 		    LaEigSolve(A,real,img,vr);
 		    LaEigSolve(B,real_b,img_b,vr_b);
-		    
+
 		    //Schritt 4: Höchsten Eigenwert suchen
 		    for(int n = 0 ; n < n_eqns ; n++)
 		      {
@@ -398,14 +398,14 @@ double numerische_methode::cflcon(int n, double time)
 
 	    if(n <= teilerend)
 	      dt = dt * teiler;
-	    
+
 	    if((time+dt)> timeou)dt=timeou-time;
 	    time = time + dt;
 	    cout << "Größte Eigenwerte: " << smax1 << " und " << smax2 << endl;
-	    cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;	    
-	    
+	    cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
+
 	  }
-	
+
 	break;
       }
 
@@ -420,11 +420,11 @@ double numerische_methode::cflcon(int n, double time)
 void numerische_methode::update(vector< vector <vector< vector<double> > > > fi, int dir)
 {
   cout << "Zellen updaten..." << endl;
-  
+
   double dtodx = dt/dx;
   double dtody = dt/dy;
   double d,ux,uy,uxd,uyd,uxr,uyr;
-  
+
   int width = raster.getwidth();
 
   // update in 1-d
@@ -453,17 +453,17 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
       if (splitting == 2)
 	{
 	  if (dir == 1)
-	    cout << "update x mit dtodx=" <<  dtodx  <<   endl; 
+	    cout << "update x mit dtodx=" <<  dtodx  <<   endl;
 	  else
-	    cout << "update y mit dtody=" <<  dtody  <<   endl; 
+	    cout << "update y mit dtody=" <<  dtody  <<   endl;
 	}
       else
 	{
-	  cout << "update nonsplitting mit dtodx=" <<  dtodx  << " und dtody=" <<  dtody  <<   endl; 
+	  cout << "update nonsplitting mit dtodx=" <<  dtodx  << " und dtody=" <<  dtody  <<   endl;
 	}
-      
+
       int pos;
-	      
+
       if (splitting == 1)
 	{
 	  for(int x = ordnung ; x < CELLS[0]+ordnung+1 ; x++)
@@ -476,9 +476,9 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		  uy = raster.zelle[pos].uy;
 		  uxr = raster.zelle[pos].uxr;
 		  uyr = raster.zelle[pos].uyr;
-		  uxd = ux*d;		  
-		  uyd = uy*d;		  
-		  
+		  uxd = ux*d;
+		  uyd = uy*d;
+
 		  d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
 						       fi.at(0).at(x).at(y).at(0)) +
 		    dtody*(fi.at(0).at(x).at(y-1).at(1)-fi.at(0).at(x).at(y).at(1));
@@ -504,7 +504,7 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		}
 	    }
 	}
-	      
+
       if (splitting == 2)
 	{
 	  if (dir == 1)
@@ -519,10 +519,10 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		      uy = raster.zelle[pos].uy;
 		      uxr = raster.zelle[pos].uxr;
 		      uyr = raster.zelle[pos].uyr;
-		      
-		      uxd = ux*d;		  
-		      uyd = uy*d;		  
-		      
+
+		      uxd = ux*d;
+		      uyd = uy*d;
+
 		      d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
 							   fi.at(0).at(x).at(y).at(0));
 		      uxd = uxd + dtodx*(fi.at(1).at(x-1).at(y).at(0)-
@@ -554,8 +554,8 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		      uxr = raster.zelle[pos].uxr;
 		      uyr = raster.zelle[pos].uyr;
 
-		      uxd = ux*d;		  
-		      uyd = uy*d;		  
+		      uxd = ux*d;
+		      uyd = uy*d;
 
 		      d = d + dtody*(fi.at(0).at(x).at(y-1).at(1)-
 							   fi.at(0).at(x).at(y).at(1));
@@ -608,7 +608,7 @@ void numerische_methode::write()
       +to_string(steps)+"Steps";
   }
 
-  
+
   switch(raster.getdim())
     {
     case(1):
@@ -617,29 +617,29 @@ void numerische_methode::write()
 	string uxr_path = "uxr_"+added;
 	string ux_path = "ux_"+added;
 	string p_path = "p_"+added;
-	
+
 	ofstream d_out(d_path.c_str());
 	ofstream uxr_out(uxr_path.c_str());
 	ofstream ux_out(ux_path.c_str());
 	ofstream p_out(p_path.c_str());
-	
+
 	for(int i = ordnung ; i < CELLS[0]+ordnung+1 ; i++)
 	  {
 	    xpos = (mol + (mor-mol)*((double)(i-ordnung)/CELLS[0]));
-	    
+
 	    p = ct*pow(raster.get_Zelle(i).d,g);
-	    
+
 	    d_out << fixed << setprecision(8) << xpos << " \t"
 		  << setprecision(10) << raster.get_Zelle(i).d << "\n";
 	    uxr_out << fixed << setprecision(8) << xpos << " \t"
 		    << setprecision(10) << raster.get_Zelle(i).uxr << "\n";
 	    ux_out << fixed << setprecision(8) << xpos << " \t"
 		   << setprecision(10) << raster.get_Zelle(i).ux << "\n";
-	    p_out << fixed << setprecision(8) << xpos << " \t" 
+	    p_out << fixed << setprecision(8) << xpos << " \t"
 		  << scientific << setprecision(10) << p << "\n";
-	    
+
 	  }
-	
+
 	d_out.close();
 	uxr_out.close();
 	ux_out.close();
@@ -663,7 +663,7 @@ void numerische_methode::write()
 	ofstream uyr_out(uyr_path.c_str());
 	ofstream uy_out(uy_path.c_str());
 	ofstream p_out(p_path.c_str());
-	
+
 	// ACHTUNG, FUER 2. ORDNUNG NOCHMAL ALLE GRENZEN KONTROLLIEREN
 
 	// Output ohne Randwerte
@@ -672,10 +672,10 @@ void numerische_methode::write()
 	    for(int y = ordnung ; y < CELLS[1]+ordnung+1 ; y++)
 	      {
 		xpos = mol + (mor-mol)*(((double)x-ordnung)/(double)CELLS[0]);
-		ypos = mul + (mur-mul)*(((double)y-ordnung)/(double)CELLS[1]); 
+		ypos = mul + (mur-mul)*(((double)y-ordnung)/(double)CELLS[1]);
 
 		p = ct*pow(raster.get_Zelle(x,y).d,g);
-		
+
 		d_out << fixed << setprecision(8) << xpos << " "
 		      << fixed << setprecision(8) << ypos << " \t"
 		      << setprecision(10) << raster.get_Zelle(x,y).d << "\n";
@@ -693,7 +693,7 @@ void numerische_methode::write()
 		       << setprecision(10) << raster.get_Zelle(x,y).uy << "\n";
 		p_out << fixed << setprecision(8) << xpos << " "
 		      << fixed << setprecision(8) << ypos << " \t"
-		      << scientific << setprecision(10) << p << "\n";		
+		      << scientific << setprecision(10) << p << "\n";
 	      }
 	  }
 
@@ -716,7 +716,7 @@ void numerische_methode::write()
 	ofstream p_out_d1(p_path_d1.c_str());
 
 	double d=0.0,xout,uout,urout,ux,uy,sign;
-	
+
 	for(int x = ordnung ; x < CELLS[0]+ordnung+1 ; x++)
 	  {
 	    for(int y = ordnung ; y < CELLS[1]+ordnung+1 ; y++)
@@ -724,9 +724,9 @@ void numerische_methode::write()
 		if (raster.choice < 3)
 		  {
 		    xpos = mol + (mor-mol)*(((double)x-ordnung)/(double)CELLS[0]);
-		    ypos = mul + (mur-mul)*(((double)y-ordnung)/(double)CELLS[1]); 
+		    ypos = mul + (mur-mul)*(((double)y-ordnung)/(double)CELLS[1]);
 		    p = ct*pow(raster.get_Zelle(x,y).d,g);
-		    
+
 		    if (raster.choice == 0) {
 		      d = fabs(ypos);
 		    }
@@ -736,7 +736,7 @@ void numerische_methode::write()
 		    if (raster.choice == 2) {
 		      d = fabs(xpos+2*ypos);
 		    }
-		    		    
+
 		    if (d<0.0001)
 		      {
 			sign = xpos < 0 ? -1.0: 1.0;
@@ -854,7 +854,7 @@ void numerische_methode::matrix_2d(double * values_x, double * values_y, int n, 
   values_x[22]=ufour/uone;
   values_x[23]=uthree/uone+(1-2*ccl)*ufive;
   values_x[24]=utwo/uone+(1-2*ccl)*ufour;
-  
+
   values_y[0]=0;
   values_y[1]=0;
   values_y[2]=1;

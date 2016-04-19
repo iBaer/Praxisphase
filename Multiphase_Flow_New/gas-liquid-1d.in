@@ -5,7 +5,7 @@ teilerend 5          // für wieviel Schritte dt geteilt wird
 timeou 0.007         // maximaler Zeit
 cfl 0.9              // cfl-Zahl
 maxnt 3              // maximale Anzahl der Schritte
-dimension 2          // Dimension
+dimension 1          // Dimension
 ordnung 1            // Ordnung des Algorithmus im Raum (nur 1 implementiert)
 radius 3.0           // Radius der Blase
 CELLSX 10            // Zellzahl in x-Richtung

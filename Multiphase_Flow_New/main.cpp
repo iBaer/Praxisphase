@@ -5,7 +5,7 @@ int main()
 {
 
     int method = 1;
-
+    std::cout << "Multiphase Flow Simulator"<<std::endl;
     std::cout << "Wahl! 1 Lax-Friedrich - 2 FORCE :";
     std::cin >> method;
 
@@ -21,4 +21,5 @@ int main()
     }
 
     return 0;
+
 }
