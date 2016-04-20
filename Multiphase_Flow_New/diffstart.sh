@@ -1,6 +1,8 @@
 #! /bin/bash
 
-echo "Start diff test for Multiphase Flow all results"
+clear
+echo "##### MULTIFLOW DIFF TEST #####"
+
 rm -f *till5*
 
 loop=0
@@ -17,13 +19,14 @@ do
 			1
 			EndExec
 			loop=$(($loop + 1))
-			#echo "2D Loop $loop: Flux $fluxmethod + Init $initmethod + Split $splitmethod"
 		done
 	done
 done
 
 ./diffable2D.sh
-#rm *2d*till5*
+
+rm *2d*till5*
+
 mv ./gas-liquid.in ./gas-liquid-2d.in
 mv ./gas-liquid-1d.in ./gas-liquid.in
 
@@ -37,19 +40,18 @@ do
 		1
 		EndExec
 		loop=$(($loop + 1))
-		#echo "1D Loop $loop: Flux $fluxmethod + Init $initmethod"
 	done
 	if [ $initmethod -eq 0 ]
 	then
 		./diffable1Drare.sh
-		#rm *1d*till5*
+		rm *1d*till5*
 	else
 		./diffable1Dshock.sh
-		#rm *1d*till5*
+		rm *1d*till5*
 	fi
 done
 
 mv ./gas-liquid.in ./gas-liquid-1d.in
 mv ./gas-liquid-2d.in ./gas-liquid.in
 
-echo "All tests complete"
+echo "##### ALL TESTS COMPLETE #####"

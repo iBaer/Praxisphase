@@ -5,7 +5,7 @@ TODO:
 - ~~Bereitgestellte Unterlagen noch einmal durchschauen, ggbf. Verbesserungen vorschlagen~~
 - ~~Mit Doxygen vertraut machen~~
 - ~~Shell-Skript zum Resultat-Vergleich erstellen~~
-- Shell-Skript mit automatischer Programmerausführung erweitern
+- ~~Shell-Skript mit automatischer Programmerausführung erweitern~~
 - ~~IDE auswählen und einrichten~~
 - Umstrukturierung des vorliegenden Programms
 - ...
