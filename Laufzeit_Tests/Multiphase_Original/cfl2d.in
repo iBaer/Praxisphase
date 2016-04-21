@@ -1,0 +1,2 @@
+sqrt(g*p/d)
+d*((1.0/dtwo)-(1.0/done))*ccl*(1.0-ccl)*(uxr+uyr)

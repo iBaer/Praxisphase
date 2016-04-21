@@ -673,11 +673,39 @@ mit $\Psi$ von Dias Lösung\\
 	\end{enumerate}
 \end{enumerate}
 
-\section{Umstrukturierung - Ideen}
+\section{Überarbeitung}
 %-------------------------------------------------------------
-\subsection{Variablennamen}
-Sämtliche Variablen sollten in einem einheitlichen und vor allem {\em lesbaren} Stil benannt werden. \\
-Entweder deutsche oder englische Bezeichner!
+\subsection{Namenskonventionen}
+\begin{enumerate}
+	\item Allgemein
+	\begin{enumerate}
+		\item Nur englische Bezeichner
+		\item Einzelne Worte mit \_-Zeichen trennen
+	\end{enumerate}
+	\item Variablen/Parameter
+	\begin{enumerate}
+		\item Lowercase $\rightarrow$ \textcolor{red}{cell\_width}
+		\item Außerhalb von Formeln: Sprechende Bezeichner $\rightarrow$ \textcolor{red}{number\_of\_equations}
+		\item "'Boolsche"' Variablen: sollten true/false implizieren $\rightarrow$ \textcolor{red}{with\_splitting}
+		\item Mathematisch: Namen wie in Formeln, gr. Buchstaben ausschreiben $\rightarrow$ \textcolor{red}{x, rho\_1, ...}
+	\end{enumerate}
+	\item Makros: Uppercase $\rightarrow$ \textcolor{red}{CIRCLE(x,y)}
+	\item Methoden: wie Variablen $\rightarrow$ \textcolor{red}{set\_cells}
+	\item Klassen: Pascal case $\rightarrow$ \textcolor{red}{Cells, Numerical\_Method, ...}
+\end{enumerate}
+
+\subsection{Zeit Tests}
+\subsubsection{Beobachtung}
+Bei der original Version von Herrn Hensel, welche die exprtk-Bibliothek verwendet, konnten durch einfache Zeitstempel schnell die Bottlenecks ausgemacht werden.\\
+Das Problem liegt bei der Berechnungs des Updateschritts bzw. in den Aufrufen zum Lösen des Gleichungssystems.\\
+Die einzelnen Aufrufe der jeweiligen solve-Methode aus der Gleichungssystem-Klasse benötigen zwar vereinzelt nicht lange (ungefähr 2e-04 (0,0002) Sekunden pro Aufruf). Bei den gegebenen Input Daten (30x30 Raster) sind das allerdings bereits 16335 Aufrufe pro Berechnungsschritt nur für die Flussberechnung, also mindestens 3,267 Sekunden. Ein gesamter Schritt dauert ungefähr 5 Sekunden (auf meinem System).\\
+Das umgeschriebene Programm (ohne Verwendung von exprtk) benötigt für einen Einzelschritt gerade mal knapp 8e-04 (0.0008) Sekunden. Die exprtk-Variante ist also ~6250 mal langsamer.\\
+Vernachlässigbar wäre eine dynamische Variante die maximal \textcolor{red}{X} mal langsamer ist.
+
+\subsubsection{Idee}
+Viele aufwendige Funktionen der exprtk-Bibliothek werden repetitiv aufgerufen.\\ Wahrscheinlich könnte man zahlreiche dieser Funktionen in einem einmaligen Initialaufruf unterbringen, wodurch die eigentlichen Berechnungsschritte dramatisch verkürzt werden könnten.
+
+
 
 \end{document}
 
