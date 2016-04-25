@@ -1,0 +1,208 @@
+\hypertarget{classGleichungssystem}{\section{Gleichungssystem Class Reference}
+\label{classGleichungssystem}\index{Gleichungssystem@{Gleichungssystem}}
+}
+
+
+{\ttfamily \#include $<$Gleichungssystem.\-h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classGleichungssystem_ad1913547ff7dadcbe736f55fd147a022}{Gleichungssystem} (std\-::string path, \hyperlink{classKonstanten}{Konstanten} c)
+\item 
+void \hyperlink{classGleichungssystem_a5e5b62e0de91210b360e5d2948711f2b}{compute\-\_\-u\-\_\-1d} (double $\ast$$\ast$$\ast$\hyperlink{classGleichungssystem_a38663ae62438b07378224efaf702048c}{u}, \hyperlink{classRaster}{Raster} $\ast$raster, int $\ast$cells, int ordnung)
+\item 
+void \hyperlink{classGleichungssystem_a7b2cf1ff16317a8c76168187c565d4c1}{compute\-\_\-f\-\_\-1d} (double $\ast$$\ast$$\ast$f, \hyperlink{classRaster}{Raster} $\ast$raster, int $\ast$cells, int ordnung)
+\item 
+void \hyperlink{classGleichungssystem_a7308592c55ca251bb1131637b8fdece4}{compute\-\_\-u\-\_\-2d} (double $\ast$$\ast$$\ast$\hyperlink{classGleichungssystem_a38663ae62438b07378224efaf702048c}{u}, \hyperlink{classRaster}{Raster} $\ast$raster, int $\ast$cells, int ordnung)
+\item 
+void \hyperlink{classGleichungssystem_a8a96d9253908b0db7bdafb1f08e52713}{compute\-\_\-f\-\_\-2d} (double $\ast$$\ast$$\ast$f, \hyperlink{classRaster}{Raster} $\ast$raster, int $\ast$cells, int ordnung)
+\item 
+void \hyperlink{classGleichungssystem_a2146afb8fbed763f65dba88a77eb633a}{compute\-\_\-g\-\_\-2d} (double $\ast$$\ast$$\ast$g, \hyperlink{classRaster}{Raster} $\ast$raster, int $\ast$cells, int ordnung)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\-::vector$<$ std\-::string $>$ \hyperlink{classGleichungssystem_a38663ae62438b07378224efaf702048c}{u}
+\item 
+std\-::vector$<$ std\-::string $>$ \hyperlink{classGleichungssystem_a8b6e15e8bd9149de3cbf49c6aca116bc}{uback}
+\item 
+std\-::vector$<$ std\-::string $>$ \hyperlink{classGleichungssystem_aad94e01334430fe40307ed40f8e8b2e9}{f\-\_\-u}
+\item 
+std\-::vector$<$ std\-::string $>$ \hyperlink{classGleichungssystem_a6bd71d8aca452f5ba8dc8726e6e1bc78}{g\-\_\-u}
+\item 
+int \hyperlink{classGleichungssystem_adaefa4c9c8f13d106d50193d5c187677}{neqs}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Die Klasse \hyperlink{classGleichungssystem}{Gleichungssystem} verwaltet die Formelvektoren u,f\-\_\-u und s\-\_\-u. Die Formelvektoren wurden in der ursprüngliche Version als Strings in Vektoren abgespeichert, und dann mittels Funktionen der exprtk Libiary interpretiert, aber das dauerte viel zu lange 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classGleichungssystem_ad1913547ff7dadcbe736f55fd147a022}{\index{Gleichungssystem@{Gleichungssystem}!Gleichungssystem@{Gleichungssystem}}
+\index{Gleichungssystem@{Gleichungssystem}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{Gleichungssystem}]{\setlength{\rightskip}{0pt plus 5cm}Gleichungssystem\-::\-Gleichungssystem (
+\begin{DoxyParamCaption}
+\item[{std\-::string}]{path, }
+\item[{{\bf Konstanten}}]{c}
+\end{DoxyParamCaption}
+)}}\label{classGleichungssystem_ad1913547ff7dadcbe736f55fd147a022}
+Konstruktor der klasse \hyperlink{classGleichungssystem}{Gleichungssystem}. 
+\begin{DoxyParams}{Parameters}
+{\em path} & Pfad zur Datei welche die Formeln enthält. \\
+\hline
+{\em c} & \hyperlink{classKonstanten}{Konstanten} Objekte welches für berechnungen gebraucht wird. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classGleichungssystem_a7b2cf1ff16317a8c76168187c565d4c1}{\index{Gleichungssystem@{Gleichungssystem}!compute\-\_\-f\-\_\-1d@{compute\-\_\-f\-\_\-1d}}
+\index{compute\-\_\-f\-\_\-1d@{compute\-\_\-f\-\_\-1d}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{compute\-\_\-f\-\_\-1d}]{\setlength{\rightskip}{0pt plus 5cm}void Gleichungssystem\-::compute\-\_\-f\-\_\-1d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{f, }
+\item[{{\bf Raster} $\ast$}]{raster, }
+\item[{int $\ast$}]{cells, }
+\item[{int}]{ordnung}
+\end{DoxyParamCaption}
+)}}\label{classGleichungssystem_a7b2cf1ff16317a8c76168187c565d4c1}
+Berechnet die Lösungen der Formel für den Fluss F in 1-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em f,3-\/d} & Feld für die F-\/\-Werte \\
+\hline
+{\em \hyperlink{classRaster}{Raster},welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGleichungssystem_a8a96d9253908b0db7bdafb1f08e52713}{\index{Gleichungssystem@{Gleichungssystem}!compute\-\_\-f\-\_\-2d@{compute\-\_\-f\-\_\-2d}}
+\index{compute\-\_\-f\-\_\-2d@{compute\-\_\-f\-\_\-2d}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{compute\-\_\-f\-\_\-2d}]{\setlength{\rightskip}{0pt plus 5cm}void Gleichungssystem\-::compute\-\_\-f\-\_\-2d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{f, }
+\item[{{\bf Raster} $\ast$}]{raster, }
+\item[{int $\ast$}]{cells, }
+\item[{int}]{ordnung}
+\end{DoxyParamCaption}
+)}}\label{classGleichungssystem_a8a96d9253908b0db7bdafb1f08e52713}
+Berechnet die Lösungen der Formel für den Fluss F in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em f,3-\/d} & Feld für die F-\/\-Werte \\
+\hline
+{\em \hyperlink{classRaster}{Raster},welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGleichungssystem_a2146afb8fbed763f65dba88a77eb633a}{\index{Gleichungssystem@{Gleichungssystem}!compute\-\_\-g\-\_\-2d@{compute\-\_\-g\-\_\-2d}}
+\index{compute\-\_\-g\-\_\-2d@{compute\-\_\-g\-\_\-2d}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{compute\-\_\-g\-\_\-2d}]{\setlength{\rightskip}{0pt plus 5cm}void Gleichungssystem\-::compute\-\_\-g\-\_\-2d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{g, }
+\item[{{\bf Raster} $\ast$}]{raster, }
+\item[{int $\ast$}]{cells, }
+\item[{int}]{ordnung}
+\end{DoxyParamCaption}
+)}}\label{classGleichungssystem_a2146afb8fbed763f65dba88a77eb633a}
+Berechnet die Lösungen der Formel für den Fluss G in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em \hyperlink{classRaster}{Raster},welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters\\
+\hline
+\end{DoxyParams}
+Berechnet die Lösungen der Formel für den Fluss G in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em g,3-\/d} & Feld für die G-\/\-Werte \\
+\hline
+{\em \hyperlink{classRaster}{Raster},welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGleichungssystem_a5e5b62e0de91210b360e5d2948711f2b}{\index{Gleichungssystem@{Gleichungssystem}!compute\-\_\-u\-\_\-1d@{compute\-\_\-u\-\_\-1d}}
+\index{compute\-\_\-u\-\_\-1d@{compute\-\_\-u\-\_\-1d}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{compute\-\_\-u\-\_\-1d}]{\setlength{\rightskip}{0pt plus 5cm}void Gleichungssystem\-::compute\-\_\-u\-\_\-1d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{u, }
+\item[{{\bf Raster} $\ast$}]{raster, }
+\item[{int $\ast$}]{cells, }
+\item[{int}]{ordnung}
+\end{DoxyParamCaption}
+)}}\label{classGleichungssystem_a5e5b62e0de91210b360e5d2948711f2b}
+Berechnet die Werte U in 1-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em u,3-\/d} & Feld für die U-\/\-Werte \\
+\hline
+{\em \hyperlink{classRaster}{Raster},welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters\\
+\hline
+\end{DoxyParams}
+Berechnet die Werte U in 1-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em u,3-\/d} & Feld für die U-\/\-Werte \\
+\hline
+{\em raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGleichungssystem_a7308592c55ca251bb1131637b8fdece4}{\index{Gleichungssystem@{Gleichungssystem}!compute\-\_\-u\-\_\-2d@{compute\-\_\-u\-\_\-2d}}
+\index{compute\-\_\-u\-\_\-2d@{compute\-\_\-u\-\_\-2d}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{compute\-\_\-u\-\_\-2d}]{\setlength{\rightskip}{0pt plus 5cm}void Gleichungssystem\-::compute\-\_\-u\-\_\-2d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{u, }
+\item[{{\bf Raster} $\ast$}]{raster, }
+\item[{int $\ast$}]{cells, }
+\item[{int}]{ordnung}
+\end{DoxyParamCaption}
+)}}\label{classGleichungssystem_a7308592c55ca251bb1131637b8fdece4}
+Berechnet die Werte U in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em u,3-\/d} & Feld für die U-\/\-Werte \\
+\hline
+{\em \hyperlink{classRaster}{Raster},welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classGleichungssystem_aad94e01334430fe40307ed40f8e8b2e9}{\index{Gleichungssystem@{Gleichungssystem}!f\-\_\-u@{f\-\_\-u}}
+\index{f\-\_\-u@{f\-\_\-u}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{f\-\_\-u}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$std\-::string$>$ Gleichungssystem\-::f\-\_\-u}}\label{classGleichungssystem_aad94e01334430fe40307ed40f8e8b2e9}
+Vektor der Formeln von f\-\_\-u. \hypertarget{classGleichungssystem_a6bd71d8aca452f5ba8dc8726e6e1bc78}{\index{Gleichungssystem@{Gleichungssystem}!g\-\_\-u@{g\-\_\-u}}
+\index{g\-\_\-u@{g\-\_\-u}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{g\-\_\-u}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$std\-::string$>$ Gleichungssystem\-::g\-\_\-u}}\label{classGleichungssystem_a6bd71d8aca452f5ba8dc8726e6e1bc78}
+Vektor der Formeln von g\-\_\-u. \hypertarget{classGleichungssystem_adaefa4c9c8f13d106d50193d5c187677}{\index{Gleichungssystem@{Gleichungssystem}!neqs@{neqs}}
+\index{neqs@{neqs}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{neqs}]{\setlength{\rightskip}{0pt plus 5cm}int Gleichungssystem\-::neqs}}\label{classGleichungssystem_adaefa4c9c8f13d106d50193d5c187677}
+Anzahl der Gleichungen \hypertarget{classGleichungssystem_a38663ae62438b07378224efaf702048c}{\index{Gleichungssystem@{Gleichungssystem}!u@{u}}
+\index{u@{u}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{u}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$std\-::string$>$ Gleichungssystem\-::u}}\label{classGleichungssystem_a38663ae62438b07378224efaf702048c}
+Vektor von u \hypertarget{classGleichungssystem_a8b6e15e8bd9149de3cbf49c6aca116bc}{\index{Gleichungssystem@{Gleichungssystem}!uback@{uback}}
+\index{uback@{uback}!Gleichungssystem@{Gleichungssystem}}
+\subsubsection[{uback}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$std\-::string$>$ Gleichungssystem\-::uback}}\label{classGleichungssystem_a8b6e15e8bd9149de3cbf49c6aca116bc}
+Rückrechnung der erhaltenen Variablen in die physikalischen. 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+Gleichungssystem.\-h\item 
+Gleichungssystem.\-cpp\end{DoxyCompactItemize}

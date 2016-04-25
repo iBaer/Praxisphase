@@ -1,0 +1,4 @@
+cs cs/d cs
+d d*ux
+d*ux d*ux^2+d*ccl*(1-ccl)*uxr^2+p
+uxr ux*uxr+0.5*(1.0-2*ccl)*uxr*uxr+(1/ccl)*(cref^(1.0/g)*(g/(g-1.0))*p^((g-1.0)/g))-(p/done)
