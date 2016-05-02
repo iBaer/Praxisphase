@@ -1,8 +1,9 @@
 #ifndef RASTER_H
 #define RASTER_H
 #include "Zelle.h"
-#include "Konstanten.h"
 #include <iostream>
+
+#include "constants.h"
 
 
 
@@ -18,14 +19,15 @@ class Raster
   friend class LaxFriedrichMethod;
   friend class FORCE;
   friend class numerische_methode;
-  friend class Gleichungssystem;
+  friend class Computation;
+
     public:
         /**
         * Konstruktor des Rasters.
         * @param const_in Pfad zur Datei, welche die initialisierungs Parameter enthält.
         * @param function_in Pfad zur Datei, in der die Initierungsfunktion steht.
         */
-        Raster(Konstanten konstanten, std::string save_in);
+        Raster(Constants *constants, std::string save_in);
         /**
         * Konstruktor für ein leeres eindimensionales Raster.
         */
@@ -48,7 +50,7 @@ class Raster
         * @param konstanten Konstanten wo festgelegt ist welche 
 	* Randbedingungen angewendet werden.
         */
-        void bcondi(Konstanten konstanten, int* CELLS , int ordnung);
+        void bcondi(int* CELLS , int ordnung);
         /**
         * Liefert die Breite des Rasters.
         */
@@ -160,7 +162,11 @@ class Raster
         * Initialisierung des Rasters.
         */
         int choice;
-
+        /**
+        * Konstanten Objekt welches für die berechnungen benötigt wird.
+        * @see Konstanten
+        */
+        Constants *konstanten;
     private:
         /**
         * Zellen werden 1-Dimensional im Raster abgespeichert.

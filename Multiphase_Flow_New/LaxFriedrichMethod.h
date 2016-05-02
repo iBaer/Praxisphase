@@ -2,6 +2,7 @@
 #define LAXFRIEDRICHMETHOD_H
 
 #include "numerische_methode.h"
+//#include "solver.h"
 
 /*!
 * @class LaxFriedrichMethod
@@ -18,7 +19,7 @@ class LaxFriedrichMethod : public numerische_methode
         * Konstruktor von der Klasse LaxFriedrichMethod.
         * Ruft einfach den Konstrukter von der geerbten Klasse auf.
         */
-        LaxFriedrichMethod(std::string const_in, std::string formel_in, std::string save_in);
+        LaxFriedrichMethod(Constants *constants, Computation *computation, std::string save_in);
     protected:
         /**
         * Berechnung des Lax-Friedrich Flusses.

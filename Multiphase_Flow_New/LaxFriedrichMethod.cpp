@@ -7,9 +7,9 @@ using namespace std;
  * Konstruktor von der Klasse LaxFriedrichMethod.
  * Ruft einfach den Konstrukter von der geerbten Klasse auf.
  *****************************************************************************************/
-LaxFriedrichMethod::LaxFriedrichMethod(std::string const_in, std::string formel_in,
+LaxFriedrichMethod::LaxFriedrichMethod(Constants *constants, Computation *computation,
 				       std::string save_in) :
-  numerische_methode("Lax-Friedrich", const_in, formel_in, save_in)
+	numerische_methode("Lax-Friedrich", constants, computation, save_in)
 {
 
 }
@@ -30,7 +30,7 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
 
   int width = raster.getwidth();
   int height = raster.getheight();
-  int neqs = gs.neqs;
+  int neqs = gs->neqs;
 
   double *uall =  new double[neqs*width*height];
   double *fall =  new double[neqs*width*height];
@@ -54,7 +54,7 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
     }
 
   // Diese seltsame Vektorkonsturktion beseitigen !!!
-  vector< vector< vector< vector< double > > > > fi (	gs.neqs, 
+  vector< vector< vector< vector< double > > > > fi (	gs->neqs,
 							vector< vector< vector<double> > >
 						     		(raster.getwidth(), 
 								vector< vector<double> >
@@ -70,11 +70,11 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
       // Eine Dimension
     case(1):
       {
-	gs.compute_u_1d(cs, &raster, CELLS, ordnung);
-	gs.compute_f_1d(f, &raster, CELLS, ordnung);
+	gs->compute_u_1d(cs, &raster, CELLS, ordnung);
+	gs->compute_f_1d(f, &raster, CELLS, ordnung);
 	
 	//Berechne Lax-Friedrich-Fluss
-	for(int k = 0 ; k < gs.neqs ; k++)
+	for(int k = 0 ; k < gs->neqs ; k++)
 	  {
 	    for(int i = 0 ; i < CELLS[0] +ordnung+1 ; i++)
 	      {
@@ -89,10 +89,11 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
       // Zwei Dimensionen
     case(2):
       {
+
 	//Berechne U, F und G
-	gs.compute_u_2d(cs, &raster, CELLS, ordnung);
-	gs.compute_f_2d(f, &raster, CELLS, ordnung);
-	gs.compute_g_2d(g, &raster, CELLS, ordnung);
+	gs->compute_u_2d(cs, &raster, CELLS, ordnung);
+	gs->compute_f_2d(f, &raster, CELLS, ordnung);
+	gs->compute_g_2d(g, &raster, CELLS, ordnung);
 	
 	// Berechne Lax-Friedrich Flüsse
 	// Faktor 0.25 nach Formel für unsplitting,
@@ -102,7 +103,7 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
 	  {
 	    for(int y = 0 ; y < CELLS[1]+ordnung+1 ; y++)
 	      {
-		for(int k = 0 ; k < gs.neqs ; k++)
+		for(int k = 0 ; k < gs->neqs ; k++)
 		  {
 		    fi.at(k).at(x).at(y).at(0) = 0.5*(f[k][x][y] + f[k][x+1][y])
 		      //+ 0.25*(dx/dt)*(cs[k][x][y] - cs[k][x+1][y]);
@@ -118,6 +119,7 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
 	break;
       }
     }
+
   delete uall;
   delete fall;
   delete gall;

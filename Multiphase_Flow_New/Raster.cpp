@@ -1,8 +1,9 @@
 #include "Raster.h"
-#include "Konstanten.h"
 #include <math.h>
 #include <string>
 #include <fstream>
+
+#include "constants.h"
 
 using namespace std;
 
@@ -48,44 +49,45 @@ Raster::Raster(int x,int y)
  * @param const_in Pfad zur Datei, welche die initialisierungs Parameter enthält.
  * @param function_in Pfad zur Datei, in der die Initierungsfunktion steht.
  *****************************************************************************************/
-Raster::Raster(Konstanten konstanten, string save_in)
+Raster::Raster(Constants *constants,string save_in)
 {
+	konstanten = constants;
 
   //Alle Konstanten holen, die gebraucht werden
-  dimension = (int)konstanten.dimension;
-  cells[0] = (int)konstanten.CELLSX;
+  dimension = (int)konstanten->dimension;
+  cells[0] = (int)konstanten->CELLSX;
   cells[1] = 1;
   if (dimension == 2)
     {
-      cells[1] = (int)konstanten.CELLSY;
+      cells[1] = (int)konstanten->CELLSY;
     }
-  int ordnung = (int)konstanten.ordnung;
+  int ordnung = (int)konstanten->ordnung;
 
   width = cells[0]+2*ordnung+1;
   height = cells[1]+2*ordnung+1;
   choice = 0;
   zelle = new Zelle[width*height];
     
-  double mor = konstanten.mor;
-  double mol = konstanten.mol;
-  double mur = konstanten.mur; //2D
-  double mul = konstanten.mul; //2D
+  double mor = konstanten->mor;
+  double mol = konstanten->mol;
+  double mur = konstanten->mur; //2D
+  double mul = konstanten->mul; //2D
   
   double dx = (mor-mol)/(double)cells[0];
   
   double xpos = 0.0;
   double ypos = 0.0;  //2D
   
-  double rhol = konstanten.rhol;
-  double vl = konstanten.vl;
-  double vrl = konstanten.vrl;
-  double vyl = konstanten.vyl;
-  double vyrl = konstanten.vyrl;
-  double rhor = konstanten.rhor;
-  double vr = konstanten.vr;
-  double vrr = konstanten.vrr;
-  double vyr = konstanten.vyr;
-  double vyrr = konstanten.vyrr;
+  double rhol = konstanten->rhol;
+  double vl = konstanten->vl;
+  double vrl = konstanten->vrl;
+  double vyl = konstanten->vyl;
+  double vyrl = konstanten->vyrl;
+  double rhor = konstanten->rhor;
+  double vr = konstanten->vr;
+  double vrr = konstanten->vrr;
+  double vyr = konstanten->vyr;
+  double vyrr = konstanten->vyrr;
   
   switch(dimension)
     {
@@ -276,7 +278,7 @@ Raster::Raster(Konstanten konstanten, string save_in)
 	case(3):
 	  {
 	    
-	    double radius = konstanten.radius;
+	    double radius = konstanten->radius;
 	    
 	    cout << "Kreis mit Radius " << radius << " und Gleichung " << KREIS_F << endl;   
 	    
@@ -429,12 +431,12 @@ Raster::~Raster()
  *****************************************************************************************
  * boundary condition
  *****************************************************************************************/
-void Raster::bcondi(Konstanten konstanten, int* CELLS , int ordnung)
+void Raster::bcondi(int* CELLS , int ordnung)
 {
-    double upbc = konstanten.upbc;
-    double downbc = konstanten.downbc;
-    double rightbc = konstanten.rightbc;
-    double leftbc = konstanten.leftbc;
+    double upbc = konstanten->upbc;
+    double downbc = konstanten->downbc;
+    double rightbc = konstanten->rightbc;
+    double leftbc = konstanten->leftbc;
     //double xpos = 0.0 , ypos = 0.0;
 
     // ACHTUNG, FUER 2. ORDNUNG NOCHMAL ALLE GRENZEN KONTROLLIEREN

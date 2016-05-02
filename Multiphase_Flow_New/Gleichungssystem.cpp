@@ -2,14 +2,14 @@
 #include <fstream>
 using namespace std;
 
-Gleichungssystem::Gleichungssystem(string path, Konstanten c) : cons("")
+Computation::Computation(Constants *constants)
 {
-  cons=c;
+	c = constants;
 
-  cref = c.cref;
-  done = c.done;
-  ccl = c.ccl;
-  gc = c.g;
+  cref = c->cref;
+  done = c->done;
+  ccl = c->ccl;
+  gc = c->g;
 
   ccl12 = 1.0-2.0*ccl;
   ccl12h = 0.5*(1.0-2.0*ccl);
@@ -19,13 +19,18 @@ Gleichungssystem::Gleichungssystem(string path, Konstanten c) : cons("")
   cclm1 = ccl*(1.0-ccl);
   powcref = pow(cref,gcinv);  
 
-  int dim = c.dimension;
+  int dim = c->dimension;
 
   if(dim == 1)
     neqs = 3;
   if(dim == 2)
     neqs = 5;
 
+}
+
+Computation& Computation::myinstance(Constants *constants) {
+	static Computation computation(constants);
+	return computation;
 }
 
 /**
@@ -35,7 +40,7 @@ Gleichungssystem::Gleichungssystem(string path, Konstanten c) : cons("")
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Gleichungssystem::compute_u_1d(double *** u, Raster * raster, int * cells, int ordnung)
+void Computation::compute_u_1d(double *** u, Raster * raster, int * cells, int ordnung)
 {
   for(int i = 0 ; i < cells[0]+2*ordnung+1 ; i++)  
     {
@@ -52,7 +57,7 @@ void Gleichungssystem::compute_u_1d(double *** u, Raster * raster, int * cells, 
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Gleichungssystem::compute_f_1d(double *** f, Raster * raster, int * cells, int ordnung)
+void Computation::compute_f_1d(double *** f, Raster * raster, int * cells, int ordnung)
 {
   double d,ux,uxr,p;
   
@@ -76,7 +81,7 @@ void Gleichungssystem::compute_f_1d(double *** f, Raster * raster, int * cells, 
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Gleichungssystem::compute_u_2d(double *** u, Raster * raster, int * cells, int ordnung)
+void Computation::compute_u_2d(double *** u, Raster * raster, int * cells, int ordnung)
 {
   int pos;
   double d,ux,uy,uxr,uyr;
@@ -108,7 +113,7 @@ void Gleichungssystem::compute_u_2d(double *** u, Raster * raster, int * cells, 
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Gleichungssystem::compute_f_2d(double *** f, Raster * raster, int * cells, int ordnung)
+void Computation::compute_f_2d(double *** f, Raster * raster, int * cells, int ordnung)
 {
   int pos;
   double d,ux,uy,uxr,uyr,p;
@@ -143,7 +148,7 @@ void Gleichungssystem::compute_f_2d(double *** f, Raster * raster, int * cells, 
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Gleichungssystem::compute_g_2d(double *** g, Raster * raster, int * cells, int ordnung)
+void Computation::compute_g_2d(double *** g, Raster * raster, int * cells, int ordnung)
 {
   int pos;
   double d,ux,uy,uxr,uyr,p;

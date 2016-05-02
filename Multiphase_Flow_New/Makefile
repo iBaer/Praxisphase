@@ -24,14 +24,14 @@ clean:
 	rm -f $(OBJ_FILES) $(TARGET) core main debug
 
 
-FORCE.o: FORCE.h Gleichungssystem.h Konstanten.h
-Gleichungssystem.o: Gleichungssystem.h Konstanten.h Zelle.h
-Konstanten.o: Konstanten.h
-LaxFriedrichMethod.o: LaxFriedrichMethod.h numerische_methode.h Gleichungssystem.h Konstanten.h
-Raster.o: Raster.h Konstanten.h
+constants.o: constants.h
+Raster.o: Raster.h constants.h
+Gleichungssystem.o: Gleichungssystem.h constants.h Zelle.h
+LaxFriedrichMethod.o: LaxFriedrichMethod.h numerische_methode.h Gleichungssystem.h constants.h numerische_methode.h
+FORCE.o: FORCE.h Gleichungssystem.h constants.h numerische_methode.h
 Zelle.o: Zelle.h
 main.o: LaxFriedrichMethod.h FORCE.h numerische_methode.h
-numerische_methode.o: numerische_methode.h Konstanten.h Raster.h Konstanten.h Gleichungssystem.h
+numerische_methode.o: numerische_methode.h constants.h Raster.h constants.h Gleichungssystem.h
 
 
 

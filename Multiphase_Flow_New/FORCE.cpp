@@ -9,9 +9,9 @@ using namespace std;
  * @param formel_in Dateinamen-Kern für die Formeln.
  * @param save_in Dateiname wo für das Laden eine Speicherstands die Plots gespeichert sind.
  */
-FORCE::FORCE(std::string const_in, std::string formel_in,
+FORCE::FORCE(Constants *constants, Computation *computation,
 	     std::string save_in) :
-  numerische_methode("FORCE", const_in, formel_in, save_in)
+  numerische_methode("FORCE", constants, computation, save_in)
 {
 
 }
@@ -28,7 +28,7 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
 
   int width = raster.getwidth();
   int height = raster.getheight();
-  int neqs = gs.neqs;
+  int neqs = gs->neqs;
  
   double *uall =  new double[neqs*width*height];
   double *fall =  new double[neqs*width*height];
@@ -68,7 +68,7 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
 	}
     }
   
-  vector< vector < vector< vector<double> > > > f_force (gs.neqs, vector< vector< vector<double> > >
+  vector< vector < vector< vector<double> > > > f_force (gs->neqs, vector< vector< vector<double> > >
 							 ( width, vector< vector<double> >
 							   ( height , vector<double> (dimension,0.0) ) ) );
 
@@ -76,13 +76,13 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
     {
     case(1):
         {
-	    gs.compute_u_1d(cs, &raster, CELLS, ordnung);
-	    gs.compute_f_1d(fd, &raster, CELLS, ordnung);
-	    cout<<"neqs "<<gs.neqs<<" gs.u.size() " << gs.u.size() << endl;
+	    gs->compute_u_1d(cs, &raster, CELLS, ordnung);
+	    gs->compute_f_1d(fd, &raster, CELLS, ordnung);
+	    cout<<"neqs "<<gs->neqs<<" gs->u.size() " << gs->u.size() << endl;
             //LaxFriedrichFluss berechnen
             for(int i = 0 ; i < CELLS[0] +ordnung+1 ; i++)
             {
-                for(int k = 0 ; k < gs.neqs ; k++)
+                for(int k = 0 ; k < gs->neqs ; k++)
                 {
                     f_lax[k][i][0] = 0.5*(fd[k][i][0] + fd[k][i+1][0]) +
 		      0.5*(dx/dt)*(cs[k][i][0] - cs[k][i+1][0]);
@@ -92,7 +92,7 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
             //LaxFriedrichFluss berechnen
             for(int i = 0 ; i < CELLS[0] +ordnung+1 ; i++)
             {
-                for(unsigned int k = 0 ; k < gs.u.size() ; k++)
+                for(unsigned int k = 0 ; k < gs->u.size() ; k++)
                 {
                     f_lax[k][i][0] = 0.5*(fd[k][i][0] + fd[k][i+1][0]) + 
 		      0.5*(dx/dt)*(cs[k][i][0] - cs[k][i+1][0]);
@@ -113,12 +113,12 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
             }
   
             //Richtmyer Fluss berechnen
-	    gs.compute_f_1d(f_rie, &u_rie, CELLS, ordnung);
+	    gs->compute_f_1d(f_rie, &u_rie, CELLS, ordnung);
 
             //FORCE Fluss berechnen
             for(int i = 0 ; i < CELLS[0] +ordnung +1 ; i++)
             {
-                for(int k = 0 ; k < gs.neqs ; k++)
+                for(int k = 0 ; k < gs->neqs ; k++)
                 {
                     f_force.at(k).at(i).at(0).at(0) = 0.5*(f_lax[k][i][0] + f_rie[k][i][0]);
                 }
@@ -129,16 +129,16 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
         {
             //2D ACHTUNG - EVENTUELL NOCH FALSCH !!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	    gs.compute_u_2d(cs, &raster, CELLS, ordnung);
-	    gs.compute_f_2d(fd, &raster, CELLS, ordnung);
-	    gs.compute_g_2d(gd, &raster, CELLS, ordnung);
-	    cout<<"neqs "<<gs.neqs<<" gs.u.size() " << gs.u.size() << endl;
+	    gs->compute_u_2d(cs, &raster, CELLS, ordnung);
+	    gs->compute_f_2d(fd, &raster, CELLS, ordnung);
+	    gs->compute_g_2d(gd, &raster, CELLS, ordnung);
+	    cout<<"neqs "<<gs->neqs<<" gs->u.size() " << gs->u.size() << endl;
             //Lax-Friedrich Fluss berechnen
             for(int x = 0 ; x < CELLS[0]+ordnung+1 ; x++)
             {
                 for(int y = 0 ; y < CELLS[1]+ordnung+1 ; y++)
                 {
-                    for(int k = 0 ; k < gs.neqs ; k++)
+                    for(int k = 0 ; k < gs->neqs ; k++)
                     {
                         f_lax[k][x][y] = 0.5*(fd[k][x][y] + fd[k][x+1][y]) +
 			  0.25*(dx/dt)*(cs[k][x][y] - cs[k][x+1][y]);
@@ -186,8 +186,8 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
             }
 
            //Richtmyer Fluss berechnen
-	    gs.compute_f_2d(f_rie, &u_rie_f, CELLS, ordnung);
-	    gs.compute_g_2d(g_rie, &u_rie_g, CELLS, ordnung);
+	    gs->compute_f_2d(f_rie, &u_rie_f, CELLS, ordnung);
+	    gs->compute_g_2d(g_rie, &u_rie_g, CELLS, ordnung);
 
 
             //FORCE Fluss berechnen
@@ -195,7 +195,7 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(int dir)
             {
                 for(int y=0 ; y < CELLS[1]+ordnung+1 ; y++)
                 {
-                    for(int k=0 ; k < gs.neqs ; k++)
+                    for(int k=0 ; k < gs->neqs ; k++)
                     {
                         f_force.at(k).at(x).at(y).at(0) = 0.5*(f_lax[k][x][y] + f_rie[k][x][y]);
                         f_force.at(k).at(x).at(y).at(1) = 0.5*(g_lax[k][x][y] + g_rie[k][x][y]);

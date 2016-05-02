@@ -19,7 +19,7 @@ class FORCE : public numerische_methode
         * @param formel_in Dateinamen-Kern für die Formeln.
         * @param save_in Dateiname wo für das Laden eine Speicherstands die Plots gespeichert sind.
         */
-        FORCE(std::string const_in, std::string formel_in, std::string save_in);
+        FORCE(Constants *constants, Computation *computation, std::string save_in);
     protected:
         /**
         * Berechnung des FORCE Flusses.

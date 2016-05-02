@@ -1,5 +1,4 @@
 #include "numerische_methode.h"
-#include "Konstanten.h"
 #include <iomanip>
 #include <stdlib.h>
 #include <fstream>
@@ -10,6 +9,7 @@
 
 #include "cfl_1d.h"
 #include "cfl_2d.h"
+#include "constants.h"
 
 using namespace std;
 
@@ -21,38 +21,40 @@ using namespace std;
  * @param cells Anzahl der Zellen.
  * @param method Name der Methode für unterscheidung bei Output.
  *******************************************1**********************************************/
-numerische_methode::numerische_methode(string method, string const_in,
-				       string formel_in, string save_in) :
-  konstanten(const_in), raster(konstanten, save_in), gs(formel_in, konstanten)
+numerische_methode::numerische_methode(string method, Constants *constants,
+		Computation *computation, string save_in) :
+  raster(constants,save_in)
 {
+	konstanten = constants;
+	gs = computation;
     name = method;
     ordnung = 1;
-    dimension = konstanten.dimension;
+    dimension = konstanten->dimension;
     CELLS = new int(dimension);
 
-    double cref = konstanten.cref;
-    double done = konstanten.done;
-    double ccl = konstanten.ccl;
+    double cref = konstanten->cref;
+    double done = konstanten->done;
+    double ccl = konstanten->ccl;
 
-    mor = konstanten.mor;
-    mol = konstanten.mol;
-    mur = konstanten.mur; //2D
-    mul = konstanten.mul; //2D
-    timeou = konstanten.timeou;
+    mor = konstanten->mor;
+    mol = konstanten->mol;
+    mur = konstanten->mur; //2D
+    mul = konstanten->mul; //2D
+    timeou = konstanten->timeou;
     steps = 0;
-    maxnt = konstanten.maxnt;
-    teilerend = konstanten.teilerend;
-    teiler = konstanten.teiler;
-    variante = (int) konstanten.variante;
+    maxnt = konstanten->maxnt;
+    teilerend = konstanten->teilerend;
+    teiler = konstanten->teiler;
+    variante = (int) konstanten->variante;
 
-    CELLS[0] = konstanten.CELLSX;
-    CELLS[1] = konstanten.CELLSY;
-    g = konstanten.g;
+    CELLS[0] = konstanten->CELLSX;
+    CELLS[1] = konstanten->CELLSY;
+    g = konstanten->g;
     dx = (mor-mol)/(double)CELLS[0];
     dy = (mur-mul)/(double)CELLS[1];
     dt = 0.0;
 
-    double rhol = konstanten.rhol;
+    double rhol = konstanten->rhol;
 
     double alfll = 1.0 - rhol/done + ccl *(rhol/done);
     double dll = ccl * (rhol/alfll);
@@ -96,7 +98,7 @@ void numerische_methode::start_method()
         cout << n << " : " << maxnt << endl;
 
 	// set boundary conditions
-        raster.bcondi(konstanten,CELLS,ordnung);
+        raster.bcondi(CELLS,ordnung);
         if (step_output==1) write();
 
 	// compute time step
@@ -111,7 +113,7 @@ void numerische_methode::start_method()
 
 	if (splitting==2) {
 	  update(calc_method_flux(1),1);
-	  raster.bcondi(konstanten,CELLS,ordnung);
+	  raster.bcondi(CELLS,ordnung);
 
 	  // ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
 	  // ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
@@ -133,10 +135,10 @@ void numerische_methode::start_method()
  *****************************************************************************************/
 double numerische_methode::cflcon(int n, double time)
 {
-  double cref = konstanten.cref;
-  double cfl = konstanten.cfl;
-  double ccl = konstanten.ccl;
-  double done = konstanten.done;
+  double cref = konstanten->cref;
+  double cfl = konstanten->cfl;
+  double ccl = konstanten->ccl;
+  double done = konstanten->done;
   double gi = 1.0/g;
 
   double maxd = 0.0 , maxu = 0.0 , maxur = 0.0, maxuy = 0.0, maxuyr = 0.0;
@@ -165,7 +167,7 @@ double numerische_methode::cflcon(int n, double time)
     case(1):
       {
 	//1D
-	if((int)konstanten.calceigv == 1)
+	if((int)konstanten->calceigv == 1)
 	  //1 = true, smax wird über Eigenwerte bestimmt
 	  {
 	    double values[9];
@@ -292,7 +294,7 @@ double numerische_methode::cflcon(int n, double time)
 	// 0 heisst, 1-d analytische Loseung verwenden,
 	// 1 heisst, smax wird über Eigenwerte bestimmt
 
-	if ((int) konstanten.calceigv == 0)
+	if ((int) konstanten->calceigv == 0)
 	  {
 	    //über Näherung
 	    for(int x = 0 ; x < CELLS[0]+2*ordnung+1 ; x++)
@@ -337,6 +339,8 @@ double numerische_methode::cflcon(int n, double time)
 	    int n_eqns2 = n_eqns*n_eqns;
 	    double values1[n_eqns2];
 	    double values2[n_eqns2];
+
+	/**** Eventuell als Unteraufruf, um dt überprüfen zu können bei Splitting ****/
 
 	    //Schritt 1: Daten holen
 	    for(int x = 0 ; x < CELLS[0]+2*ordnung+1 ; x++)
@@ -387,6 +391,7 @@ double numerische_methode::cflcon(int n, double time)
 		  }
 	      }
 
+	/*****/
 	    if (splitting == 1)
 	      {
 		dt = cfl/(smax1/dx+smax2/dy);

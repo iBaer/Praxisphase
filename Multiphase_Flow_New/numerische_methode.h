@@ -20,7 +20,7 @@ class numerische_methode
         * @param cells Anzahl der Zellen.
         * @param method Name der Methode für unterscheidung bei Output.
         */
-        numerische_methode(std::string method, std::string const_in, std::string formel_in, std::string save_in);
+        numerische_methode(std::string method, Constants* constants, Computation *computation, std::string save_in);
         /**
         * Startet die Berechnung.
         */
@@ -118,7 +118,7 @@ class numerische_methode
         * Konstanten Objekt welches für die berechnungen benötigt wird.
         * @see Konstanten
         */
-        Konstanten konstanten;
+        Constants* konstanten;
         /**
         * Raster in den gerechnet wird.
         * @see Raster
@@ -128,7 +128,7 @@ class numerische_methode
         * Gleichungssystem Objekt.
         * @see Gleichungssystem
         */
-        Gleichungssystem gs;
+        Computation* gs;
         /**
         * CFL Bedingung anwenden und neue Zeit berechnen.
         * @param n aktueller Zeitschritt.
