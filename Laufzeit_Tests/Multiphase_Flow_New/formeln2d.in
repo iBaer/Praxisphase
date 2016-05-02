@@ -1,6 +1,0 @@
-cs cs/d cs/d cs cs
-d d*ux d*uy
-d*ux d*ux*ux+d*ccl*(1-ccl)*uxr*uxr+p d*ux*uy+d*ccl*(1-ccl)*uxr*uyr
-d*uy d*ux*uy+d*ccl*(1-ccl)*uxr*uyr d*uy*uy+d*ccl*(1-ccl)*uyr*uyr+p
-uxr ux*uxr+0.5*(1-2*ccl)*uxr*uxr+(cref^(1.0/g)*(g/(g-1.0))*p^((g-1.0)/g))-(p/done) ux*uyr+uy*uxr+(1-2*ccl)*uxr*uyr
-uyr ux*uyr+uy*uxr+(1-2*ccl)*uxr*uyr uy*uyr+0.5*(1-2*ccl)*uyr*uyr+(cref^(1.0/g)*(g/(g-1.0))*p^((g-1.0)/g))-(p/done)

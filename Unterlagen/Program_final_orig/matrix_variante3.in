@@ -1,9 +1,0 @@
-0
-1
-0
--(utwo^2/uone^2)+ccl*(1-ccl)*uthree^2+g*ct*uone^(g-1)
-(2*utwo)/uone
-uone*ccl*(1-ccl)*2*uthree
--(utwo/uone^2)*uthree+(1/ccl)*((1/uone)-(1/done))*ct*g*uone^(g-1)
-uthree/uone
-(utwo/uone)+(1-2*ccl)*uthree
