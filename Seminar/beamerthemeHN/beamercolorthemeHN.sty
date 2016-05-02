@@ -1,0 +1,94 @@
+%
+% HN Corporate Design colors for LaTeX Beamer Presentations
+%
+% Author:  Christoph Dalitz
+% Date:    2011/09/27
+%
+
+\ProvidesPackage{beamercolorthemeHN}
+
+% HN colors
+\definecolor{HNblue}{RGB}{1,68,147}
+\definecolor{HNcyan}{RGB}{0,153,204}
+
+
+\mode<presentation>
+
+%use HN colors for beamer-mode
+\mode<presentation> {
+   \setbeamercolor{frametitle}{fg=HNcyan,bg=white}
+   \setbeamercolor{normal text}{fg=HNblue,bg=white}
+   \setbeamercolor{titlelike}{fg=HNblue}
+   \setbeamercolor{author}{fg=HNcyan}
+   \setbeamercolor{institute}{fg=HNcyan}
+   \setbeamercolor{date}{fg=HNcyan}
+   \setbeamercolor{block title}{fg=HNcyan}
+   \setbeamercolor{block body}{fg=HNblue}
+   \setbeamercolor{item}{fg=HNblue}
+   \setbeamercolor{enumerate item}{fg=HNblue}
+   \setbeamercolor{enumerate subitem}{parent=enumerate item}
+   \setbeamercolor{enumerate subsubitem}{parent=enumerate item}
+   \setbeamercolor{alerted text}{fg=HNcyan}
+   \setbeamercolor{caption name}{fg=HNblue}
+   \setbeamercolor{bibliography item}{fg=HNblue}
+   \setbeamercolor{bibliography entry title}{fg=HNblue}
+   \setbeamercolor{bibliography entry author}{fg=HNblue}
+   \setbeamercolor{bibliography entry journal}{fg=HNblue}
+   \setbeamercolor{bibliography entry note}{fg=HNblue}
+   \setbeamercolor{section in toc}{fg=HNblue}
+   \setbeamercolor{subsection in toc}{parent=section in toc}
+   \setbeamercolor{subsubsection in toc}{parent=section in toc}
+
+   % for outertheme top/bottom bars
+   \setbeamercolor*{palette primary}{fg=white,bg=HNcyan}
+   \setbeamercolor*{palette secondary}{fg=white,bg=HNcyan}
+   \setbeamercolor*{palette tertiary}{fg=white,bg=HNblue!50!HNcyan}
+   \setbeamercolor*{palette quaternary}{fg=white,bg=HNblue}
+   \setbeamercolor{palette sidebar primary}{fg=HNblue,bg=}
+   \setbeamercolor{palette sidebar secondary}{fg=HNcyan,bg=}
+   \setbeamercolor{palette sidebar tertiary}{fg=HNblue,bg=}
+   \setbeamercolor{palette sidebar quaternary}{fg=HNcyan,bg=}
+   \setbeamercolor{logo}{fg=white,bg=HNcyan}
+}
+
+
+%use black/white for handout-mode
+\mode<handout> {
+   \setbeamercolor{frametitle}{fg=black,bg=}
+   \setbeamercolor{normal text}{fg=black,bg=}
+   \setbeamercolor{titlelike}{fg=black}
+   \setbeamercolor{author}{fg=black}
+   \setbeamercolor{institute}{fg=black}
+   \setbeamercolor{date}{fg=black}
+   %\setbeamercolor{block title}{fg=darkgray}
+   \setbeamercolor{block title}{fg=black}
+   \setbeamercolor{block body}{fg=black}
+   \setbeamercolor{item}{fg=black}
+   \setbeamercolor{enumerate item}{fg=black}
+   \setbeamercolor{enumerate subitem}{parent=enumerate item}
+   \setbeamercolor{enumerate subsubitem}{parent=enumerate item}
+   %\setbeamercolor{alerted text}{fg=darkgray}
+   \setbeamercolor{alerted text}{fg=black}
+   \setbeamercolor{caption name}{fg=black}
+   \setbeamercolor{bibliography item}{fg=black}
+   \setbeamercolor{bibliography entry title}{fg=black}
+   \setbeamercolor{bibliography entry author}{fg=black}
+   \setbeamercolor{bibliography entry journal}{fg=black}
+   \setbeamercolor{bibliography entry note}{fg=black}
+   \setbeamercolor{section in toc}{fg=black}
+   \setbeamercolor{subsection in toc}{parent=section in toc}
+   \setbeamercolor{subsubsection in toc}{parent=section in toc}
+
+   % for outertheme top/bottom bars
+   \setbeamercolor*{palette primary}{fg=black,bg=lightgray}
+   \setbeamercolor*{palette secondary}{fg=black,bg=white}
+   \setbeamercolor*{palette tertiary}{fg=black,bg=lightgray}
+   \setbeamercolor*{palette quaternary}{fg=black,bg=white}
+   \setbeamercolor{palette sidebar primary}{fg=darkgray,bg=}
+   \setbeamercolor{palette sidebar secondary}{fg=darkgray,bg=}
+   \setbeamercolor{palette sidebar tertiary}{fg=darkgray,bg=}
+   \setbeamercolor{palette sidebar quaternary}{fg=darkgray,bg=}
+   %\setbeamercolor{logo}{fg=white,bg=lightgray} % for outertheme sidebar
+}
+
+\endinput

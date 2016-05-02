@@ -1,0 +1,235 @@
+% -*-mode:LaTeX; coding: utf-8;-*-
+
+% Wahl des Ausgabemodus
+%\documentclass{beamer}           % Präsentation (Farbe mit \pause)
+\documentclass[handout]{beamer} % Handoutversion (s/w und 4up ohne \pause)
+%\documentclass[trans]{beamer}   % wie Präsentation, aber ohne \pause
+
+
+% Anpassen ans eingestellte Encoding
+%\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
+
+% Pfad zum Logo anpassen
+\pgfdeclareimage[width=4cm]{HNlogo}{beamerthemeHN/fb03}
+
+\usepackage[ngerman]{babel}
+\usepackage{xcolor}
+
+% HN-Farben
+\definecolor{HNblue}{RGB}{1,68,147}
+\definecolor{HNcyan}{RGB}{0,153,204}
+
+\useinnertheme{circles}
+
+\newcommand{\disableLogo}{
+   \setbeamertemplate{background canvas}[default]
+}
+
+\newcommand{\enableLogo}{
+   \setbeamertemplate{background canvas}{%
+      \parbox[c][\paperheight]{\paperwidth}{%
+        \vfill \hfill
+        \pgfuseimage{HNlogo}~
+        \vskip 0.1cm
+      }
+   }
+}  
+
+%use HN colors for beamer-mode and trans-mode
+\mode<presentation> {
+   \setbeamercolor{frametitle}{fg=HNcyan,bg=white}
+   \setbeamercolor{normal text}{fg=HNblue,bg=white}
+   \setbeamercolor{titlelike}{fg=HNblue}
+   \setbeamercolor{author}{fg=HNcyan}
+   \setbeamercolor{institute}{fg=HNcyan}
+   \setbeamercolor{date}{fg=HNcyan}
+   \setbeamercolor{block title}{fg=HNcyan}
+   \setbeamercolor{block body}{fg=HNblue}
+   \setbeamercolor{item}{fg=HNblue}
+   \setbeamercolor{enumerate item}{fg=HNblue}
+   \setbeamercolor{enumerate subitem}{parent=enumerate item}
+   \setbeamercolor{enumerate subsubitem}{parent=enumerate item}
+   \setbeamercolor{alerted text}{fg=HNcyan}
+   \setbeamercolor{caption name}{fg=HNblue}
+   \setbeamercolor{bibliography item}{fg=HNblue}
+   \setbeamercolor{bibliography entry title}{fg=HNblue}
+   \setbeamercolor{bibliography entry author}{fg=HNblue}
+   \setbeamercolor{bibliography entry journal}{fg=HNblue}
+   \setbeamercolor{bibliography entry note}{fg=HNblue}
+   \setbeamercolor{section in toc}{fg=HNblue}
+   \setbeamercolor{subsection in toc}{parent=section in toc}
+   \setbeamercolor{subsubsection in toc}{parent=section in toc}
+
+   % for outertheme top/bottom bars
+   \setbeamercolor*{palette primary}{fg=white,bg=HNcyan}
+   \setbeamercolor*{palette secondary}{fg=white,bg=HNcyan}
+   \setbeamercolor*{palette tertiary}{fg=white,bg=HNblue!50!HNcyan}
+   \setbeamercolor*{palette quaternary}{fg=white,bg=HNblue}
+   \setbeamercolor{palette sidebar primary}{fg=HNblue,bg=}
+   \setbeamercolor{palette sidebar secondary}{fg=HNcyan,bg=}
+   \setbeamercolor{palette sidebar tertiary}{fg=HNblue,bg=}
+   \setbeamercolor{palette sidebar quaternary}{fg=HNcyan,bg=}
+   \setbeamercolor{logo}{fg=white,bg=HNcyan}
+}
+
+
+%use black/white and 4on1 for handout-mode
+\mode<handout> {
+   \setbeamercolor{frametitle}{fg=black,bg=}
+   \setbeamercolor{normal text}{fg=black,bg=}
+   \setbeamercolor{titlelike}{fg=black}
+   \setbeamercolor{author}{fg=black}
+   \setbeamercolor{institute}{fg=black}
+   \setbeamercolor{date}{fg=black}
+   %\setbeamercolor{block title}{fg=darkgray}
+   \setbeamercolor{block title}{fg=black}
+   \setbeamerfont{block title}{series=\bfseries}
+   \setbeamercolor{block body}{fg=black}
+   \setbeamercolor{item}{fg=black}
+   \setbeamercolor{enumerate item}{fg=black}
+   \setbeamercolor{enumerate subitem}{parent=enumerate item}
+   \setbeamercolor{enumerate subsubitem}{parent=enumerate item}
+   %\setbeamercolor{alerted text}{fg=darkgray}
+   \setbeamercolor{alerted text}{fg=black}
+   \setbeamerfont{alerted text}{series=\bfseries}
+   \setbeamercolor{caption name}{fg=black}
+   \setbeamercolor{bibliography item}{fg=black}
+   \setbeamercolor{bibliography entry title}{fg=black}
+   \setbeamercolor{bibliography entry author}{fg=black}
+   \setbeamercolor{bibliography entry journal}{fg=black}
+   \setbeamercolor{bibliography entry note}{fg=black}
+   \setbeamercolor{section in toc}{fg=black}
+   \setbeamercolor{subsection in toc}{parent=section in toc}
+   \setbeamercolor{subsubsection in toc}{parent=section in toc}
+
+   % for outertheme top/bottom bars
+   \setbeamercolor*{palette primary}{fg=black,bg=lightgray}
+   \setbeamercolor*{palette secondary}{fg=black,bg=white}
+   \setbeamercolor*{palette tertiary}{fg=black,bg=lightgray}
+   \setbeamercolor*{palette quaternary}{fg=black,bg=white}
+   \setbeamercolor{palette sidebar primary}{fg=darkgray,bg=}
+   \setbeamercolor{palette sidebar secondary}{fg=darkgray,bg=}
+   \setbeamercolor{palette sidebar tertiary}{fg=darkgray,bg=}
+   \setbeamercolor{palette sidebar quaternary}{fg=darkgray,bg=}
+   %\setbeamercolor{logo}{fg=white,bg=lightgray} % for outertheme sidebar
+
+   \usepackage{pgfpages}
+   \pgfpagesuselayout{4 on 1}[a4paper,landscape,border shrink=8mm]
+   \pgfpageslogicalpageoptions{1}{border code=\pgfusepath{stroke},center=\pgfpoint{.27\pgfphysicalwidth}{.70\pgfphysicalheight}}
+   \pgfpageslogicalpageoptions{2}{border code=\pgfusepath{stroke},center=\pgfpoint{.27\pgfphysicalwidth}{.25\pgfphysicalheight}}
+   \pgfpageslogicalpageoptions{3}{border code=\pgfusepath{stroke},center=\pgfpoint{.73\pgfphysicalwidth}{.70\pgfphysicalheight}}
+   \pgfpageslogicalpageoptions{4}{border code=\pgfusepath{stroke},center=\pgfpoint{.73\pgfphysicalwidth}{.25\pgfphysicalheight}}
+}
+
+\mode <all> {
+   \setbeamerfont{title}{series=\bfseries}
+   \setbeamerfont{titlelike}{series=\bfseries}
+   %\setbeamerfont{author}{series=\bfseries}
+   %\setbeamerfont{title page}{series=\bfseries}
+   \setbeamerfont{frametitle}{series=\bfseries}
+}
+
+% footline
+\setbeamertemplate{footline}[text line]{
+  \begin{beamercolorbox}[wd=0.98\paperwidth]{}
+      \insertshortauthor:~\insertshorttitle.~-\insertframenumber-
+      %\inserttotalframenumber
+      \hfill 
+      \vskip 0.1cm
+  \end{beamercolorbox}
+}
+
+
+
+% title page
+\defbeamertemplate*{title page}{hntitle}[1][]
+{
+  \vskip0pt plus 1filll
+  \begin{centering}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%
+    \end{beamercolorbox}%
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center,#1]{author}
+      \usebeamerfont{author}\insertauthor
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{institute}
+      \usebeamerfont{institute}\insertinstitute
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{date}
+      \usebeamerfont{date}\insertdate
+    \end{beamercolorbox}\vskip0.5em
+    {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
+  \vskip0pt plus 1filll
+
+  \end{centering}
+
+  % titlepage shall not be counted in frame numbers
+  \addtocounter{framenumber}{-1}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{title page}[hntitle]
+\enableLogo
+
+
+
+
+
+%------------------------------------------------------------------------
+
+\title[Kurztitel]{Voller Titel}
+
+\author[Kurzautor]{Voller Autor}
+\institute{Hochschule Niederhein - Fachbereich Elektrotechnik \& Informatik
+}
+\date{11. April 2011}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+
+%-----------------------------------------------------------
+\begin{frame}{Blabla}
+
+
+Blabla
+
+\begin{block}{Blabla}
+Noch mehr Blabla
+\end{block}
+
+\alert{Mit {\em \textbackslash alert} hervorgehobener Text}
+
+\vspace{1ex}
+Beispiel für {\em enumerate}:
+\begin{enumerate}
+\item erster Punkt
+\item zweiter Punkt
+\end{enumerate}
+
+\vspace{1ex}
+Der {\em \textbackslash pause} Befehl hält an, aber
+nur im Modus {\em beamer},\\
+nicht in den Modi {\em trans} und {\em handout}
+\pause
+
+\vspace{1ex}
+Beispiel für {\em itemize}:
+\begin{itemize}
+\item erster Punkt
+\item zweiter Punkt
+\end{itemize}
+
+\end{frame}
+
+
+
+\end{document}

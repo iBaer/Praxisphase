@@ -1,0 +1,284 @@
+\section{Multiphase Flow - implementiert in Fluent}
+
+{\bf Fluent Handbuch, Kapitel 17 und Schulungsfolien}
+
+In Fluent 6.3 sind vier Modelle für Mehrphasenströmungen
+implementiert, die sich im wesentlichen dadurch unterscheiden, in wie
+weit Oberflächen berücksichtigt werden und wie große die Anteile von
+jeder Phase sind. Die Modelle sind
+\begin{itemize}
+\item Lagrangian Dispersed Phase Model (DPM): für Lagrange Teilchen,
+  also feste Teilchen, Blasen und Tropfen
+\item Volume of Fluid Model (VOF) zur Simulation von Grenzflächen
+  zwischen den Phasen
+\item Eulerian Model als Mittlung des VOF-Modells, geeignet zur
+  Simulation von sich ausbreitenden oder auflösenden Phasen
+\item Mixture Model, eine Vereinfachung des Euler Modells, anwendbar,
+  wenn die Trägheit der dispersen Phase klein ist.
+\end{itemize}
+Betrachtet werden meist $n$ Komponenten, der Einfachheit halber werde
+ich die Gleichungen auch zum besseren Vergleich mit der Arbeit von Dia
+mit zwei Komponenten angeben. Alle Gleichungen müssen für die
+einzelnen Komponenten sowie für die Wechselwirkung zwischen den
+Komponenten betrachtet werden.
+
+\subsection{\bf  Lagrangian Dispersed Phase Model (DPM)}
+
+Das Modell wurde genauer bei Projekt der Bewegung von Fasern in
+Strömungen untersucht (siehe Aufzeichnungen
+fluent\_discrete\_phase\_model.tex) und wird auch als Euler-Lagrange
+Ansatz bezeichnet. Es wird hier nicht weiter behandelt.
+
+\subsection{\bf Volume of Fluid Model (VOF)}
+
+Mit diesem Modell wurde aufsteigende größere Blasen oder das
+Einfließen von Tinte untersucht. Es geht davon aus, dass die
+Kontinuitätsgleichung für jede Phase einzeln ohne weitere Quellterme
+gilt Es gibt eine klare Phasengrenze und nur ein Geschwindigkeitsfeld
+$\vec{v}$ für beide Phasen, d.h. beide Phasen bewegen sich gleich
+schnell.
+
+In einem Volumen seien die Volumenanteile $\alpha_1$ und $\alpha_2$
+der beiden Phasen und damit die Massenanteile $\alpha_1\rho_1$ und
+$\alpha_2\rho_2$ und die mittlere Dichte $\rho_m = \alpha_1\rho_1 +
+\alpha_2\rho_2$. Betrachtet man die beiden Kontinuitätsgleichungen für
+dei beiden Phasen,
+\begin{eqnarray*}
+\frac{\partial \alpha_1 \rho_1 }{\partial t} + \d (\alpha_1\rho_1 \vec{v}) 
+&=& 0\\
+\frac{\partial \alpha_2 \rho_2 }{\partial t} + \d (\alpha_2\rho_2 \vec{v}) 
+&=& 0
+\end{eqnarray*}
+dann verwendet das VOF-Modell nur die addierten Gleichungen für die
+mittlere Dichte
+\begin{eqnarray*}
+\frac{\partial \rho_m }{\partial t} + \d (\rho_m \vec{v}) 
+&=& 0.
+\end{eqnarray*}
+In die Impulsgleichungen gehen die Kräfte für die Oberflächen zwischen
+den Phasen ein und die Bewegung der Oberflächen wird bestimmt. Dazu
+wird nur eine Impulsgleichung für beide Phasen bestimmt:
+\[
+\frac{\partial \rho \vec{v}}{\partial t} + \d (\rho
+\vec{v}\otimes\vec{v}) = - \nabla p + \d [\mu ( \nabla \otimes
+\vec{v})^T + (\nabla \otimes \vec{v}))] + \rho \vec{g} + \vec{F}
+\]
+Der Kraftterm beinhaltet die Oberflächenspannung $T_\sigma$ in der
+Grenzschicht zwischen den Phasen.
+
+
+{\bf Achtung:} der Termin $-\frac{2}{3} (\d \vec{v}_k)\; I $ im
+Spannungstensor tritt im Handbuch {\bf nicht} auf (Kapitel 17.3.6. des
+Handbuchs), wird also vernachlässigt, obwohl eine Phase kompressible
+sein darf!
+
+Die gemeinsame Energiegleichung für beide Phasen lautet
+\begin{equation}
+\frac{\partial (\rho E)}{\partial t} + \d (\rho \vec{v} E + p) = \d
+(\kappa \nabla T) + q - \rho \vec{v}\vec{g} 
+\end{equation}
+Hier wird der gesamte Spannungstensor weggelassen (Kapitel 17.3.7. des
+Handbuchs)!
+
+Das ist das sogenannte ``one fluid model''. Es existiert auch ein VOF
+``multi fluid model'', bei dem die Kontinuitätsgleichung für jede
+Phase mit einem Austauschterm zwischen den Phasen berücksichtigt wird
+sowie 2 Impulsgleichungen, ähnlich dem Euler-Modell.
+
+
+\subsection{\bf Eulerian Model} \label{subsec:Euler}
+
+Das gibt beiden Phasen eine unterschiedliche Geschwindigkeit und lässt
+einen Änderung der Masse von einer Phase in die andere zu (ist im
+Fluent-Handbuch auch für das VOF-Modell der Fall). Damit bekommt die
+Kontinuitätsgleichungen einen Quellterm
+\begin{eqnarray}
+\frac{\partial \alpha_1 \rho_1 }{\partial t} + \d (\alpha_1\rho_1 \vec{v}_1) 
+&=& S_{\alpha_1} + \dot{m}_{21}\\ \nonumber
+\frac{\partial \alpha_2 \rho_2 }{\partial t} + \d (\alpha_2\rho_2 \vec{v}_2) 
+&=&  S_{\alpha_2} + \dot{m}_{12} \label{eq:eulerKonti}
+\end{eqnarray}
+Die Quelle $S$ ist im Normalfall 0. Bei der Impulsgleichung werden neben
+dem Spannungstensor und der Gravitationskraft Kräfte zwischen den
+Phasen berücksichtigt. Nach den Folien lautet die Impulsgleichung
+\begin{eqnarray}
+\frac{\partial \alpha_1 \rho_1 \vec{v}_1}{\partial t} + \d
+(\alpha_1\rho_1 \vec{v}_1\otimes\vec{v}_1) &=& - \alpha_1 \nabla p +
+\alpha_1\rho_1 \vec{g} + \d (\alpha_1 S) + K_{12} (\vec{v}_2 -
+\vec{v}_1) + F_{12}\\ \nonumber
+\frac{\partial \alpha_1 \rho_2 \vec{v}_2}{\partial t} + \d
+(\alpha_2\rho_2 \vec{v}_2\otimes\vec{v}_2) &=& - \alpha_2 \nabla p +
+\alpha_1\rho_2 \vec{g} + \d (\alpha_2 S) + K_{12} (\vec{v}_1 -
+\vec{v}_2) + F_{12} \label{eq:eulerImp}
+\end{eqnarray}
+Der Anteil des Spannungstensors proportional zur Viskosität $S$ ist
+analog aufgebaut wie der Term in der Einphasenströmung, ist aber nicht
+genau bekannt. Der wichtigste Termin ist die Zugkraft oder der
+Widerstandsterm $K_{12}$, der ebenfalls nur angenähert werden kann.
+
+Die Energiegleichung wird im Fluent-Tutorial für $H$ und nicht für $E$
+aufgestellt. Mit $\rho H = \rho E+p$, taucht die zeitlich Ableitung
+des Drucks auf.
+
+\begin{eqnarray}
+\frac{\partial (\alpha_1 \rho H_1)}{\partial t} + \d (\alpha_1\rho_1
+\vec{v}_1 H_1) &=& - \frac{\partial (\alpha_1 p)}{\partial t} +
+\d \left(\alpha_1 S \vec{v}_1 - \vec{W}_1 \right) + q_1 - \rho_1
+\vec{v}_1\vec{g} \nonumber \\
+& &  + Q_{12} (T_2-T_1) - \dot{m}_{12} h_1 \nonumber \\
+\frac{\partial (\alpha_2 \rho H_2)}{\partial t} + \d (\alpha_2\rho_2
+\vec{v}_2 H_2) &=& - \frac{\partial (\alpha_2 p)}{\partial t} +
+\d \left(\alpha_2 S \vec{v}_2 - \vec{W}_2 \right) + q_2 - \rho_2
+\vec{v}_2\vec{g} \nonumber \\
+& &  + Q_{12} (T_1-T_2) + \dot{m}_{21} h_2 \label{eq:eulerE}
+\end{eqnarray}
+
+{\bf Achtung:} Auf dem Fluent-Folien steht beim Term $\d \alpha_1
+S $ ein $\nabla \vec{v}_1$, das dürfte aber eigentlich nicht sein,
+kommt schon mit den Einheiten nicht hin. Hingegen im Handbuch steht
+$\alpha_1 S \nabla \vec{v}_1$, also das $\nabla$ steht nur vor $v$.
+
+Hinzu sind die beiden Terme $Q_{12} (T_2-T_1)$ und $\dot{m}_{12} h_1$
+gekommen, die die Energie für den Wärmeaustausch und potentielle
+Energie beim Massenaustausch berücksichtigen.
+
+
+
+\subsection{\bf Mixture Model}
+
+Beim Mixture Model wird analog zu zwei Teilchen in
+Schwerpunktskoordinaten bzw. in über die Dichten gemittelte Koordinaten
+übergegangen. Bei zwei Teilchen ist die Geschwindigkeit des
+Schwerpunkts gegeben durch
+\[
+\vec{v}_m = \frac{m_1\vec{v}_1+m_2\vec{v}_2}{m_1+m_2}
+\]
+Damit ergibt sich analog zur Schwerpunktsbewegung eine über die Massen
+gemittelte Geschwindigkeit
+\[
+\vec{v}_m = \frac{\alpha_1\rho_1 \vec{v}_1 + \alpha_2\rho_2 \vec{v}_2}{\rho_m}
+\]
+
+{\bf Gültigkeit}
+
+Annahmen, die Einfluss auf die Gleichungen haben sind:
+\begin{itemize}
+\itemsep 0pt
+\item Nur eine Phase kann ein kompressibles ideales Gas sein.
+\item Es ist keine nichtviskose oder reibungsfreie Strömung erlaubt.
+\item Es erlaubt im Gegensatz zum VOF-Modell unterschiedliche
+  Strömungungsgeschwindigkeiten.
+\end{itemize}
+Daneben gibt es noch zahlreiche andere Einschränkungen (siehe Handbuch
+Kapitel 17.4.2)
+
+
+{\bf Kontinuitätsgleichung:}
+
+Werden die beiden Euler-Gleichungen \ref{eq:eulerKonti} addiert ergibt
+sich für $S_{\alpha_1}=S_{\alpha} = 0$ und $ \dot{m}_{12} = -
+\dot{m}_{21}$ eine Kontinuitätsgleichung für die gemittelte Dichte
+$\vec{v}_m$
+\begin{equation}
+\frac{\partial \rho_m }{\partial t} + \d (\rho_m \vec{v}_m) =
+0 \label{eq:fluent-mixed-konti}
+\end{equation}
+und eine Gleichung für die Anteile in der jeweiligen Phase, bei Fluent
+als {\it Volume Fraction Equation} bezeichnet, wenn die erste
+Gleichung von der 2. subtrahiert wird. Diese wird mit der
+Relativgeschwindigkeit bzw. Driftgeschwindigkeit $\vec{v_{dr,k}}$
+zwischen den Komponenten formuliert
+\[
+\vec{v}_{dr,k} = \vec{v}_{k}-\vec{v}_{m}.
+\]
+$k$ bezeichnet die betrachtete Phase. Damit ergibt sich
+\[
+\frac{\partial \alpha_2 \rho_2 }{\partial t} + \d (\alpha_2\rho_2
+\vec{v}_2) = -\d (\alpha_2\rho_2\vec{v_{dr,2}}) + (\dot{m}_{12} -
+\dot{m}_{21})
+\]
+
+{\bf Impulsgleichung:}
+
+Als Impulsgleichung wird eine ähnliche Gleichung wie im VOF-Modell
+angegeben: 
+\begin{equation}
+\frac{\partial \rho_m \vec{v}_m}{\partial t} + \d \left(\rho_m
+\vec{v}_m\otimes\vec{v}_m\right) = - \nabla p + \d [\mu_m (( \nabla
+  \otimes \vec{v}_m)^T + (\nabla \otimes \vec{v}_m))] + \rho_m \vec{g}
++ \vec{F} + \d \left(\sum_{k=1}^2\alpha_k\rho_k
+\vec{v}_{dr,k}\otimes\vec{v}_{dr,k}\right)\label{eq:fluent-mixed-impuls}
+\end{equation}
+mit $\mu_m = \alpha_1 \mu_1 + \alpha_2 \mu_2$.
+
+
+Mögliche Herleitung: Ausgangspunkt sind Impulsgleichungen des
+Euler-Modells, Gleichung \ref{eq:eulerImp}, wobei die Kräfte zwischen
+den Phasen zu $F = K_{12} (\vec{v}_2 - \vec{v}_1) + F_{12}$
+zusammengefasst werden. Dann folgt für jede Phase $k$ für sich mit
+Einsetzung des Spannungstensors
+\[
+\frac{\partial \alpha_k \rho_k \vec{v}_k}{\partial t} + \d
+(\alpha_k\rho_k \vec{v}_k\otimes\vec{v}_k) = - \nabla \alpha_k p_k +
+\alpha_k\rho_k \vec{g} + \d (\alpha_k 
+\mu_k ( \nabla \otimes \vec{v}_k)^T + (\nabla \otimes \vec{v}_k) -
+\frac{2}{3} (\d \vec{v}_k)\; I ) + \vec{F}
+\]
+
+Werden die beiden Gleichungen addiert, ergibt sich
+\begin{eqnarray*}
+\frac{\partial \rho_m \vec{v}_m}{\partial t} + \d
+\left(\sum_{k=1}^2\alpha_k\rho_k \vec{v}_k\otimes\vec{v}_k\right)
+&=& -
+\nabla p + \d \sum_{k=1}^2 \left(\alpha_k \mu_k (
+\nabla \otimes \vec{v}_k)^T + (\nabla \otimes \vec{v}_k) - \frac{2}{3}
+(\d \vec{v}_k\; I )\right)\\
+&&
+\rho_m \vec{g} + \vec{F}
+\end{eqnarray*}
+mit $\alpha_1 p_1 + \alpha_2 p_2 = p$ und damit komme ich leider nicht
+auf die Gleichung aus dem Fluent-Handbuch!  Es fehlt wieder der
+$\nabla^2 \vec{v}_k$ und beim Term mit den Driftgeschwindigkeit
+bekomme ich etwas anderes heraus:
+\begin{eqnarray*}
+&& \rho_m \vec{v}_m\otimes\vec{v}_m - \sum_{k=1}^2\alpha_k\rho_k
+\vec{v}_{dr,k}\otimes\vec{v}_{dr,k} \\
+&& =(\alpha_1\rho_1+\alpha_2\rho_2)\vec{v}_m\otimes\vec{v}_m -
+\alpha_1\rho_1 (\vec{v}_1-\vec{v}_m)\otimes( \vec{v}_1-\vec{v}_m) -
+\alpha_2\rho_2 (\vec{v}_2-\vec{v}_m)\otimes( \vec{v}_2-\vec{v}_m) \\
+&& = \alpha_1\rho_1 [(\vec{v}_m\otimes\vec{v}_1) +
+                     (\vec{v}_1\otimes\vec{v}_m) -
+                     (\vec{v}_1\otimes\vec{v}_1)] +
+     \alpha_2\rho_2 [(\vec{v}_m\otimes\vec{v}_2) +
+                     (\vec{v}_2\otimes\vec{v}_m) -
+                     (\vec{v}_2\otimes\vec{v}_2)]\\
+&& \neq
+\alpha_1\rho_1 \vec{v}_1\otimes\vec{v}_1 +
+\alpha_2\rho_2 \vec{v}_2\otimes\vec{v}_2
+\end{eqnarray*}
+
+{\bf Achtung:} Nur für $\vec{v}_1\approx\vec{v}_2\approx\vec{v}_m$
+stimmt der Ausdruck.
+
+{\bf Achtung:} Der Anteil $\nabla^2 \vec{v}_k$ des Spannungstensors in
+der Impulsgleichung für eine Phase fehlt, die nach Voraussetzung auch
+kompressible sein kann
+
+
+{\bf Energiegleichung}
+
+Es wird für beide Phasen eine gemeinsame Energiegleichung aufgestellt. 
+\begin{equation}
+\frac{\partial}{\partial t}\sum_{k=1}^2 (\alpha_k \rho_k E_k)
++ \d (\sum_{k=1}^2 \alpha_k \rho_k \vec{v}_k H_k) =
+\d (\kappa \nabla T_{eff}) + S_E\label{eq:fluent-mixed-energie}
+\end{equation}
+$S_E$ beinhaltet weitere Wärmequellen.  Das ist die Summe der
+Eulergleichungen für die Energie von beiden Phasen (\ref{eq:eulerE})
+mit $E=H-\rho p$, dem Tensor $S=0$ und ohne Gravitation. 
+
+{\bf Achtung:} Energiegleichung ohne Spannungstensor widerspricht der
+Voraussetzung, dass die Strömung Reibung haben muss, scheint für die
+Energiegleichung aber zu vernachlässigen zu sein.
+
+

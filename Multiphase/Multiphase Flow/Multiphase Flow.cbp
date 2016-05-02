@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Multiphase Flow" />
+		<Option platforms="Unix;" />
+		<Option makefile_is_custom="1" />
+		<Option execution_dir="../../Multiphase_Flow_New" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Multiphase Flow" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option platforms="Unix;" />
+				<Option output="../../Multiphase_Flow_New/main" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../Multiphase_Flow_New" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<MakeCommands>
+					<Build command="$make" />
+					<CompileFile command="$make" />
+					<Clean command="$make" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make" />
+					<SilentBuild command="$make &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="../../Multiphase_Flow_New/FORCE.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/FORCE.h" />
+		<Unit filename="../../Multiphase_Flow_New/Gleichungssystem.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/Gleichungssystem.h" />
+		<Unit filename="../../Multiphase_Flow_New/Konstanten.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/Konstanten.h" />
+		<Unit filename="../../Multiphase_Flow_New/LaxFriedrichMethod.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/LaxFriedrichMethod.h" />
+		<Unit filename="../../Multiphase_Flow_New/Raster.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/Raster.h" />
+		<Unit filename="../../Multiphase_Flow_New/Zelle.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/Zelle.h" />
+		<Unit filename="../../Multiphase_Flow_New/cfl_1d.h" />
+		<Unit filename="../../Multiphase_Flow_New/cfl_2d.h" />
+		<Unit filename="../../Multiphase_Flow_New/main.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/numerische_methode.cpp" />
+		<Unit filename="../../Multiphase_Flow_New/numerische_methode.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

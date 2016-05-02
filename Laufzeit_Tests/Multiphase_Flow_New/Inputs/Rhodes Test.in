@@ -1,0 +1,13 @@
+100           10       0.0008	      0.9       1000000       1.43     
+-10.0         10.0      0      0      200000.0     1000.0       0.8 
+2121.5                  -700.0          0.0
+2121.5     	            700.0          0.0 
+
+
+coarse mesh cells = 100 ** you must get paring values **
+fine mesh cells = 1000
+READ(1,*)CELLS, NFREQ, timeou, CFL, MAXNT, G
+READ(1,*)ML, MR, TLIFBC, TRIGBC, Cref, D1, CCL
+READ(1,*)RHOL, VL, V21L
+READ(1,*)RHOR, VR, V21R
+

@@ -1,0 +1,62 @@
+LaTeX-Beamer Template für das CD der Hochschule Niederrhein
+===========================================================
+
+Dieses Paket enthält ein "Theme" im Corporate Design der
+Hochschule Niederrhein für die LaTeX-Klasse "Beamer".
+
+Hinweis: Dieses Theme ist zugeschnitten auf das outertheme
+"default". Bei Verwendung eines anderen outerthemes
+sind ggf. noch Anpassungen von Farben und Fußzeile erforderlich.
+
+
+Dateien
+-------
+
+  beamerthemeHN:
+    Dateien des Themes für die LaTeX Klasse Beamer
+    zur systemweiten Installation
+
+  standalone.tex:
+    elementare Präsentation, in der alle Formatierungen
+    direkt eingestellt sind; funktioniert auch ohne
+    Installation von beamerthemeHN, ist aber unübersichtlich
+
+  demo.tex:
+    elementares Beispiel zur Benutzung des Themes
+
+
+Installation
+------------
+
+a) Benutzung mit systemweiter Installation
+
+   Das gesamte Verzeichnis beamerthemeHN in die Themes
+   der Beamer-Klasse kopieren und anschließend texhash aufrufen.
+   Die Installation erfolgt z.B. unter Ubuntu mit ('$' ist der
+   Shell-Prompt):
+
+   $ sudo cp -r beamerthemeHN /usr/share/texmf/tex/latex/beamer/themes/theme/
+   $ sudo texhash
+
+   Dann kann eine Beamer-Präsentation einfach mit
+
+      \usetheme{HN}
+
+   im CD des FB03 der Hochschule Niederrhein erfolgen. Für ein anderes Logo,
+   z.B. iPattern:
+
+      \usetheme{HN}
+      \setHNlogo{ipattern}
+
+b) Benutzung ohne systemweite Installation
+
+   Die Beispieldatei standalone.tex zeigt eine Präsentation
+   im CD der HN, ohne dass das entsprechende Theme installiert
+   ist. Dabei ist der Pfad zum Logo entsprechend anzupassen.
+
+
+Autor
+-----
+
+Christoph Dalitz, 13.04.2011
+Christian Brandt, 02.05.2011

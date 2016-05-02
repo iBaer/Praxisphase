@@ -1,0 +1,101 @@
+%
+% HN Corporate Design theme for LaTeX Beamer Presentations
+%
+% Author:  Christoph Dalitz
+% Date:    2011/05/27
+%
+
+\ProvidesPackage{beamerthemeHN}
+
+\PassOptionsToClass{xcolor}{beamer}
+%\ProcessOptionsBeamer
+
+\newcommand{\setHNlogo}[1]{%
+\pgfdeclareimage[width=4cm]{HNlogo}{#1}
+}
+\setHNlogo{fb03}
+
+\newcommand{\disableLogo}{
+   \setbeamertemplate{background canvas}[default]
+}
+
+\newcommand{\enableLogo}{
+   \setbeamertemplate{background canvas}{%
+      \parbox[c][\paperheight]{\paperwidth}{%
+        \vfill \hfill
+        \pgfuseimage{HNlogo}~
+        \vskip 0.1cm
+      }
+   }
+}  
+
+
+\mode<presentation>
+
+\mode<all>
+
+\usecolortheme{HN}
+\usefonttheme{HN}
+\useinnertheme{circles}
+
+% footline
+\setbeamertemplate{footline}[text line]{
+  \begin{beamercolorbox}[wd=0.98\paperwidth]{}
+      \insertshortauthor:~\insertshorttitle.~-\insertframenumber-
+      %\inserttotalframenumber
+      \hfill 
+      \vskip 0.1cm
+  \end{beamercolorbox}
+}
+
+
+
+% title page
+\defbeamertemplate*{title page}{hntitle}[1][]
+{
+  \vskip0pt plus 1filll
+  \begin{centering}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%
+    \end{beamercolorbox}%
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center,#1]{author}
+      \usebeamerfont{author}\insertauthor
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{institute}
+      \usebeamerfont{institute}\insertinstitute
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{date}
+      \usebeamerfont{date}\insertdate
+    \end{beamercolorbox}\vskip0.5em
+    {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
+  \vskip0pt plus 1filll
+
+  \end{centering}
+
+  % titlepage shall not be counted in frame numbers
+  \addtocounter{framenumber}{-1}
+}
+
+\setbeamertemplate{title page}[hntitle]
+\enableLogo
+
+
+
+%set 4on1 with border for handout
+\mode<handout> {% 
+   \usepackage{pgfpages}
+   \pgfpagesuselayout{4 on 1}[a4paper,landscape,border shrink=8mm]
+   \pgfpageslogicalpageoptions{1}{border code=\pgfusepath{stroke},center=\pgfpoint{.27\pgfphysicalwidth}{.70\pgfphysicalheight}}
+   \pgfpageslogicalpageoptions{2}{border code=\pgfusepath{stroke},center=\pgfpoint{.27\pgfphysicalwidth}{.25\pgfphysicalheight}}
+   \pgfpageslogicalpageoptions{3}{border code=\pgfusepath{stroke},center=\pgfpoint{.73\pgfphysicalwidth}{.70\pgfphysicalheight}}
+   \pgfpageslogicalpageoptions{4}{border code=\pgfusepath{stroke},center=\pgfpoint{.73\pgfphysicalwidth}{.25\pgfphysicalheight}}
+}
+
+
+\endinput

@@ -1,0 +1,65 @@
+Versionshistorie Beamer Theme im CD der HN
+==========================================
+
+Version 1.6, Nov 17, 2011
+-------------------------
+
+ - Im Schwarz-Weiß Modus ("handout") wird die zum Hervorheben genutzte
+   Farbe Cyan nicht mehr grau dargestellt, sondern durch Fettdruck ersetzt
+
+
+Version 1.5, Sep 28, 2011
+-------------------------
+
+ - Farbe korrigiert für caption, bibliography, section in toc
+
+ - Logo FB10 ergänzt
+
+
+Version 1.4, Sep 08, 2011
+-------------------------
+ 
+ - Unterstützung des Modus "trans", der die hochschultypischen Farben
+   verwendet, in dem aber die \pause Anweisungen deaktiviert sind
+   (nützlich z.B. zum Verschicken einer Präsentation)
+
+ - handout Modus jetzt spaltenweise und mit oberem Rand zum Heften
+
+
+Version 1.3, Mai 03, 2011
+-------------------------
+ 
+ - Korrektur der Logoposition auf allen Seiten (als Hintergrundgrafik):
+    o selbe Position jetzt auch auf Titelseite
+    o sidebar führt nun nicht mehr zu Verschiebung des Logos
+
+ - Möglichkeit der Deaktivierung der Logoanzeige mit \disableLogo
+   und Reaktivierung mit \enableLogo (siehe FAQ)
+
+ - Handouts können mit 4 Folien pro Seite im Querformat gedruckt werden. 
+   Hierbei wird ein schwarz-weißes Farbschema verwendet (siehe FAQ für
+   Auswahl des HN-Farbschemas)
+
+
+Version 1.2, Apr 13, 2011
+-------------------------
+
+ - weitere Logos aufgenommen (fb01, fb04, fb09, iloc)
+
+
+Version 1.1, Apr 12, 2011
+-------------------------
+
+ - Farben für outerthemes (primary etc.) definiert
+   (Ergebnis bei "sidebar" aber noch unbefriedigend
+    => "sidebar" möglichst nicht als outertheme verwenden)
+
+ - FAQ ergänzt
+
+
+Version 1.0, Apr 11, 2011
+-------------------------
+
+ - Ersterstellung
+
+ - keine farbliche Berücksichtigung von outerthemes
