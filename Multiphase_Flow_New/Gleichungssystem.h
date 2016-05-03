@@ -1,11 +1,11 @@
 #ifndef COMPUTATION_H
 #define COMPUTATION_H
 #include "Zelle.h"
-#include "Raster.h"
 #include <iostream>
 #include <vector>
 
 #include "constants.h"
+#include "grid.h"
 
 /*!
 * @class Computation
@@ -28,7 +28,7 @@ class Computation
 
     public:
 
-        static Computation& myinstance(Constants *constants);
+        static Computation& instance(Constants *constants);
 
         /**
         * Vektor von u
@@ -54,7 +54,7 @@ class Computation
 	 * @param cells, Ausdehnung des Gitters
 	 * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
 	 */
-	void compute_u_1d(double *** u, Raster * raster, int * cells, int ordnung);
+	void compute_u_1d(double *** u, Grid * raster, int * cells, int ordnung);
 
 	/**
 	 * Berechnet die Lösungen der Formel für den Fluss F in 1-D
@@ -63,7 +63,7 @@ class Computation
 	 * @param cells, Ausdehnung des Gitters
 	 * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
 	 */
-	void compute_f_1d(double *** f, Raster * raster, int * cells, int ordnung);
+	void compute_f_1d(double *** f, Grid * raster, int * cells, int ordnung);
 
         /**
         * Berechnet die Werte U in 2-D
@@ -72,7 +72,7 @@ class Computation
         * @param cells, Ausdehnung des Gitters
         * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
         */
-	void compute_u_2d(double *** u, Raster * raster, int * cells, int ordnung);
+	void compute_u_2d(double *** u, Grid * raster, int * cells, int ordnung);
 	
         /**
         * Berechnet die Lösungen der Formel für den Fluss F in 2-D
@@ -81,7 +81,7 @@ class Computation
         * @param cells, Ausdehnung des Gitters
         * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
         */
-	void compute_f_2d(double *** f, Raster * raster, int * cells, int ordnung);
+	void compute_f_2d(double *** f, Grid * raster, int * cells, int ordnung);
 
         /**
         * Berechnet die Lösungen der Formel für den Fluss G in 2-D
@@ -89,7 +89,7 @@ class Computation
         * @param cells, Ausdehnung des Gitters
         * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
         */
-	void compute_g_2d(double *** g, Raster * raster, int * cells, int ordnung);
+	void compute_g_2d(double *** g, Grid * raster, int * cells, int ordnung);
 
         /**
         * Anzahl der Gleichungen

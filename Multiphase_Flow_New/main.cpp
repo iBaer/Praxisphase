@@ -8,9 +8,9 @@ using namespace std;
 
 int main()
 {
-	Constants constants = Constants::myinstance();
-	Computation computation = Computation::myinstance(&constants);
-
+	Constants constants = Constants::instance();
+	Computation computation = Computation::instance(&constants);
+    Grid grid = Grid(&constants, "save.in");
 
     int method = 1;
     cout << "####################################"<<endl;
@@ -30,13 +30,15 @@ int main()
 
     if (method == 1)
     {
-        LaxFriedrichMethod lax(&constants,&computation, "save.in");
-        lax.start_method();
+        LaxFriedrichMethod lax(&constants,&computation, &grid);
+        numerische_methode num_meth(&lax,&constants,&computation, &grid);
+        num_meth.start_method();
     }
     if (method == 2)
     {
-        FORCE force(&constants,&computation, "save.in");
-        force.start_method();
+    	FORCE force(&constants,&computation, &grid);
+		numerische_methode num_meth(&force,&constants,&computation, &grid);
+		num_meth.start_method();
     }
 
     return 0;

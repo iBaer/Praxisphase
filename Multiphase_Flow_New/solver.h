@@ -3,7 +3,6 @@
 
 #include "Gleichungssystem.h"
 
-#include "numerische_methode.h"
 #include <iomanip>
 #include <stdlib.h>
 #include <fstream>
@@ -29,13 +28,13 @@ class Solver
 		* @param cells Anzahl der Zellen.
 		* @param method Name der Methode für unterscheidung bei Output.
 		*/
-		Solver(std::string method, std::string const_in, std::string formel_in, std::string save_in);
+		Solver(string methodname, Constants* constants, Computation *computation, Grid* grid);
 
 		/**
 		* Abstrakte Methode zur berechnung des Flusses der jeweiligen numerischen Methode.
 		* @return Matrix der Flüsse (1D)
 		*/
-		virtual std::vector< std::vector< std::vector< std::vector <double> > > >calc_method_flux(int dir) =0;
+		virtual std::vector< std::vector< std::vector< std::vector <double> > > >calc_method_flux(double dt, int dir) =0;
 
         /**
         * Konstanten Objekt welches für die berechnungen benötigt wird.
@@ -46,12 +45,73 @@ class Solver
         * Raster in den gerechnet wird.
         * @see Raster
         */
-        //Raster raster;
+        Grid *grid;
         /**
         * Gleichungssystem Objekt.
         * @see Gleichungssystem
         */
         Computation *gs;
+        string name;
+        int* CELLS;
+
+		/**
+		* Zeit Output
+		*/
+		double timeou;
+		/**
+		* Dimension in der gerechnet wird.
+		*/
+		int dimension;
+		/**
+		* ordnung des Verfahrens.
+		*/
+		int ordnung;
+		/**
+		* Anzahl an Schritten die gemacht wurden.
+		*/
+		int steps;
+		/**
+		* Gesetztes Maximum, damit die Methode nicht unendlich läuft
+		* (falls es einen fehler gibt oder andere umstände).
+		*/
+		int maxnt;
+		/**
+		* Delta x.
+		*/
+		double dx;
+	/**
+		* teiler, Faktor für die ersten Delta t Schritte
+		*/
+		double teiler;
+	/**
+		* teilerend, Ende der Multiplikation der Zeitschritte mit teiler
+		*/
+		double teilerend;
+	/**
+		* Delta y für die 2. Dimension
+		*/
+		double dy;
+		/**
+		* Linke Grenze.
+		*/
+		int mol;
+		/**
+		* Rechte Grenze.
+		*/
+		int mor;
+		/**
+		* Obere Grenze.
+		*/
+		int mul;
+		/**
+		* Untere Grenze.
+		*/
+		int mur;
+		/**
+		* Variante der EOS.
+		*/
+		int variante;
+
 };
 
 

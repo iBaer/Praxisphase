@@ -8,8 +8,8 @@ using namespace std;
  * Ruft einfach den Konstrukter von der geerbten Klasse auf.
  *****************************************************************************************/
 LaxFriedrichMethod::LaxFriedrichMethod(Constants *constants, Computation *computation,
-				       std::string save_in) :
-	numerische_methode("Lax-Friedrich", constants, computation, save_in)
+				       Grid *grid) :
+	Solver("Lax-Friedrich", constants, computation, grid)
 {
 
 }
@@ -18,18 +18,18 @@ LaxFriedrichMethod::LaxFriedrichMethod(Constants *constants, Computation *comput
  *****************************************************************************************
  * Berechnung des Lax-Friedrich Flusses.
  * @return Das zurückgelieferte Objekt ist ein Vektor mit 4 Dimensionen 
- *         (Formel,Raster x-Koordinate,Raster y-Koordinate, Flussrichtung)
+ *         (Formel,grid x-Koordinate,grid y-Koordinate, Flussrichtung)
  *
  * Zur Zeit wird hier noch viel zu viel berechnet, wenn der Fluss nur in eine Richtung 
  * benötigt wird!!
  * Weiterhin müssen die Laufvariablen neu sortiert werden !!
  *****************************************************************************************/
-vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_flux(int dir)
+vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_flux(double dt, int dir)
 {
   cout << "Lax-Friedrich Fluss berechnen..." << endl;
 
-  int width = raster.getwidth();
-  int height = raster.getheight();
+  int width = grid->getwidth();
+  int height = grid->getheight();
   int neqs = gs->neqs;
 
   double *uall =  new double[neqs*width*height];
@@ -50,15 +50,16 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
 	  cs[i][j] = uall + (i * width * height) + (j * height);
 	  f[i][j] = fall + (i * width * height) + (j * height);
 	  g[i][j] = gall + (i * width * height) + (j * height);
+
 	}
     }
 
   // Diese seltsame Vektorkonsturktion beseitigen !!!
   vector< vector< vector< vector< double > > > > fi (	gs->neqs,
 							vector< vector< vector<double> > >
-						     		(raster.getwidth(), 
+						     		(grid->getwidth(),
 								vector< vector<double> >
-						      			(raster.getheight() , 
+						      			(grid->getheight() ,
 									vector<double> (
 										dimension , 
 										0.0) )
@@ -70,8 +71,8 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
       // Eine Dimension
     case(1):
       {
-	gs->compute_u_1d(cs, &raster, CELLS, ordnung);
-	gs->compute_f_1d(f, &raster, CELLS, ordnung);
+	gs->compute_u_1d(cs, grid, CELLS, ordnung);
+	gs->compute_f_1d(f, grid, CELLS, ordnung);
 	
 	//Berechne Lax-Friedrich-Fluss
 	for(int k = 0 ; k < gs->neqs ; k++)
@@ -91,9 +92,9 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
       {
 
 	//Berechne U, F und G
-	gs->compute_u_2d(cs, &raster, CELLS, ordnung);
-	gs->compute_f_2d(f, &raster, CELLS, ordnung);
-	gs->compute_g_2d(g, &raster, CELLS, ordnung);
+	gs->compute_u_2d(cs, grid, CELLS, ordnung);
+	gs->compute_f_2d(f, grid, CELLS, ordnung);
+	gs->compute_g_2d(g, grid, CELLS, ordnung);
 	
 	// Berechne Lax-Friedrich Flüsse
 	// Faktor 0.25 nach Formel für unsplitting,
@@ -112,6 +113,14 @@ vector < vector< vector< vector <double> > > > LaxFriedrichMethod::calc_method_f
 		    fi.at(k).at(x).at(y).at(1) = 0.5*(g[k][x][y] + g[k][x][y+1])
 		      //+ 0.25*(dy/dt)*(cs[k][x][y] - cs[k][x][y+1]);
 		      + 0.5*(dy/dt)*(cs[k][x][y] - cs[k][x][y+1]);
+
+		    /*cout << "lax fi " << fi.at(k).at(x).at(y).at(0) <<endl;
+			  cout << "lax f " << f[k][x][y] <<endl;
+			  cout << "lax f+ " << f[k][x+1][y] <<endl;
+			  cout << "lax cs " << cs[k][x][y] <<endl;
+			  cout << "lax cs+ " << cs[k][x+1][y] <<endl;
+			  cout << "lax dy/dt " << dy/dt <<endl;*/
+
 		  }
 	      }
 	  }

@@ -16,8 +16,8 @@ do
 		for(( splitmethod=1 ; splitmethod<=2 ; splitmethod++ ))
 		do
 			./main > /dev/null <<- EndExec
-			$initmethod
 			$fluxmethod
+			$initmethod
 			$splitmethod
 			1
 			EndExec
@@ -37,9 +37,9 @@ for(( initmethod=0 ; initmethod<=1 ; initmethod++ ))
 do
 	for(( fluxmethod=1 ; fluxmethod<=2 ; fluxmethod++ ))
 	do
-		./main > /dev/null <<- EndExec
-		$initmethod
+		./main  <<- EndExec
 		$fluxmethod
+		$initmethod
 		1
 		EndExec
 		loop=$(($loop + 1))

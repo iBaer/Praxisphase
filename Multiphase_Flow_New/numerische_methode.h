@@ -1,8 +1,10 @@
 #ifndef NUMERISCHE_METHODE_H
 #define NUMERISCHE_METHODE_H
-#include "Raster.h"
 #include "Gleichungssystem.h"
 #include <iostream>
+
+#include "grid.h"
+#include "solver.h"
 
 /*!
 * @class numerische_methode
@@ -20,7 +22,7 @@ class numerische_methode
         * @param cells Anzahl der Zellen.
         * @param method Name der Methode für unterscheidung bei Output.
         */
-        numerische_methode(std::string method, Constants* constants, Computation *computation, std::string save_in);
+        numerische_methode(Solver* solver, Constants* constants, Computation *computation, Grid *grid);
         /**
         * Startet die Berechnung.
         */
@@ -45,10 +47,6 @@ class numerische_methode
         * Zeit Output
         */
         double timeou;
-        /**
-        * K in den Formeln.
-        */
-        double ct;
         /**
         * Dimension in der gerechnet wird.
         */
@@ -114,6 +112,8 @@ class numerische_methode
         * Variante der EOS.
         */
         int variante;
+
+        double ct;
         /**
         * Konstanten Objekt welches für die berechnungen benötigt wird.
         * @see Konstanten
@@ -123,12 +123,17 @@ class numerische_methode
         * Raster in den gerechnet wird.
         * @see Raster
         */
-        Raster raster;
+        Grid* raster;
         /**
         * Gleichungssystem Objekt.
         * @see Gleichungssystem
         */
         Computation* gs;
+        /**
+        * Solver Objekt.
+        * @see Solver
+        */
+        Solver* solver;
         /**
         * CFL Bedingung anwenden und neue Zeit berechnen.
         * @param n aktueller Zeitschritt.
@@ -140,7 +145,7 @@ class numerische_methode
         * Abstrakte methode zur berechnung des Flusses der jeweiligen numerischen Methode.
         * @return Matrix der Flüsse (1D)
         */
-        virtual std::vector< std::vector< std::vector< std::vector <double> > > >calc_method_flux(int dir) =0;
+        //virtual std::vector< std::vector< std::vector< std::vector <double> > > >calc_method_flux(int dir) =0;
         /**
         * Aktualisiert alle zelle mithilfe des berechneten Flusses.
         */

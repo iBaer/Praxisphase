@@ -2,7 +2,7 @@
 #define LAXFRIEDRICHMETHOD_H
 
 #include "numerische_methode.h"
-//#include "solver.h"
+#include "solver.h"
 
 /*!
 * @class LaxFriedrichMethod
@@ -12,21 +12,21 @@
 */
 
 
-class LaxFriedrichMethod : public numerische_methode
+class LaxFriedrichMethod : public Solver
 {
     public:
         /**
         * Konstruktor von der Klasse LaxFriedrichMethod.
         * Ruft einfach den Konstrukter von der geerbten Klasse auf.
         */
-        LaxFriedrichMethod(Constants *constants, Computation *computation, std::string save_in);
+        LaxFriedrichMethod(Constants *constants, Computation *computation, Grid *grid);
     protected:
         /**
         * Berechnung des Lax-Friedrich Flusses.
         * @return Das zurückgelieferte Objekt ist ein Vektor mit 4 Dimensionen 
 	* (Formel, Raster x-Koordinate, Raster y-Koordinate, Flussrichtung)
         */
-        std::vector< std::vector< std::vector< std::vector <double> > > > calc_method_flux(int dir);
+        std::vector< std::vector< std::vector< std::vector <double> > > > calc_method_flux(double dt,int dir);
 };
 
 #endif // LAXFRIEDRICHMETHOD_H

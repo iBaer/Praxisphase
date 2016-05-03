@@ -26,7 +26,7 @@ class Constants
 
     public:
 
-        static Constants& myinstance();
+        static Constants& instance();
         /**
         * Beizeichnungen der Konstanten in einem Vektor.
         */
@@ -71,6 +71,10 @@ class Constants
 	double vrr;
 	double vyr;
 	double vyrr;
+    /**
+    * K in den Formeln.
+    */
+    double ct;
 };
 
 #endif // CONSTANTS_H

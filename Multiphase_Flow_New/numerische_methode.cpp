@@ -21,20 +21,18 @@ using namespace std;
  * @param cells Anzahl der Zellen.
  * @param method Name der Methode für unterscheidung bei Output.
  *******************************************1**********************************************/
-numerische_methode::numerische_methode(string method, Constants *constants,
-		Computation *computation, string save_in) :
-  raster(constants,save_in)
+numerische_methode::numerische_methode(Solver* solver, Constants* constants, Computation *computation, Grid *grid)
 {
+
 	konstanten = constants;
 	gs = computation;
-    name = method;
+	raster = grid;
+    name = solver->name;
+    this->solver = solver;
     ordnung = 1;
+
     dimension = konstanten->dimension;
     CELLS = new int(dimension);
-
-    double cref = konstanten->cref;
-    double done = konstanten->done;
-    double ccl = konstanten->ccl;
 
     mor = konstanten->mor;
     mol = konstanten->mol;
@@ -52,15 +50,11 @@ numerische_methode::numerische_methode(string method, Constants *constants,
     g = konstanten->g;
     dx = (mor-mol)/(double)CELLS[0];
     dy = (mur-mul)/(double)CELLS[1];
+
+
     dt = 0.0;
 
-    double rhol = konstanten->rhol;
-
-    double alfll = 1.0 - rhol/done + ccl *(rhol/done);
-    double dll = ccl * (rhol/alfll);
-    double pll = cref*pow(dll,g);
-
-    ct = pll/pow(rhol,g);
+    ct = konstanten->ct;
 
     splitting = 1;
     if (dimension == 2)
@@ -98,7 +92,7 @@ void numerische_methode::start_method()
         cout << n << " : " << maxnt << endl;
 
 	// set boundary conditions
-        raster.bcondi(CELLS,ordnung);
+        raster->bcondi(CELLS,ordnung);
         if (step_output==1) write();
 
 	// compute time step
@@ -106,22 +100,22 @@ void numerische_methode::start_method()
 
 	// update
 	if (splitting==1)
-
 	  // TODO: DER INDEX IN CALC_METHOD_FLUX IST NOCH OHNE BEDEUTUNG,
 	  // SONDERN ES WIRD IMMER F UND G BERECHNET, MUSS NOCH GEAENDERT WERDEN
-	  update(calc_method_flux(1),1);
+	  update(solver->calc_method_flux(dt,1),1);
 
 	if (splitting==2) {
-	  update(calc_method_flux(1),1);
-	  raster.bcondi(CELLS,ordnung);
+	  update(solver->calc_method_flux(dt,1),1);
+	  raster->bcondi(CELLS,ordnung);
 
 	  // ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
 	  // ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
 	  // DEN NEUEN WERTEN, SONST KANN EINEM DAS SYSTEM DIVERGIEREN!
-	  update(calc_method_flux(2),2);
+	  update(solver->calc_method_flux(dt,2),2);
 	}
         timedif = fabs(time-timeou);
         steps = n;
+
     }
     write();
 }
@@ -183,32 +177,36 @@ double numerische_methode::cflcon(int n, double time)
 		switch(variante)
 		  {
 		  case(1):
-		    p = ct* pow(raster.get_Zelle(x).d,g);
-		    raster.set_Zelle_p(p,x);
+		    p = ct* pow(raster->get_Zelle(x).d,g);
+		    raster->set_Zelle_p(p,x);
 		    dtwo = pow((p/cref),gi);
 		    break;
 		  /*case(2):
-		    dtwo = ccl/((1/raster.get_Zelle(x).d)-((1-ccl)/done));
+		    dtwo = ccl/((1/raster->get_Zelle(x).d)-((1-ccl)/done));
 		    p = cref * pow(dtwo,g);
-		    raster.set_Zelle_p(p,x);
+		    raster->set_Zelle_p(p,x);
 		    break;
 		  case(3):
-		    dtwo = ccl/((1/raster.get_Zelle(x).d)-((1-ccl)/done));
-		    p = ct* pow(raster.get_Zelle(x).d,g);
-		    raster.set_Zelle_p(p,x);
+		    dtwo = ccl/((1/raster->get_Zelle(x).d)-((1-ccl)/done));
+		    p = ct* pow(raster->get_Zelle(x).d,g);
+		    raster->set_Zelle_p(p,x);
 		    break;*/
 		  }
-		uone = raster.get_Zelle(x).d;
-		utwo = raster.get_Zelle(x).ux * uone;
-		uthree = raster.get_Zelle(x).uxr;
+		uone = raster->get_Zelle(x).d;
+		utwo = raster->get_Zelle(x).ux * uone;
+		uthree = raster->get_Zelle(x).uxr;
 
 		//Schritt 2: Einsetzen in die Jacobi-Matrix
 		matrix_1d(values, n, uone, utwo, uthree, p, done, dtwo,
 			  ccl, g, ct, cref, variante);
 
+
+
+
 		//Schritt 3: Berechnen der Eigenwerte
 		LaGenMatDouble A(values,3,3,true);
 		LaEigSolve(A,real,img,vr);
+
 
 		//Schritt 4: Höchsten Eigenwert suchen
 		for(int n = 0 ; n < 3 ; n++)
@@ -236,16 +234,16 @@ double numerische_methode::cflcon(int n, double time)
 	    //dt über Näherung berechnen
 	    for(int i = 0 ; i < CELLS[0]+2*ordnung+1 ; i++)
 	      {
-		d = raster.get_Zelle(i).d;
-		uxr = raster.get_Zelle(i).uxr;
-		ux = raster.get_Zelle(i).ux;
+		d = raster->get_Zelle(i).d;
+		uxr = raster->get_Zelle(i).uxr;
+		ux = raster->get_Zelle(i).ux;
 
 		switch(variante)
 		  {
 		  case(1):
 		    {
 		      p = ct* pow(d,g);
-		      raster.set_Zelle_p(p,i);
+		      raster->set_Zelle_p(p,i);
 		      dtwo = pow((p/cref),gi);
 		      break;
 		    }
@@ -253,14 +251,14 @@ double numerische_methode::cflcon(int n, double time)
 		    {
 		      dtwo = ccl/((1/d)-((1-ccl)/done));
 		      p = cref * pow(dtwo,g);
-		      raster.set_Zelle_p(p,i);
+		      raster->set_Zelle_p(p,i);
 		      break;
 		    }
 		  case(3):
 		    {
 		      dtwo = ccl/((1/d)-((1-ccl)/done));
 		      p = ct* pow(d,g);
-		      raster.set_Zelle_p(p,i);
+		      raster->set_Zelle_p(p,i);
 		      break;
 		    }
 		  }
@@ -301,13 +299,13 @@ double numerische_methode::cflcon(int n, double time)
 	      {
 		for(int y = 0 ; y < CELLS[1]+2*ordnung+1 ; y++)
 		  {
-		    d = raster.get_Zelle(x,y).d;
-		    uxr = raster.get_Zelle(x,y).uxr;
-		    ux = raster.get_Zelle(x,y).ux;
-		    uy = raster.get_Zelle(x,y).uy;
-		    uyr = raster.get_Zelle(x,y).uyr;
+		    d = raster->get_Zelle(x,y).d;
+		    uxr = raster->get_Zelle(x,y).uxr;
+		    ux = raster->get_Zelle(x,y).ux;
+		    uy = raster->get_Zelle(x,y).uy;
+		    uyr = raster->get_Zelle(x,y).uyr;
 		    p = ct* pow(d,g);
-		    raster.set_Zelle_p(p,x,y);
+		    raster->set_Zelle_p(p,x,y);
 		    dtwo = pow((p/cref),gi);
 
 		    maxs = fabs(ux)+fabs(uy)+AM_2d(g,p,d)+XS_2d(d,dtwo,done,ccl,uxr,uxy);
@@ -347,14 +345,14 @@ double numerische_methode::cflcon(int n, double time)
 	      {
 		for(int y = 0 ; y < CELLS[1]+2*ordnung+1 ; y++)
 		  {
-		    maxd = raster.get_Zelle(x).d;
-		    maxu = raster.get_Zelle(x).ux;
-		    maxuy = raster.get_Zelle(x).uy;
-		    maxur = raster.get_Zelle(x).uxr;
-		    maxuyr = raster.get_Zelle(x).uyr;
+		    maxd = raster->get_Zelle(x).d;
+		    maxu = raster->get_Zelle(x).ux;
+		    maxuy = raster->get_Zelle(x).uy;
+		    maxur = raster->get_Zelle(x).uxr;
+		    maxuyr = raster->get_Zelle(x).uyr;
 
-		    p = ct* pow(raster.get_Zelle(x,y).d,g);
-		    raster.set_Zelle_p(p,x,y);
+		    p = ct* pow(raster->get_Zelle(x,y).d,g);
+		    raster->set_Zelle_p(p,x,y);
 		    dtwo = pow((p/cref),gi);
 
 		    maxu = maxu * maxd;
@@ -430,25 +428,25 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
   double dtody = dt/dy;
   double d,ux,uy,uxd,uyd,uxr,uyr;
 
-  int width = raster.getwidth();
+  int width = raster->getwidth();
 
   // update in 1-d
   if(dimension == 1)
     {
       for(int i = ordnung ; i < CELLS[0]+ordnung+1 ; i++)
 	{
-	  d = raster.zelle[i].d;
-	  ux = raster.zelle[i].ux;
+	  d = raster->zelle[i].d;
+	  ux = raster->zelle[i].ux;
 	  uxd = d*ux;
-	  uxr = raster.zelle[i].uxr;
+	  uxr = raster->zelle[i].uxr;
 
 	  d = d + dtodx*(fi.at(0).at(i-1).at(0).at(0)-fi.at(0).at(i).at(0).at(0));
 	  uxd = uxd + dtodx*(fi.at(1).at(i-1).at(0).at(0)-fi.at(1).at(i).at(0).at(0));
 	  uxr = uxr + dtodx*(fi.at(2).at(i-1).at(0).at(0)-fi.at(2).at(i).at(0).at(0));
 
-	  raster.zelle[i].d = d;
-	  raster.zelle[i].ux = uxd/d;
-	  raster.zelle[i].uxr = uxr;
+	  raster->zelle[i].d = d;
+	  raster->zelle[i].ux = uxd/d;
+	  raster->zelle[i].uxr = uxr;
         }
     }
 
@@ -466,7 +464,6 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 	{
 	  cout << "update nonsplitting mit dtodx=" <<  dtodx  << " und dtody=" <<  dtody  <<   endl;
 	}
-
       int pos;
 
       if (splitting == 1)
@@ -476,13 +473,15 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 	      for(int y = ordnung ; y < CELLS[1]+ordnung+1 ; y++)
 		{
 		  pos = x+y*width;
-		  d = raster.zelle[pos].d;
-		  ux = raster.zelle[pos].ux;
-		  uy = raster.zelle[pos].uy;
-		  uxr = raster.zelle[pos].uxr;
-		  uyr = raster.zelle[pos].uyr;
+		  d = raster->zelle[pos].d;
+		  ux = raster->zelle[pos].ux;
+		  uy = raster->zelle[pos].uy;
+		  uxr = raster->zelle[pos].uxr;
+		  uyr = raster->zelle[pos].uyr;
 		  uxd = ux*d;
 		  uyd = uy*d;
+
+
 
 		  d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
 						       fi.at(0).at(x).at(y).at(0)) +
@@ -500,11 +499,17 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 						       fi.at(4).at(x).at(y).at(0)) +
 		    dtody*(fi.at(4).at(x).at(y-1).at(1)-fi.at(4).at(x).at(y).at(1));
 
-		  raster.zelle[pos].d = d;
-		  raster.zelle[pos].ux = uxd/d;
-		  raster.zelle[pos].uy = uyd/d;
-		  raster.zelle[pos].uxr = uxr;
-		  raster.zelle[pos].uyr = uyr;
+		  /*cout << "d " << d <<endl;
+		  cout << "uxd " << uxd<<endl;
+		  cout << "uyd " << uyd <<endl;
+		  cout << "uxr " << uxr <<endl;
+		  cout << "uyr " << uyr <<endl;*/
+
+		  raster->zelle[pos].d = d;
+		  raster->zelle[pos].ux = uxd/d;
+		  raster->zelle[pos].uy = uyd/d;
+		  raster->zelle[pos].uxr = uxr;
+		  raster->zelle[pos].uyr = uyr;
 
 		}
 	    }
@@ -518,12 +523,12 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		{
 		  for(int y = ordnung ; y < CELLS[1]+ordnung+1 ; y++)
 		    {
-		      pos = x+y*raster.width;
-		      d = raster.zelle[pos].d;
-		      ux = raster.zelle[pos].ux;
-		      uy = raster.zelle[pos].uy;
-		      uxr = raster.zelle[pos].uxr;
-		      uyr = raster.zelle[pos].uyr;
+		      pos = x+y*raster->width;
+		      d = raster->zelle[pos].d;
+		      ux = raster->zelle[pos].ux;
+		      uy = raster->zelle[pos].uy;
+		      uxr = raster->zelle[pos].uxr;
+		      uyr = raster->zelle[pos].uyr;
 
 		      uxd = ux*d;
 		      uyd = uy*d;
@@ -538,11 +543,11 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 							   fi.at(3).at(x).at(y).at(0));
 		      uyr = uyr + dtodx*(fi.at(4).at(x-1).at(y).at(0)-
 							   fi.at(4).at(x).at(y).at(0));
-		      raster.zelle[pos].d = d;
-		      raster.zelle[pos].ux = uxd/d;
-		      raster.zelle[pos].uy = uyd/d;
-		      raster.zelle[pos].uxr = uxr;
-		      raster.zelle[pos].uyr = uyr;
+		      raster->zelle[pos].d = d;
+		      raster->zelle[pos].ux = uxd/d;
+		      raster->zelle[pos].uy = uyd/d;
+		      raster->zelle[pos].uxr = uxr;
+		      raster->zelle[pos].uyr = uyr;
 		    }
 		}
 	    }
@@ -552,12 +557,12 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		{
 		  for(int y = ordnung ; y < CELLS[1]+ordnung+1 ; y++)
 		    {
-		      pos = x+y*raster.width;
-		      d = raster.zelle[pos].d;
-		      ux = raster.zelle[pos].ux;
-		      uy = raster.zelle[pos].uy;
-		      uxr = raster.zelle[pos].uxr;
-		      uyr = raster.zelle[pos].uyr;
+		      pos = x+y*raster->width;
+		      d = raster->zelle[pos].d;
+		      ux = raster->zelle[pos].ux;
+		      uy = raster->zelle[pos].uy;
+		      uxr = raster->zelle[pos].uxr;
+		      uyr = raster->zelle[pos].uyr;
 
 		      uxd = ux*d;
 		      uyd = uy*d;
@@ -572,17 +577,16 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 							   fi.at(3).at(x).at(y).at(1));
 		      uyr = uyr + dtody*(fi.at(4).at(x).at(y-1).at(1)-
 							   fi.at(4).at(x).at(y).at(1));
-		      raster.zelle[pos].d = d;
-		      raster.zelle[pos].ux = uxd/d;
-		      raster.zelle[pos].uy = uyd/d;
-		      raster.zelle[pos].uxr = uxr;
-		      raster.zelle[pos].uyr = uyr;
+		      raster->zelle[pos].d = d;
+		      raster->zelle[pos].ux = uxd/d;
+		      raster->zelle[pos].uy = uyd/d;
+		      raster->zelle[pos].uxr = uxr;
+		      raster->zelle[pos].uyr = uyr;
 		    }
                 }
             }
         }
     }
-
 }
 
 
@@ -607,14 +611,13 @@ void numerische_methode::write()
   }
   else {
     added = to_string(CELLS[0])+"x"+to_string(CELLS[1])+"_"+name+"_"
-      +to_string(dimension)+"d_split"+to_string(splitting)+"_IC"+to_string(raster.choice)
+      +to_string(dimension)+"d_split"+to_string(splitting)+"_IC"+to_string(raster->choice)
       +"_div"+to_string(int(1./teiler))
       +"till"+to_string((int)teilerend)+"_"
       +to_string(steps)+"Steps";
   }
 
-
-  switch(raster.getdim())
+  switch(raster->getdim())
     {
     case(1):
       {
@@ -632,14 +635,14 @@ void numerische_methode::write()
 	  {
 	    xpos = (mol + (mor-mol)*((double)(i-ordnung)/CELLS[0]));
 
-	    p = ct*pow(raster.get_Zelle(i).d,g);
+	    p = ct*pow(raster->get_Zelle(i).d,g);
 
 	    d_out << fixed << setprecision(8) << xpos << " \t"
-		  << setprecision(10) << raster.get_Zelle(i).d << "\n";
+		  << setprecision(10) << raster->get_Zelle(i).d << "\n";
 	    uxr_out << fixed << setprecision(8) << xpos << " \t"
-		    << setprecision(10) << raster.get_Zelle(i).uxr << "\n";
+		    << setprecision(10) << raster->get_Zelle(i).uxr << "\n";
 	    ux_out << fixed << setprecision(8) << xpos << " \t"
-		   << setprecision(10) << raster.get_Zelle(i).ux << "\n";
+		   << setprecision(10) << raster->get_Zelle(i).ux << "\n";
 	    p_out << fixed << setprecision(8) << xpos << " \t"
 		  << scientific << setprecision(10) << p << "\n";
 
@@ -679,23 +682,23 @@ void numerische_methode::write()
 		xpos = mol + (mor-mol)*(((double)x-ordnung)/(double)CELLS[0]);
 		ypos = mul + (mur-mul)*(((double)y-ordnung)/(double)CELLS[1]);
 
-		p = ct*pow(raster.get_Zelle(x,y).d,g);
+		p = ct*pow(raster->get_Zelle(x,y).d,g);
 
 		d_out << fixed << setprecision(8) << xpos << " "
 		      << fixed << setprecision(8) << ypos << " \t"
-		      << setprecision(10) << raster.get_Zelle(x,y).d << "\n";
+		      << setprecision(10) << raster->get_Zelle(x,y).d << "\n";
 		uxr_out << fixed << setprecision(8) << xpos << " "
 			<< fixed << setprecision(8) << ypos << " \t"
-			<< setprecision(10) << raster.get_Zelle(x,y).uxr << "\n";
+			<< setprecision(10) << raster->get_Zelle(x,y).uxr << "\n";
 		ux_out << fixed << setprecision(8) << xpos << " "
 		       << fixed << setprecision(8) << ypos << " \t"
-		       << setprecision(10) << raster.get_Zelle(x,y).ux << "\n";
+		       << setprecision(10) << raster->get_Zelle(x,y).ux << "\n";
 		uyr_out << fixed << setprecision(8) << xpos << " "
 			<< fixed << setprecision(8) << ypos << " \t"
-			<< setprecision(10) << raster.get_Zelle(x,y).uyr << "\n";
+			<< setprecision(10) << raster->get_Zelle(x,y).uyr << "\n";
 		uy_out << fixed << setprecision(8) << xpos << " "
 		       << fixed << setprecision(8) << ypos << " \t"
-		       << setprecision(10) << raster.get_Zelle(x,y).uy << "\n";
+		       << setprecision(10) << raster->get_Zelle(x,y).uy << "\n";
 		p_out << fixed << setprecision(8) << xpos << " "
 		      << fixed << setprecision(8) << ypos << " \t"
 		      << scientific << setprecision(10) << p << "\n";
@@ -726,19 +729,19 @@ void numerische_methode::write()
 	  {
 	    for(int y = ordnung ; y < CELLS[1]+ordnung+1 ; y++)
 	      {
-		if (raster.choice < 3)
+		if (raster->choice < 3)
 		  {
 		    xpos = mol + (mor-mol)*(((double)x-ordnung)/(double)CELLS[0]);
 		    ypos = mul + (mur-mul)*(((double)y-ordnung)/(double)CELLS[1]);
-		    p = ct*pow(raster.get_Zelle(x,y).d,g);
+		    p = ct*pow(raster->get_Zelle(x,y).d,g);
 
-		    if (raster.choice == 0) {
+		    if (raster->choice == 0) {
 		      d = fabs(ypos);
 		    }
-		    if (raster.choice == 1) {
+		    if (raster->choice == 1) {
 		      d = fabs(xpos+ypos);
 		    }
-		    if (raster.choice == 2) {
+		    if (raster->choice == 2) {
 		      d = fabs(xpos+2*ypos);
 		    }
 
@@ -746,16 +749,16 @@ void numerische_methode::write()
 		      {
 			sign = xpos < 0 ? -1.0: 1.0;
 			xout = sign*sqrt(xpos*xpos+ypos*ypos);
-			ux = raster.get_Zelle(x,y).ux;
-			uy = raster.get_Zelle(x,y).uy;
+			ux = raster->get_Zelle(x,y).ux;
+			uy = raster->get_Zelle(x,y).uy;
 			sign = ux < 0 ? -1.0: 1.0;
 			uout = sign*sqrt(ux*ux+uy*uy);
-			ux = raster.get_Zelle(x,y).uxr;
-			uy = raster.get_Zelle(x,y).uyr;
+			ux = raster->get_Zelle(x,y).uxr;
+			uy = raster->get_Zelle(x,y).uyr;
 			sign = ux < 0 ? -1.0: 1.0;
 			urout = sign*sqrt(ux*ux+uy*uy);
 			d_out_d1 << fixed << setprecision(8) << xout << " \t"
-				 << setprecision(10) << raster.get_Zelle(x,y).d
+				 << setprecision(10) << raster->get_Zelle(x,y).d
 				 << "\n";
 			u_out_d1 << fixed << setprecision(8) << xout << " \t"
 				   << setprecision(10) << uout
@@ -787,6 +790,8 @@ void numerische_methode::matrix_1d(double * values, int n, double uone, double u
 				   double uthree, double p, double done, double dtwo,
 				   double ccl, double g, double ct, double cref, int variante)
 {
+
+
   switch(variante)
     {
     case(1):

@@ -108,9 +108,15 @@ Constants::Constants() {
 		}
 	}
 
+    double alfll = 1.0 - rhol/done + ccl *(rhol/done);
+    double dll = ccl * (rhol/alfll);
+    double pll = cref*pow(dll,g);
+
+    ct = pll/pow(rhol,g);
+
 }
 
-Constants& Constants::myinstance() {
+Constants& Constants::instance() {
 	static Constants constants;
 	return constants;
 }

@@ -28,7 +28,7 @@ Computation::Computation(Constants *constants)
 
 }
 
-Computation& Computation::myinstance(Constants *constants) {
+Computation& Computation::instance(Constants *constants) {
 	static Computation computation(constants);
 	return computation;
 }
@@ -40,7 +40,7 @@ Computation& Computation::myinstance(Constants *constants) {
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Computation::compute_u_1d(double *** u, Raster * raster, int * cells, int ordnung)
+void Computation::compute_u_1d(double *** u, Grid * raster, int * cells, int ordnung)
 {
   for(int i = 0 ; i < cells[0]+2*ordnung+1 ; i++)  
     {
@@ -57,7 +57,7 @@ void Computation::compute_u_1d(double *** u, Raster * raster, int * cells, int o
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Computation::compute_f_1d(double *** f, Raster * raster, int * cells, int ordnung)
+void Computation::compute_f_1d(double *** f, Grid * raster, int * cells, int ordnung)
 {
   double d,ux,uxr,p;
   
@@ -81,7 +81,7 @@ void Computation::compute_f_1d(double *** f, Raster * raster, int * cells, int o
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Computation::compute_u_2d(double *** u, Raster * raster, int * cells, int ordnung)
+void Computation::compute_u_2d(double *** u, Grid * raster, int * cells, int ordnung)
 {
   int pos;
   double d,ux,uy,uxr,uyr;
@@ -113,7 +113,7 @@ void Computation::compute_u_2d(double *** u, Raster * raster, int * cells, int o
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Computation::compute_f_2d(double *** f, Raster * raster, int * cells, int ordnung)
+void Computation::compute_f_2d(double *** f, Grid * raster, int * cells, int ordnung)
 {
   int pos;
   double d,ux,uy,uxr,uyr,p;
@@ -148,7 +148,7 @@ void Computation::compute_f_2d(double *** f, Raster * raster, int * cells, int o
  * @param cells, Ausdehnung des Gitters
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
-void Computation::compute_g_2d(double *** g, Raster * raster, int * cells, int ordnung)
+void Computation::compute_g_2d(double *** g, Grid * raster, int * cells, int ordnung)
 {
   int pos;
   double d,ux,uy,uxr,uyr,p;
