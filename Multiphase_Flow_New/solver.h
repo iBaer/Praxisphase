@@ -1,13 +1,12 @@
 #ifndef SOLVER_H_
 #define SOLVER_H_
 
-#include "Gleichungssystem.h"
-
 #include <iomanip>
 #include <stdlib.h>
 #include <fstream>
 #include <string>
 
+#include "computation.h"
 #include "constants.h"
 
 using namespace std;
@@ -34,7 +33,7 @@ class Solver
 		* Abstrakte Methode zur berechnung des Flusses der jeweiligen numerischen Methode.
 		* @return Matrix der Flüsse (1D)
 		*/
-		virtual std::vector< std::vector< std::vector< std::vector <double> > > >calc_method_flux(double dt, int dir) =0;
+		virtual double* calc_method_flux(double dt, int dir) =0;
 
         /**
         * Konstanten Objekt welches für die berechnungen benötigt wird.

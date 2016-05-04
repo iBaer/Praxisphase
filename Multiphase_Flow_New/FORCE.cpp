@@ -13,47 +13,7 @@ FORCE::FORCE(Constants *constants, Computation *computation,
 	       Grid *grid) :
 Solver("FORCE", constants, computation, grid)
 {
-	  int width = grid->getwidth();
-	  int height = grid->getheight();
-	  int neqs = gs->neqs;
 
-	  double *uall =  new double[neqs*width*height];
-	  double *fall =  new double[neqs*width*height];
-	  double *gall =  new double[neqs*width*height];
-	  double *f_laxall =   new double[neqs*width*height];
-	  double *f_rieall =   new double[neqs*width*height];
-	  double *g_laxall =   new double[neqs*width*height];
-	  double *g_rieall =   new double[neqs*width*height];
-
-	  double *** cs = new double**[neqs];
-	  double *** fd = new double**[neqs];
-	  double *** gd = new double**[neqs];
-	  double *** f_lax = new double**[neqs];
-	  double *** f_rie = new double**[neqs];
-	  double *** g_lax = new double**[neqs];
-	  double *** g_rie = new double**[neqs];
-
-	  for(int i = 0; i < neqs; i++)
-	    {
-	      cs[i] = new double*[width];
-	      fd[i] = new double*[width];
-	      gd[i] = new double*[width];
-	      f_lax[i] = new double*[width];
-	      f_rie[i] = new double*[width];
-	      g_lax[i] = new double*[width];
-	      g_rie[i] = new double*[width];
-
-	      for(int j = 0; j < width; j++)
-		{
-		  cs[i][j] = uall + (i * width * height) + (j * height);
-		  fd[i][j] = fall + (i * width * height) + (j * height);
-		  gd[i][j] = gall + (i * width * height) + (j * height);
-		  f_lax[i][j] = f_laxall + (i * width * height) + (j * height);
-		  f_rie[i][j] = f_rieall + (i * width * height) + (j * height);
-		  g_lax[i][j] = g_laxall + (i * width * height) + (j * height);
-		  g_rie[i][j] = g_rieall + (i * width * height) + (j * height);
-		}
-	    }
 }
 
 // ACHTUNG, DIESE FURCHTBAREN VEKTOREN RAUS
@@ -66,8 +26,49 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(double dt,
 {
   cout << "Berechne FORCE Fluss..." << endl;
 
+  int width = grid->getwidth();
+  int height = grid->getheight();
+  int neqs = gs->neqs;
+
+  double *uall =  new double[neqs*width*height];
+  double *fall =  new double[neqs*width*height];
+  double *gall =  new double[neqs*width*height];
+  double *f_laxall =   new double[neqs*width*height];
+  double *f_rieall =   new double[neqs*width*height];
+  double *g_laxall =   new double[neqs*width*height];
+  double *g_rieall =   new double[neqs*width*height];
+
+  double *** cs = new double**[neqs];
+  double *** fd = new double**[neqs];
+  double *** gd = new double**[neqs];
+  double *** f_lax = new double**[neqs];
+  double *** f_rie = new double**[neqs];
+  double *** g_lax = new double**[neqs];
+  double *** g_rie = new double**[neqs];
+
+  for(int i = 0; i < neqs; i++)
+    {
+      cs[i] = new double*[width];
+      fd[i] = new double*[width];
+      gd[i] = new double*[width];
+      f_lax[i] = new double*[width];
+      f_rie[i] = new double*[width];
+      g_lax[i] = new double*[width];
+      g_rie[i] = new double*[width];
+
+      for(int j = 0; j < width; j++)
+	{
+	  cs[i][j] = uall + (i * width * height) + (j * height);
+	  fd[i][j] = fall + (i * width * height) + (j * height);
+	  gd[i][j] = gall + (i * width * height) + (j * height);
+	  f_lax[i][j] = f_laxall + (i * width * height) + (j * height);
+	  f_rie[i][j] = f_rieall + (i * width * height) + (j * height);
+	  g_lax[i][j] = g_laxall + (i * width * height) + (j * height);
+	  g_rie[i][j] = g_rieall + (i * width * height) + (j * height);
+	}
+    }
   
-  f_force (gs->neqs, vector< vector< vector<double> > >
+  vector< vector< vector< vector <double> > > > f_force(gs->neqs, vector< vector< vector<double> > >
 							 ( width, vector< vector<double> >
 							   ( height , vector<double> (dimension,0.0) ) ) );
 
@@ -108,7 +109,7 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(double dt,
 				    0.5*(dt/dx)*(fd[1][i][0]-fd[1][i+1][0]))/u_rie.zelle[i].d;
                 u_rie.zelle[i].uxr = 0.5*(cs[2][i][0]+cs[2][i+1][0]) + 
 				    0.5*(dt/dx)*(fd[2][i][0]-fd[2][i+1][0]);
-                u_rie.zelle[i].p = konstanten->ct*pow(u_rie.zelle[i].d,g);
+                u_rie.zelle[i].p = konstanten->ct*pow(u_rie.zelle[i].d,konstanten->g);
             }
   
             //Richtmyer Fluss berechnen
@@ -168,7 +169,7 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(double dt,
 		      +(dt/2*dx)*(fd[3][x][y]-fd[3][x+1][y]);
                     u_rie_f.zelle[pos].uyr = 0.5*(cs[4][x][y]+cs[4][x+1][y])
 		      +(dt/2*dx)*(fd[4][x][y]-fd[4][x+1][y]);
-                    u_rie_f.zelle[pos].p = konstanten->ct*pow(u_rie_f.zelle[pos].d,g);
+                    u_rie_f.zelle[pos].p = konstanten->ct*pow(u_rie_f.zelle[pos].d,konstanten->g);
 
                     u_rie_g.zelle[pos].d = 0.5*(cs[0][x][y]+cs[0][x][y+1])
 		      +(dt/2*dy)*(gd[0][x][y]-gd[0][x][y+1]);
@@ -180,7 +181,7 @@ vector< vector< vector< vector <double> > > > FORCE::calc_method_flux(double dt,
 		      +(dt/2*dy)*(gd[3][x][y]-gd[3][x][y+1]);
                     u_rie_g.zelle[pos].uyr = 0.5*(cs[4][x][y]+cs[4][x][y+1])
 		      +(dt/2*dy)*(gd[4][x][y]-gd[4][x][y+1]);
-                    u_rie_g.zelle[pos].p = konstanten->ct*pow(u_rie_g.zelle[pos].d,g);
+                    u_rie_g.zelle[pos].p = konstanten->ct*pow(u_rie_g.zelle[pos].d,konstanten->g);
                 }
             }
 

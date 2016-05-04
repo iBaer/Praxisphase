@@ -20,13 +20,31 @@ class LaxFriedrichMethod : public Solver
         * Ruft einfach den Konstrukter von der geerbten Klasse auf.
         */
         LaxFriedrichMethod(Constants *constants, Computation *computation, Grid *grid);
+        ~LaxFriedrichMethod();
+
     protected:
         /**
         * Berechnung des Lax-Friedrich Flusses.
         * @return Das zurückgelieferte Objekt ist ein Vektor mit 4 Dimensionen 
 	* (Formel, Raster x-Koordinate, Raster y-Koordinate, Flussrichtung)
         */
-        std::vector< std::vector< std::vector< std::vector <double> > > > calc_method_flux(double dt,int dir);
+        double* calc_method_flux(double dt,int dir);
+
+        int width;
+        int height;
+        int neqs;
+
+        double *uall;
+        double *fall;
+        double *gall;
+
+        double *** cs;
+        double *** f;
+        double *** g;
+
+    	double* fiarray;
+
+
 };
 
 #endif // LAXFRIEDRICHMETHOD_H

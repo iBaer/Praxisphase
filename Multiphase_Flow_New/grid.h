@@ -17,7 +17,7 @@
 class Grid
 {
   friend class LaxFriedrichMethod;
-  friend class FORCE;
+  friend class Force;
   friend class numerische_methode;
   friend class Computation;
 

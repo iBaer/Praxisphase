@@ -420,7 +420,7 @@ double numerische_methode::cflcon(int n, double time)
  *****************************************************************************************
  *  Aktualisiert alle zelle mithilfe des berechneten Flusses.
  *****************************************************************************************/
-void numerische_methode::update(vector< vector <vector< vector<double> > > > fi, int dir)
+void numerische_methode::update(double* fi, int dir)
 {
   cout << "Zellen updaten..." << endl;
 
@@ -429,6 +429,8 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
   double d,ux,uy,uxd,uyd,uxr,uyr;
 
   int width = raster->getwidth();
+  int height = raster->getheight();
+
 
   // update in 1-d
   if(dimension == 1)
@@ -440,9 +442,18 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 	  uxd = d*ux;
 	  uxr = raster->zelle[i].uxr;
 
-	  d = d + dtodx*(fi.at(0).at(i-1).at(0).at(0)-fi.at(0).at(i).at(0).at(0));
+				 d = d + dtodx*(
+							fi[0 + (dimension*0) + (dimension*(height-1)*(i-1)) + (dimension*(height-1)*(width-1)*0)]
+						 -		fi[0 + (dimension*0) + (dimension*(height-1)*i) + (dimension*(height-1)*(width-1)*0)]);
+					  uxd = uxd + dtodx*(
+								fi[0 + (dimension*0) + (dimension*(height-1)*(i-1)) + (dimension*(height-1)*(width-1)*1)]
+							  -		fi[0 + (dimension*0) + (dimension*(height-1)*i) + (dimension*(height-1)*(width-1)*1)]);
+					  uxr = uxr + dtodx*(
+								fi[0 + (dimension*0) + (dimension*(height-1)*(i-1)) + (dimension*(height-1)*(width-1)*2)]
+							  -		fi[0 + (dimension*0) + (dimension*(height-1)*i) + (dimension*(height-1)*(width-1)*2)]);
+	  /*d = d + dtodx*(fi.at(0).at(i-1).at(0).at(0)-fi.at(0).at(i).at(0).at(0));
 	  uxd = uxd + dtodx*(fi.at(1).at(i-1).at(0).at(0)-fi.at(1).at(i).at(0).at(0));
-	  uxr = uxr + dtodx*(fi.at(2).at(i-1).at(0).at(0)-fi.at(2).at(i).at(0).at(0));
+	  uxr = uxr + dtodx*(fi.at(2).at(i-1).at(0).at(0)-fi.at(2).at(i).at(0).at(0));*/
 
 	  raster->zelle[i].d = d;
 	  raster->zelle[i].ux = uxd/d;
@@ -483,12 +494,45 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 
 
 
-		  d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
-						       fi.at(0).at(x).at(y).at(0)) +
-		    dtody*(fi.at(0).at(x).at(y-1).at(1)-fi.at(0).at(x).at(y).at(1));
+			d = d + dtodx*(
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*0)]-
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)])
+							+dtody*(
+					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]-
+					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]);
+			uxd =  uxd + dtodx*(
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*1)]-
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*1)])
+							+dtody*(
+					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*1)]-
+					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*1)]);
+			uyd = uyd + dtodx*(
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*2)]-
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*2)])
+							+dtody*(
+					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*2)]-
+					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*2)]);
+			uxr = uxr + dtodx*(
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*3)]-
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*3)])
+							+dtody*(
+					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*3)]-
+					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*3)]);
+			uyr = uyr + dtodx*(
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*4)]-
+					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*4)])
+							+dtody*(
+					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*4)]-
+					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*4)]);
+
+		  /*d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
+						   fi.at(0).at(x).at(y).at(0)) +
+					dtody*(fi.at(0).at(x).at(y-1).at(1)
+						-fi.at(0).at(x).at(y).at(1));
 		  uxd =  uxd + dtodx*(fi.at(1).at(x-1).at(y).at(0)-
 						       fi.at(1).at(x).at(y).at(0)) +
-		    dtody*(fi.at(1).at(x).at(y-1).at(1)-fi.at(1).at(x).at(y).at(1));
+						dtody*(fi.at(1).at(x).at(y-1).at(1)-
+								fi.at(1).at(x).at(y).at(1));
 		  uyd = uyd + dtodx*(fi.at(2).at(x-1).at(y).at(0)-
 						       fi.at(2).at(x).at(y).at(0)) +
 		    dtody*(fi.at(2).at(x).at(y-1).at(1)-fi.at(2).at(x).at(y).at(1));
@@ -497,7 +541,7 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		    dtody*(fi.at(3).at(x).at(y-1).at(1)-fi.at(3).at(x).at(y).at(1));
 		  uyr = uyr + dtodx*(fi.at(4).at(x-1).at(y).at(0)-
 						       fi.at(4).at(x).at(y).at(0)) +
-		    dtody*(fi.at(4).at(x).at(y-1).at(1)-fi.at(4).at(x).at(y).at(1));
+		    dtody*(fi.at(4).at(x).at(y-1).at(1)-fi.at(4).at(x).at(y).at(1));*/
 
 		  /*cout << "d " << d <<endl;
 		  cout << "uxd " << uxd<<endl;
@@ -532,8 +576,32 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 
 		      uxd = ux*d;
 		      uyd = uy*d;
+		      /*
+		      d = d + dtodx*(
+		      					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*0)]-
+		      					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)])
+		      							+dtody*(
+		      					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]-
+		      					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]);
+		      */
 
-		      d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
+		      d = d + dtodx*(
+    					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*0)]-
+    					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]);
+		      		      uxd = uxd + dtodx*(
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*1)]-
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*1)]);
+		      		      uyd = uyd + dtodx*(
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*2)]-
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*2)]);
+		      		      uxr = uxr + dtodx*(
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*3)]-
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*3)]);
+		      		      uyr = uyr + dtodx*(
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*4)]-
+			      					fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*4)]);
+
+		      /*d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
 							   fi.at(0).at(x).at(y).at(0));
 		      uxd = uxd + dtodx*(fi.at(1).at(x-1).at(y).at(0)-
 							   fi.at(1).at(x).at(y).at(0));
@@ -542,7 +610,7 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		      uxr = uxr + dtodx*(fi.at(3).at(x-1).at(y).at(0)-
 							   fi.at(3).at(x).at(y).at(0));
 		      uyr = uyr + dtodx*(fi.at(4).at(x-1).at(y).at(0)-
-							   fi.at(4).at(x).at(y).at(0));
+							   fi.at(4).at(x).at(y).at(0));*/
 		      raster->zelle[pos].d = d;
 		      raster->zelle[pos].ux = uxd/d;
 		      raster->zelle[pos].uy = uyd/d;
@@ -567,7 +635,28 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		      uxd = ux*d;
 		      uyd = uy*d;
 
-		      d = d + dtody*(fi.at(0).at(x).at(y-1).at(1)-
+		      /*				dtody*(
+		      		      					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]-
+		      		      					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)])
+		      		      							*/
+
+		      d = d + dtody*(
+      					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]-
+      					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]);
+		      		      uxd = uxd + dtody*(
+    		      					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*1)]-
+    		      					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*1)]);
+		      		      uyd = uyd + dtody*(
+    		      					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*2)]-
+    		      					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*2)]);
+		      		      uxr = uxr + dtody*(
+    		      					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*3)]-
+    		      					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*3)]);
+		      		      uyr = uyr + dtody*(
+    		      					fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*4)]-
+    		      					fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*4)]);
+
+		      /*d = d + dtody*(fi.at(0).at(x).at(y-1).at(1)-
 							   fi.at(0).at(x).at(y).at(1));
 		      uxd = uxd + dtody*(fi.at(1).at(x).at(y-1).at(1)-
 							   fi.at(1).at(x).at(y).at(1));
@@ -576,7 +665,8 @@ void numerische_methode::update(vector< vector <vector< vector<double> > > > fi,
 		      uxr = uxr + dtody*(fi.at(3).at(x).at(y-1).at(1)-
 							   fi.at(3).at(x).at(y).at(1));
 		      uyr = uyr + dtody*(fi.at(4).at(x).at(y-1).at(1)-
-							   fi.at(4).at(x).at(y).at(1));
+							   fi.at(4).at(x).at(y).at(1));*/
+
 		      raster->zelle[pos].d = d;
 		      raster->zelle[pos].ux = uxd/d;
 		      raster->zelle[pos].uy = uyd/d;

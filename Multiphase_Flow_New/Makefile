@@ -26,12 +26,13 @@ clean:
 
 constants.o: constants.h
 Raster.o: grid.h constants.h
-Gleichungssystem.o: Gleichungssystem.h constants.h Zelle.h
-LaxFriedrichMethod.o: LaxFriedrichMethod.h numerische_methode.h Gleichungssystem.h constants.h numerische_methode.h solver.h
-FORCE.o: FORCE.h Gleichungssystem.h constants.h numerische_methode.h solver.h
+computation.o: computation.h constants.h Zelle.h
+solver.o: solver.h computation.h constants.h
+LaxFriedrichMethod.o: LaxFriedrichMethod.h constants.h solver.h
+force.o: force.h computation.h constants.h solver.h
 Zelle.o: Zelle.h
-main.o: LaxFriedrichMethod.h FORCE.h numerische_methode.h
-numerische_methode.o: numerische_methode.h constants.h grid.h constants.h Gleichungssystem.h solver.h
+main.o: LaxFriedrichMethod.h force.h numerische_methode.h
+numerische_methode.o: numerische_methode.h constants.h grid.h constants.h computation.h solver.h
 
 
 

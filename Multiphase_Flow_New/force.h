@@ -9,7 +9,7 @@
 */
 
 
-class FORCE : public Solver
+class Force : public Solver
 {
     public:
         /**
@@ -19,17 +19,16 @@ class FORCE : public Solver
         * @param formel_in Dateinamen-Kern für die Formeln.
         * @param save_in Dateiname wo für das Laden eine Speicherstands die Plots gespeichert sind.
         */
-        FORCE(Constants *constants, Computation *computation, Grid *grid);
-        //~FORCE();
+        Force(Constants *constants, Computation *computation, Grid *grid);
+        ~Force();
 
     protected:
         /**
         * Berechnung des FORCE Flusses.
         * @return 4 Dimensionaler Vektor. Zusammenstellung: Gleichung, x-Position, y-Position , dimension
         */
-        std::vector< std::vector< std::vector< std::vector <double> > > > calc_method_flux(double dt,int dir);
+        double* calc_method_flux(double dt,int dir);
 
-      /*double g;
   	  int width;
   	  int height;
   	  int neqs;
@@ -48,7 +47,11 @@ class FORCE : public Solver
   	  double *** f_lax;
   	  double *** f_rie;
   	  double *** g_lax;
-  	  double *** g_rie;*/
+  	  double *** g_rie;
+
+  	double* fiarray;
+
+
 };
 
 #endif // FORCE_H

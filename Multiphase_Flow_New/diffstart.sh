@@ -3,6 +3,11 @@
 clear
 echo "##### MULTIFLOW DIFF TEST #####"
 
+cd ./DiffableResults/ 
+echo "Total comparable files $(ls -f | wc -l)"
+echo ""
+cd ..
+
 rm -f *till5*
 
 START=$(date +%s%N)

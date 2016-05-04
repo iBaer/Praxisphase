@@ -1,7 +1,7 @@
+#include "computation.h"
 #include "LaxFriedrichMethod.h"
-#include "FORCE.h"
 #include "constants.h"
-#include "Gleichungssystem.h"
+#include "force.h"
 
 
 using namespace std;
@@ -11,7 +11,7 @@ int main()
 	Constants constants = Constants::instance();
 	Computation computation = Computation::instance(&constants);
     Grid grid = Grid(&constants, "save.in");
-
+    Solver* solver;
     int method = 1;
     cout << "####################################"<<endl;
     cout << "Multiphase Flow Simulator"<<endl;
@@ -30,17 +30,19 @@ int main()
 
     if (method == 1)
     {
-        LaxFriedrichMethod lax(&constants,&computation, &grid);
-        numerische_methode num_meth(&lax,&constants,&computation, &grid);
-        num_meth.start_method();
+        solver = new LaxFriedrichMethod(&constants,&computation, &grid);
     }
-    if (method == 2)
+    else if (method == 2)
     {
-    	FORCE force(&constants,&computation, &grid);
-		numerische_methode num_meth(&force,&constants,&computation, &grid);
-		num_meth.start_method();
+    	solver = new Force(&constants,&computation, &grid);
+    }
+    else{
+    	cout << "No valid method selected"<<endl<<"Closing Simulator"<<endl;
+    	return 0;
     }
 
+    numerische_methode num_meth(solver,&constants,&computation, &grid);
+    num_meth.start_method();
     return 0;
 
 }

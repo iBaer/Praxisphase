@@ -22,6 +22,8 @@ then
 	done
 fi
 
+echo "$fileamnt 2D files compared"
+
 if [ $filenotfound -ne 0 ]
 then
 	if [ $fileamnt -ne $filenotfound ]
