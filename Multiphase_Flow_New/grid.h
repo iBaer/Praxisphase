@@ -173,6 +173,7 @@ class Grid
         * Array wird dann je nach Dimension des Rasters interpretiert.
         */
         Zelle* zelle;
+        double** cellsgrid;
         /**
         * Dimension des Rasters (Maximal 3).
         */

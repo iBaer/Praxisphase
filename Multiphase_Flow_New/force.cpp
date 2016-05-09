@@ -115,7 +115,7 @@ double* Force::calc_method_flux(double dt,
 		}
 
 		//Richtmyer Fluss berechnen
-		Grid u_rie(grid->getwidth());
+		/*Grid u_rie(grid->getwidth());
 		for (int i = 0; i < CELLS[0] + ordnung + 1; i++) {
 			u_rie.zelle[i].d = 0.5 * (cs[0][i][0] + cs[0][i + 1][0])
 					+ 0.5 * (dt / dx) * (fd[0][i][0] - fd[0][i + 1][0]);
@@ -126,6 +126,19 @@ double* Force::calc_method_flux(double dt,
 					+ 0.5 * (dt / dx) * (fd[2][i][0] - fd[2][i + 1][0]);
 			u_rie.zelle[i].p = konstanten->ct
 					* pow(u_rie.zelle[i].d, konstanten->g);
+		}*/
+
+		Grid u_rie(grid->getwidth());
+		for (int i = 0; i < CELLS[0] + ordnung + 1; i++) {
+			u_rie.cellsgrid[i][0] = 0.5 * (cs[0][i][0] + cs[0][i + 1][0])
+					+ 0.5 * (dt / dx) * (fd[0][i][0] - fd[0][i + 1][0]);
+			u_rie.cellsgrid[i][2] = (0.5 * (cs[1][i][0] + cs[1][i + 1][0])
+					+ 0.5 * (dt / dx) * (fd[1][i][0] - fd[1][i + 1][0]))
+					/ u_rie.cellsgrid[i][0];
+			u_rie.cellsgrid[i][3] = 0.5 * (cs[2][i][0] + cs[2][i + 1][0])
+					+ 0.5 * (dt / dx) * (fd[2][i][0] - fd[2][i + 1][0]);
+			u_rie.cellsgrid[i][1] = konstanten->ct
+					* pow(u_rie.cellsgrid[i][0], konstanten->g);
 		}
 
 		//Richtmyer Fluss berechnen

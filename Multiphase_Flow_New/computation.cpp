@@ -45,9 +45,9 @@ void Computation::compute_u_1d(double *** u, Grid * raster, int * cells, int ord
 {
   for(int i = 0 ; i < cells[0]+2*ordnung+1 ; i++)  
     {
-      u[0][i][0] = raster->zelle[i].d;
-      u[1][i][0] = raster->zelle[i].d*raster->zelle[i].ux;
-      u[2][i][0] = raster->zelle[i].uxr;		
+      u[0][i][0] = raster->cellsgrid[i][0];
+      u[1][i][0] = raster->cellsgrid[i][0]*raster->cellsgrid[i][2];
+      u[2][i][0] = raster->cellsgrid[i][3];
     }
 }
 
@@ -64,10 +64,15 @@ void Computation::compute_f_1d(double *** f, Grid * raster, int * cells, int ord
   
   for(int i = 0 ; i < cells[0]+2*ordnung+1 ; i++)  
     {
-      d = raster->zelle[i].d;
+      /*d = raster->zelle[i].d;
       ux = raster->zelle[i].ux;
       uxr = raster->zelle[i].uxr;
-      p = raster->zelle[i].p;
+      p = raster->zelle[i].p;*/
+
+      d = raster->cellsgrid[i][0];
+      ux = raster->cellsgrid[i][2];
+      uxr = raster->cellsgrid[i][3];
+      p = raster->cellsgrid[i][1];
 	  
       f[0][i][0] = d*ux;
       f[1][i][0] = d*ux*ux+d*cclm1*uxr*uxr+p;
@@ -92,11 +97,11 @@ void Computation::compute_u_2d(double *** u, Grid * raster, int * cells, int ord
       for(int y = 0 ; y < cells[1]+2*ordnung+1 ; y++)
 	{
 	  pos = x+y*raster->getwidth();
-	  d = raster->zelle[pos].d;
-	  ux = raster->zelle[pos].ux;
-	  uy = raster->zelle[pos].uy;
-	  uxr = raster->zelle[pos].uxr;
-	  uyr = raster->zelle[pos].uyr;
+	  d = raster->cellsgrid[pos][0];
+	  ux = raster->cellsgrid[pos][2];
+	  uy = raster->cellsgrid[pos][4];
+	  uxr = raster->cellsgrid[pos][3];
+	  uyr = raster->cellsgrid[pos][5];
 
 	  u[0][x][y] = d;
 	  u[1][x][y] = d*ux;
