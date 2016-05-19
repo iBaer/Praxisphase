@@ -30,11 +30,11 @@ class Constants
         /**
         * Beizeichnungen der Konstanten in einem Vektor.
         */
-        std::vector<std::string> const_name;
+        //std::vector<std::string> const_name;
         /**
         * Vektor von Werten der Konstanten.
         */
-        std::vector<double> const_value;
+        //std::vector<double> const_value;
 
     std::string input_const;
 	int calceigv;
@@ -45,19 +45,19 @@ class Constants
 	double cfl;
 	int maxnt;
 	int dimension;
-	int ordnung;
+	int order;
 	double radius;
-	int CELLSX;
-	int CELLSY;
-	double g;
-	double mol;
-	double mor;
-	double mul;
-	double mur;
-	int upbc;
-	int downbc;
-	int leftbc;
-	int rightbc;
+	int grid_size_x;
+	int grid_size_y;
+	double gamma;
+	double pos_x_min;
+	double pos_x_max;
+	double pos_y_min;
+	double pos_y_max;
+	int bc_y_max;
+	int bc_y_min;
+	int bc_x_min;
+	int bc_x_max;
 	double cref;
 	double done;
 	double ccl;

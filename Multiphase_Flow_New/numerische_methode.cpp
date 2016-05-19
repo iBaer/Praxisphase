@@ -21,65 +21,59 @@ using namespace std;
  * @param cells Anzahl der Zellen.
  * @param method Name der Methode für unterscheidung bei Output.
  *******************************************1**********************************************/
-numerische_methode::numerische_methode(Solver* solver, Constants* constants,
-		Computation *computation, Grid *grid) {
+numerische_methode::numerische_methode(Solver* solver, Constants* constants, Computation *computation, Grid *grid) {
 
-	konstanten = constants;
+	this->constants = constants;
 	gs = computation;
-	raster = grid;
+	grid_main = grid;
 	name = solver->name;
 	this->solver = solver;
 	ordnung = 1;
 
-	dimension = konstanten->dimension;
-	CELLS = new int(dimension);
+	dimension = constants->dimension;
+	grid_size = new int[dimension];
 
-	mor = konstanten->mor;
-	mol = konstanten->mol;
-	mur = konstanten->mur; //2D
-	mul = konstanten->mul; //2D
-	timeou = konstanten->timeou;
+	mor = constants->pos_x_max;
+	mol = constants->pos_x_min;
+	mur = constants->pos_y_max; //2D
+	mul = constants->pos_y_min; //2D
+	timeou = constants->timeou;
 	steps = 0;
-	maxnt = konstanten->maxnt;
-	teilerend = konstanten->teilerend;
-	teiler = konstanten->teiler;
-	variante = (int) konstanten->variante;
+	maxnt = constants->maxnt;
+	teilerend = constants->teilerend;
+	teiler = constants->teiler;
+	variante = (int) constants->variante;
 
-	CELLS[0] = konstanten->CELLSX;
-	CELLS[1] = konstanten->CELLSY;
-	g = konstanten->g;
-	dx = (mor - mol) / (double) CELLS[0];
-	dy = (mur - mul) / (double) CELLS[1];
+	grid_size[0] = constants->grid_size_x;
+	grid_size[1] = constants->grid_size_y;
+	gamma = constants->gamma;
+	dx = (mor - mol) / (double) grid_size[0];
+	dy = (mur - mul) / (double) grid_size[1];
 
 	dt = 0.0;
 
-	ct = konstanten->ct;
+	ct = constants->ct;
 
-	splitting = 1;
-	if (dimension == 2) {
+	with_splitting = 1;
+	step_output = 0;
+	/*if (dimension == 2) {
 		std::cout << "Wahl!" << endl << " 1: unsplitting, 2: splitting:";
-		std::cin >> splitting;
-	}
+		std::cin >> with_splitting;
+	}*/
 }
 
+numerische_methode::~numerische_methode() {
+	delete[] grid_size;
+
+}
 /**
  *****************************************************************************************
  * Startet die Berechnung.
  *****************************************************************************************/
 void numerische_methode::start_method() {
 	double time = 0.0, timetol = 0.000001, timedif = 1.0;
-	int step_output = 0;
 
-	cout << "Stepwise Output[1: true :: 0: false]: ";
-	cin >> step_output;
-
-	if (dimension == 2) {
-		if (splitting == 1)
-			cout << "do unsplitting updates" << endl;
-		else
-			cout << "do splitting updates" << endl;
-	}
-
+	// Falls kein Schleifendurchgang gemacht wird
 	if (step_output == 1)
 		write();
 
@@ -87,7 +81,8 @@ void numerische_methode::start_method() {
 		cout << n << " : " << maxnt << endl;
 
 		// set boundary conditions
-		raster->bcondi(CELLS, ordnung);
+
+		grid_main->bcondi();
 		if (step_output == 1)
 			write();
 
@@ -95,25 +90,49 @@ void numerische_methode::start_method() {
 		time = cflcon(n, time);
 
 		// update
-		if (splitting == 1)
-			// TODO: DER INDEX IN CALC_METHOD_FLUX IST NOCH OHNE BEDEUTUNG,
-			// SONDERN ES WIRD IMMER F UND G BERECHNET, MUSS NOCH GEAENDERT WERDEN
+		if (dimension==1)
 			update(solver->calc_method_flux(dt, 1), 1);
+		else if (with_splitting == 1)
+			unsplitting();
 
-		if (splitting == 2) {
-			update(solver->calc_method_flux(dt, 1), 1);
-			raster->bcondi(CELLS, ordnung);
-
-			// ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
-			// ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
-			// DEN NEUEN WERTEN, SONST KANN EINEM DAS SYSTEM DIVERGIEREN!
-			update(solver->calc_method_flux(dt, 2), 2);
+		else if (with_splitting == 2) {
+			splitting();
 		}
 		timedif = fabs(time - timeou);
 		steps = n;
 
 	}
 	write();
+}
+
+void numerische_methode::unsplitting() {
+	// TODO: DER INDEX IN CALC_METHOD_FLUX IST NOCH OHNE BEDEUTUNG,
+	// SONDERN ES WIRD IMMER F UND G BERECHNET, MUSS NOCH GEAENDERT WERDEN
+	//update(solver->calc_method_flux(dt, 0), 0);
+
+	cout << "do unsplitting updates" << endl;
+
+	double* flux_x = solver->calc_method_flux(dt, 1);
+	double* flux_y = solver->calc_method_flux(dt, 2);
+	update(flux_x, 1);
+	update(flux_y, 2);
+}
+
+void numerische_methode::splitting() {
+	// TODO: Splitting aus folgenden Funktionen hier hin (eventuell)
+	// numerische_methode::cflcon
+	// numerische_methode::update
+
+	cout << "do splitting updates" << endl;
+
+	update(solver->calc_method_flux(dt, 1), 1);
+	grid_main->bcondi();
+
+	// ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
+	// ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
+	// DEN NEUEN WERTEN, SONST KANN EINEM DAS SYSTEM DIVERGIEREN!
+	update(solver->calc_method_flux(dt, 2), 2);
+
 }
 
 /**
@@ -124,11 +143,11 @@ void numerische_methode::start_method() {
  * @return neue Zeit.
  *****************************************************************************************/
 double numerische_methode::cflcon(int n, double time) {
-	double cref = konstanten->cref;
-	double cfl = konstanten->cfl;
-	double ccl = konstanten->ccl;
-	double done = konstanten->done;
-	double gi = 1.0 / g;
+	double cref = constants->cref;
+	double cfl = constants->cfl;
+	double ccl = constants->ccl;
+	double done = constants->done;
+	double gi = 1.0 / gamma;
 
 	double maxd = 0.0, maxu = 0.0, maxur = 0.0, maxuy = 0.0, maxuyr = 0.0;
 
@@ -136,26 +155,22 @@ double numerische_methode::cflcon(int n, double time) {
 
 	int n_eqns;  // number of equations, up in a first line in "formeln....in"
 
-	double uone;
-	double utwo;
-	double uthree;
-	double ufour;
-	double ufive;
-
+	//TODO: Nicht von Dimensionen abhängig
 	if (dimension == 1)
 		n_eqns = 3;
 	else
 		n_eqns = 5;
 
+	double* u_eqns = new double[n_eqns];
+	
 	string line;
 
-	double p = 0.0, ux = 0.0, d = 0.0, uxr = 0.0, dtwo = 0.0, uy = 0.0, uyr =
-			0.0;
+	double p = 0.0, ux = 0.0, d = 0.0, uxr = 0.0, dtwo = 0.0, uy = 0.0, uyr = 0.0;
 
 	switch (dimension) {
 	case (1): {
 		//1D
-		if ((int) konstanten->calceigv == 1)
+		if ((int) constants->calceigv == 1)
 		//1 = true, smax wird über Eigenwerte bestimmt
 				{
 			double values[9];
@@ -164,36 +179,35 @@ double numerische_methode::cflcon(int n, double time) {
 			LaGenMatDouble vr(3, 3);
 
 			//Schritt 1: Maxima finden
-			for (int x = 0; x < CELLS[0] + 2 * ordnung + 1; x++) {
+			for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
 
 				// ACHTUNG, NUR VARIANTE 1 IST IN DEN GLEICHUNGEN IMPLEMENTIERT!
 				switch (variante) {
 				case (1):
 
-					p = ct * pow(raster->cellsgrid[x][0], g);
+					p = ct * pow(grid_main->cellsgrid[x][0], gamma);
 
-					raster->set_Zelle_p(p, x);
+					grid_main->cellsgrid[x][1] = p;
 					dtwo = pow((p / cref), gi);
 					break;
 					/*case(2):
 					 dtwo = ccl/((1/raster->cellsgrid[x][0])-((1-ccl)/done));
 					 p = cref * pow(dtwo,g);
-					 raster->set_Zelle_p(p,x);
+					 raster->cellsgrid[x][1] = p;;
 					 break;
 					 case(3):
 					 dtwo = ccl/((1/raster->cellsgrid[x][0])-((1-ccl)/done));
 					 p = ct* pow(raster->cellsgrid[x][0],g);
-					 raster->set_Zelle_p(p,x);
+					 raster->cellsgrid[x][1] = p;;
 					 break;*/
 				}
 
-				uone = raster->cellsgrid[x][0];
-				utwo = raster->cellsgrid[x][2] * uone;
-				uthree = raster->cellsgrid[x][3];
+				u_eqns[0] = grid_main->cellsgrid[x][0];
+				u_eqns[1] = grid_main->cellsgrid[x][2] * u_eqns[0];
+				u_eqns[2] = grid_main->cellsgrid[x][3];
 
 				//Schritt 2: Einsetzen in die Jacobi-Matrix
-				matrix_1d(values, n, uone, utwo, uthree, p, done, dtwo, ccl, g,
-						ct, cref, variante);
+				matrix_1d(values, n, u_eqns[0], u_eqns[1], u_eqns[2], p, done, dtwo, ccl, gamma, ct, cref, variante);
 
 				//Schritt 3: Berechnen der Eigenwerte
 				LaGenMatDouble A(values, 3, 3, true);
@@ -216,44 +230,43 @@ double numerische_methode::cflcon(int n, double time) {
 			if ((time + dt) > timeou)
 				dt = timeou - time;
 			time = time + dt;
-			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t"
-					<< time << endl;
+			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 
 		}
 
 		else {
 			//dt über Näherung berechnen
-			for (int i = 0; i < CELLS[0] + 2 * ordnung + 1; i++) {
+			for (int i = 0; i < grid_main->grid_size_total[0]; i++) {
 
-				d = raster->cellsgrid[i][0];
-				uxr = raster->cellsgrid[i][3];
-				ux = raster->cellsgrid[i][2];
+				d = grid_main->cellsgrid[i][0];
+				uxr = grid_main->cellsgrid[i][3];
+				ux = grid_main->cellsgrid[i][2];
 
 				switch (variante) {
 				case (1): {
-					p = ct * pow(d, g);
-					raster->set_Zelle_p(p, i);
+					p = ct * pow(d, gamma);
+					grid_main->cellsgrid[i][1] = p;
 
 					dtwo = pow((p / cref), gi);
 					break;
 				}
 				case (2): {
 					dtwo = ccl / ((1 / d) - ((1 - ccl) / done));
-					p = cref * pow(dtwo, g);
-					raster->set_Zelle_p(p, i);
+					p = cref * pow(dtwo, gamma);
+					grid_main->cellsgrid[i][1] = p;
 
 					break;
 				}
 				case (3): {
 					dtwo = ccl / ((1 / d) - ((1 - ccl) / done));
-					p = ct * pow(d, g);
-					raster->set_Zelle_p(p, i);
+					p = ct * pow(d, gamma);
+					grid_main->cellsgrid[i][1] = p;
 
 					break;
 				}
 				}
 
-				maxs = fabs(ux)+ AM_1d(g,p,d)+XS_1d(d,dtwo,done,ccl,uxr);
+				maxs = fabs(ux) + AM_1d(gamma, p, d) + XS_1d(d, dtwo, done, ccl, uxr);
 
 				if (maxs > smax)
 					smax = maxs;
@@ -268,8 +281,7 @@ double numerische_methode::cflcon(int n, double time) {
 			if ((time + dt) > timeou)
 				dt = timeou - time;
 			time = time + dt;
-			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t"
-					<< time << endl;
+			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 		}
 
 		break;
@@ -283,24 +295,22 @@ double numerische_methode::cflcon(int n, double time) {
 		// 0 heisst, 1-d analytische Loseung verwenden,
 		// 1 heisst, smax wird über Eigenwerte bestimmt
 
-		if ((int) konstanten->calceigv == 0) {
+		if ((int) constants->calceigv == 0) {
 			//über Näherung
-			for (int x = 0; x < CELLS[0] + 2 * ordnung + 1; x++) {
-				for (int y = 0; y < CELLS[1] + 2 * ordnung + 1; y++) {
+			for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
+				for (int y = 0; y < grid_main->grid_size_total[1]; y++) {
 
-					int index = x + y * raster->width;
-					d = raster->cellsgrid[index][0];
-					uxr = raster->cellsgrid[index][3];
-					ux = raster->cellsgrid[index][2];
-					uy = raster->cellsgrid[index][4];
-					uyr = raster->cellsgrid[index][5];
-					p = ct * pow(d, g);
-					raster->set_Zelle_p(p, x, y);
+					int index = x + y * grid_main->grid_size_total[0];
+					d = grid_main->cellsgrid[index][0];
+					uxr = grid_main->cellsgrid[index][3];
+					ux = grid_main->cellsgrid[index][2];
+					uy = grid_main->cellsgrid[index][4];
+					uyr = grid_main->cellsgrid[index][5];
+					p = ct * pow(d, gamma);
+					grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][1] = p;
 					dtwo = pow((p / cref), gi);
 
-					maxs =
-							fabs(
-									ux)+fabs(uy)+AM_2d(g,p,d)+XS_2d(d,dtwo,done,ccl,uxr,uxy);
+					maxs = fabs(ux) + fabs(uy) + AM_2d(gamma, p, d) + XS_2d(d, dtwo, done, ccl, uxr, uxy);
 
 					if (maxs > smax) {
 						smax = maxs;
@@ -318,8 +328,7 @@ double numerische_methode::cflcon(int n, double time) {
 			if ((time + dt) > timeou)
 				dt = timeou - time;
 			time = time + dt;
-			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t"
-					<< time << endl;
+			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 		}
 
 		// 0 heisst, 1-d analytische Loseung verwenden,
@@ -334,30 +343,29 @@ double numerische_methode::cflcon(int n, double time) {
 			/**** Eventuell als Unteraufruf, um dt überprüfen zu können bei Splitting ****/
 
 			//Schritt 1: Daten holen
-			for (int x = 0; x < CELLS[0] + 2 * ordnung + 1; x++) {
-				for (int y = 0; y < CELLS[1] + 2 * ordnung + 1; y++) {
+			for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
+				for (int y = 0; y < grid_main->grid_size_total[1]; y++) {
 
-					maxd = raster->cellsgrid[x][0];
-					maxu = raster->cellsgrid[x][2];
-					maxuy = raster->cellsgrid[x][4];
-					maxur = raster->cellsgrid[x][3];
-					maxuyr = raster->cellsgrid[x][5];
+					maxd = grid_main->cellsgrid[x][0];
+					maxu = grid_main->cellsgrid[x][2];
+					maxuy = grid_main->cellsgrid[x][4];
+					maxur = grid_main->cellsgrid[x][3];
+					maxuyr = grid_main->cellsgrid[x][5];
 
-					p = ct * pow(raster->cellsgrid[x+y*raster->width][0], g);
-					raster->set_Zelle_p(p, x, y);
+					p = ct * pow(grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][0], gamma);
+					grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][1] = p;
 					dtwo = pow((p / cref), gi);
 
 					maxu = maxu * maxd;
 					maxuy = maxuy * maxd;
 
 					//Schritt 2: Einsetzen
-					uone = maxd;
-					utwo = maxu;
-					uthree = maxuy;
-					ufour = maxur;
-					ufive = maxuyr;
-					matrix_2d(values1, values2, n_eqns2, uone, utwo, uthree,
-							ufour, ufive, p, done, dtwo, ccl, g, ct, cref);
+					u_eqns[0] = maxd;
+					u_eqns[1] = maxu;
+					u_eqns[2] = maxuy;
+					u_eqns[3] = maxur;
+					u_eqns[4] = maxuyr;
+					matrix_2d(values1, values2, n_eqns2, u_eqns[0], u_eqns[1], u_eqns[2], u_eqns[3], u_eqns[4], p, done, dtwo, ccl, gamma, ct, cref);
 
 					//Schritt 3: Berechnen der Eigenwerte
 					LaGenMatDouble A(values1, n_eqns, n_eqns, true);
@@ -383,7 +391,7 @@ double numerische_methode::cflcon(int n, double time) {
 			}
 
 			/*****/
-			if (splitting == 1) {
+			if (with_splitting == 1) {
 				dt = cfl / (smax1 / dx + smax2 / dy);
 			} else {
 				dt = cfl / max(smax1 / dx, smax2 / dy);
@@ -396,8 +404,7 @@ double numerische_methode::cflcon(int n, double time) {
 				dt = timeou - time;
 			time = time + dt;
 			cout << "Größte Eigenwerte: " << smax1 << " und " << smax2 << endl;
-			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t"
-					<< time << endl;
+			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 
 		}
 
@@ -405,6 +412,7 @@ double numerische_methode::cflcon(int n, double time) {
 	}
 
 	}
+	delete[] u_eqns;
 	return time;
 }
 
@@ -419,539 +427,307 @@ void numerische_methode::update(double* fi, int dir) {
 	double dtody = dt / dy;
 	double d, ux, uy, uxd, uyd, uxr, uyr;
 
-	int width = raster->getwidth();
-	int height = raster->getheight();
+	//int width = grid_main->grid_size_total[0];
+	//int height = grid_main->grid_size_total[1];
+	int width_m1 = grid_main->grid_size_total[0] - 1;
+	int height_m1 = grid_main->grid_size_total[1] - 1;
 
 	// update in 1-d
 	if (dimension == 1) {
-		for (int i = ordnung; i < CELLS[0] + ordnung + 1; i++) {
-			d = raster->zelle[i].d;
-			ux = raster->zelle[i].ux;
+		for (int i = ordnung; i < grid_main->grid_size_total[0] - grid_main->orderofgrid; i++) {
+			d = grid_main->cellsgrid[i][0];
+			ux = grid_main->cellsgrid[i][2];
 			uxd = d * ux;
-			uxr = raster->zelle[i].uxr;
+			uxr = grid_main->cellsgrid[i][3];
 
-			d = d
-					+ dtodx
-							* (fi[0 + (dimension * 0)
-									+ (dimension * (height - 1) * (i - 1))
-									+ (dimension * (height - 1) * (width - 1)
-											* 0)]
-									- fi[0 + (dimension * 0)
-											+ (dimension * (height - 1) * i)
-											+ (dimension * (height - 1)
-													* (width - 1) * 0)]);
-			uxd = uxd
-					+ dtodx
-							* (fi[0 + (dimension * 0)
-									+ (dimension * (height - 1) * (i - 1))
-									+ (dimension * (height - 1) * (width - 1)
-											* 1)]
-									- fi[0 + (dimension * 0)
-											+ (dimension * (height - 1) * i)
-											+ (dimension * (height - 1)
-													* (width - 1) * 1)]);
-			uxr = uxr
-					+ dtodx
-							* (fi[0 + (dimension * 0)
-									+ (dimension * (height - 1) * (i - 1))
-									+ (dimension * (height - 1) * (width - 1)
-											* 2)]
-									- fi[0 + (dimension * 0)
-											+ (dimension * (height - 1) * i)
-											+ (dimension * (height - 1)
-													* (width - 1) * 2)]);
-			/*d = d + dtodx*(fi.at(0).at(i-1).at(0).at(0)-fi.at(0).at(i).at(0).at(0));
-			 uxd = uxd + dtodx*(fi.at(1).at(i-1).at(0).at(0)-fi.at(1).at(i).at(0).at(0));
-			 uxr = uxr + dtodx*(fi.at(2).at(i-1).at(0).at(0)-fi.at(2).at(i).at(0).at(0));*/
+			// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
+			// TODO: Form könnte für 1D Fall vereinfacht werden
+			int index_x1 = 0 + (height_m1) * (i - 1);
+			int index_x2 = 0 + (height_m1) * (i);
+			int index_x3 = (height_m1) * (width_m1);
 
-			raster->zelle[i].d = d;
-			raster->zelle[i].ux = uxd / d;
-			raster->zelle[i].uxr = uxr;
+			d = d + dtodx * (fi[index_x1 + index_x3 * (0)] - fi[index_x2 + index_x3 * (0)]);
+			uxd = uxd + dtodx * (fi[index_x1 + index_x3 * (1)] - fi[index_x2 + index_x3 * (1)]);
+			uxr = uxr + dtodx * (fi[index_x1 + index_x3 * (2)] - fi[index_x2 + index_x3 * (2)]);
 
-			raster->cellsgrid[i][0] = d;
-			raster->cellsgrid[i][2] = uxd / d;
-			raster->cellsgrid[i][3] = uxr;
+			grid_main->cellsgrid[i][0] = d;
+			grid_main->cellsgrid[i][2] = uxd / d;
+			grid_main->cellsgrid[i][3] = uxr;
 		}
 	}
 
 	// update in 2-d
 	if (dimension == 2) {
-		if (splitting == 2) {
-			if (dir == 1)
-				cout << "update x mit dtodx=" << dtodx << endl;
-			else
-				cout << "update y mit dtody=" << dtody << endl;
-		} else {
-			cout << "update nonsplitting mit dtodx=" << dtodx << " und dtody="
-					<< dtody << endl;
-		}
 		int pos;
-
-		if (splitting == 1) {
-			for (int x = ordnung; x < CELLS[0] + ordnung + 1; x++) {
-				for (int y = ordnung; y < CELLS[1] + ordnung + 1; y++) {
+		/*if (dir == 0) {
+			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
 					pos = x + y * width;
-					d = raster->zelle[pos].d;
-					ux = raster->zelle[pos].ux;
-					uy = raster->zelle[pos].uy;
-					uxr = raster->zelle[pos].uxr;
-					uyr = raster->zelle[pos].uyr;
+					d = grid_main->cellsgrid[pos][0];
+					ux = grid_main->cellsgrid[pos][2];
+					uy = grid_main->cellsgrid[pos][4];
+					uxr = grid_main->cellsgrid[pos][3];
+					uyr = grid_main->cellsgrid[pos][5];
 					uxd = ux * d;
 					uyd = uy * d;
 
-					d =
-							d
-									+ dtodx
-											* (fi[0 + (dimension * y)
-													+ (dimension * (height - 1)
-															* (x - 1))
-													+ (dimension * (height - 1)
-															* (width - 1) * 0)]
-													- fi[0 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 0)])
-									+ dtody
-											* (fi[1 + (dimension * (y - 1))
-													+ (dimension * (height - 1)
-															* (x))
-													+ (dimension * (height - 1)
-															* (width - 1) * 0)]
-													- fi[1 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 0)]);
-					uxd =
-							uxd
-									+ dtodx
-											* (fi[0 + (dimension * y)
-													+ (dimension * (height - 1)
-															* (x - 1))
-													+ (dimension * (height - 1)
-															* (width - 1) * 1)]
-													- fi[0 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 1)])
-									+ dtody
-											* (fi[1 + (dimension * (y - 1))
-													+ (dimension * (height - 1)
-															* (x))
-													+ (dimension * (height - 1)
-															* (width - 1) * 1)]
-													- fi[1 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 1)]);
-					uyd =
-							uyd
-									+ dtodx
-											* (fi[0 + (dimension * y)
-													+ (dimension * (height - 1)
-															* (x - 1))
-													+ (dimension * (height - 1)
-															* (width - 1) * 2)]
-													- fi[0 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 2)])
-									+ dtody
-											* (fi[1 + (dimension * (y - 1))
-													+ (dimension * (height - 1)
-															* (x))
-													+ (dimension * (height - 1)
-															* (width - 1) * 2)]
-													- fi[1 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 2)]);
-					uxr =
-							uxr
-									+ dtodx
-											* (fi[0 + (dimension * y)
-													+ (dimension * (height - 1)
-															* (x - 1))
-													+ (dimension * (height - 1)
-															* (width - 1) * 3)]
-													- fi[0 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 3)])
-									+ dtody
-											* (fi[1 + (dimension * (y - 1))
-													+ (dimension * (height - 1)
-															* (x))
-													+ (dimension * (height - 1)
-															* (width - 1) * 3)]
-													- fi[1 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 3)]);
-					uyr =
-							uyr
-									+ dtodx
-											* (fi[0 + (dimension * y)
-													+ (dimension * (height - 1)
-															* (x - 1))
-													+ (dimension * (height - 1)
-															* (width - 1) * 4)]
-													- fi[0 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 4)])
-									+ dtody
-											* (fi[1 + (dimension * (y - 1))
-													+ (dimension * (height - 1)
-															* (x))
-													+ (dimension * (height - 1)
-															* (width - 1) * 4)]
-													- fi[1 + (dimension * y)
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (x))
-															+ (dimension
-																	* (height
-																			- 1)
-																	* (width - 1)
-																	* 4)]);
+					// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
 
-					/*d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
-					 fi.at(0).at(x).at(y).at(0)) +
-					 dtody*(fi.at(0).at(x).at(y-1).at(1)
-					 -fi.at(0).at(x).at(y).at(1));
-					 uxd =  uxd + dtodx*(fi.at(1).at(x-1).at(y).at(0)-
-					 fi.at(1).at(x).at(y).at(0)) +
-					 dtody*(fi.at(1).at(x).at(y-1).at(1)-
-					 fi.at(1).at(x).at(y).at(1));
-					 uyd = uyd + dtodx*(fi.at(2).at(x-1).at(y).at(0)-
-					 fi.at(2).at(x).at(y).at(0)) +
-					 dtody*(fi.at(2).at(x).at(y-1).at(1)-fi.at(2).at(x).at(y).at(1));
-					 uxr = uxr + dtodx*(fi.at(3).at(x-1).at(y).at(0)-
-					 fi.at(3).at(x).at(y).at(0)) +
-					 dtody*(fi.at(3).at(x).at(y-1).at(1)-fi.at(3).at(x).at(y).at(1));
-					 uyr = uyr + dtodx*(fi.at(4).at(x-1).at(y).at(0)-
-					 fi.at(4).at(x).at(y).at(0)) +
-					 dtody*(fi.at(4).at(x).at(y-1).at(1)-fi.at(4).at(x).at(y).at(1));*/
+					int index_x1 = y + (height_m1) * (x - 1);
+					int index_x2 = y + (height_m1) * (x);
+					int index_x3 = (height_m1) * (width_m1);
 
-					/*cout << "d " << d <<endl;
-					 cout << "uxd " << uxd<<endl;
-					 cout << "uyd " << uyd <<endl;
-					 cout << "uxr " << uxr <<endl;
-					 cout << "uyr " << uyr <<endl;*/
+					// Form: 1 + (dimension * (YPOS)) + index_y1 + index_y2 * (VARIABLE (D=0,UXD=1, ...))
+					int index_y1 = (dimension * (height - 1) * (x));
+					int index_y2 = dimension * (height - 1) * (width - 1);
 
-					raster->zelle[pos].d = d;
-					raster->zelle[pos].ux = uxd / d;
-					raster->zelle[pos].uy = uyd / d;
-					raster->zelle[pos].uxr = uxr;
-					raster->zelle[pos].uyr = uyr;
+					d = d + dtodx * (fi[index_x1 + index_x3 * (0)] - fi[index_x2 + index_x3 * (0)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (0)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (0)]);
+					uxd = uxd + dtodx * (fi[index_x1 + index_x3 * (1)] - fi[index_x2 + index_x3 * (1)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (1)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (1)]);
+					uyd = uyd + dtodx * (fi[index_x1 + index_x3 * (2)] - fi[index_x2 + index_x3 * (2)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (2)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (2)]);
+					uxr = uxr + dtodx * (fi[index_x1 + index_x3 * (3)] - fi[index_x2 + index_x3 * (3)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (3)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (3)]);
+					uyr = uyr + dtodx * (fi[index_x1 + index_x3 * (4)] - fi[index_x2 + index_x3 * (4)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (4)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (4)]);
 
-					raster->cellsgrid[pos][0] = d;
-					raster->cellsgrid[pos][2] = uxd / d;
-					raster->cellsgrid[pos][4] = uyd / d;
-					raster->cellsgrid[pos][3] = uxr;
-					raster->cellsgrid[pos][5] = uyr;
+					grid_main->cellsgrid[pos][0] = d;
+					grid_main->cellsgrid[pos][2] = uxd / d;
+					grid_main->cellsgrid[pos][4] = uyd / d;
+					grid_main->cellsgrid[pos][3] = uxr;
+					grid_main->cellsgrid[pos][5] = uyr;
 				}
 			}
-		}
+		}*/
 
-		if (splitting == 2) {
-			if (dir == 1) {
-				for (int x = ordnung; x < CELLS[0] + ordnung + 1; x++) {
-					for (int y = ordnung; y < CELLS[1] + ordnung + 1; y++) {
-						pos = x + y * raster->width;
-						d = raster->zelle[pos].d;
-						ux = raster->zelle[pos].ux;
-						uy = raster->zelle[pos].uy;
-						uxr = raster->zelle[pos].uxr;
-						uyr = raster->zelle[pos].uyr;
+		if (dir == 1) {
+			cout << "update x mit dtodx=" << dtodx << endl;
+			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+					pos = x + y * grid_main->grid_size_total[0];
+					d = grid_main->cellsgrid[pos][0];
+					ux = grid_main->cellsgrid[pos][2];
+					uy = grid_main->cellsgrid[pos][4];
+					uxr = grid_main->cellsgrid[pos][3];
+					uyr = grid_main->cellsgrid[pos][5];
 
-						uxd = ux * d;
-						uyd = uy * d;
-						/*
-						 d = d + dtodx*(
-						 fi[0 + (dimension*y) + (dimension*(height-1)*(x-1)) + (dimension*(height-1)*(width-1)*0)]-
-						 fi[0 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)])
-						 +dtody*(
-						 fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]-
-						 fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]);
-						 */
+					uxd = ux * d;
+					uyd = uy * d;
 
-						d = d
-								+ dtodx
-										* (fi[0 + (dimension * y)
-												+ (dimension * (height - 1)
-														* (x - 1))
-												+ (dimension * (height - 1)
-														* (width - 1) * 0)]
-												- fi[0 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 0)]);
-						uxd = uxd
-								+ dtodx
-										* (fi[0 + (dimension * y)
-												+ (dimension * (height - 1)
-														* (x - 1))
-												+ (dimension * (height - 1)
-														* (width - 1) * 1)]
-												- fi[0 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 1)]);
-						uyd = uyd
-								+ dtodx
-										* (fi[0 + (dimension * y)
-												+ (dimension * (height - 1)
-														* (x - 1))
-												+ (dimension * (height - 1)
-														* (width - 1) * 2)]
-												- fi[0 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 2)]);
-						uxr = uxr
-								+ dtodx
-										* (fi[0 + (dimension * y)
-												+ (dimension * (height - 1)
-														* (x - 1))
-												+ (dimension * (height - 1)
-														* (width - 1) * 3)]
-												- fi[0 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 3)]);
-						uyr = uyr
-								+ dtodx
-										* (fi[0 + (dimension * y)
-												+ (dimension * (height - 1)
-														* (x - 1))
-												+ (dimension * (height - 1)
-														* (width - 1) * 4)]
-												- fi[0 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 4)]);
+					// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
 
-						/*d = d + dtodx*(fi.at(0).at(x-1).at(y).at(0)-
-						 fi.at(0).at(x).at(y).at(0));
-						 uxd = uxd + dtodx*(fi.at(1).at(x-1).at(y).at(0)-
-						 fi.at(1).at(x).at(y).at(0));
-						 uyd = uyd + dtodx*(fi.at(2).at(x-1).at(y).at(0)-
-						 fi.at(2).at(x).at(y).at(0));
-						 uxr = uxr + dtodx*(fi.at(3).at(x-1).at(y).at(0)-
-						 fi.at(3).at(x).at(y).at(0));
-						 uyr = uyr + dtodx*(fi.at(4).at(x-1).at(y).at(0)-
-						 fi.at(4).at(x).at(y).at(0));*/
-						raster->zelle[pos].d = d;
-						raster->zelle[pos].ux = uxd / d;
-						raster->zelle[pos].uy = uyd / d;
-						raster->zelle[pos].uxr = uxr;
-						raster->zelle[pos].uyr = uyr;
+					int index_x1 = y + (height_m1) * (x - 1);
+					int index_x2 = y + (height_m1) * (x);
+					int index_x3 = (height_m1) * (width_m1);
+					//cout << "Dir 1 fi["<< index_x1 + index_x3 * (0)<<"]: "<<fi[index_x1 + index_x3 * (0)]<<endl;
 
-						raster->cellsgrid[pos][0] = d;
-						raster->cellsgrid[pos][2] = uxd / d;
-						raster->cellsgrid[pos][4] = uyd / d;
-						raster->cellsgrid[pos][3] = uxr;
-						raster->cellsgrid[pos][5] = uyr;
-					}
+					d = d + dtodx * (fi[index_x1 + index_x3 * (0)] - fi[index_x2 + index_x3 * (0)]);
+					uxd = uxd + dtodx * (fi[index_x1 + index_x3 * (1)] - fi[index_x2 + index_x3 * (1)]);
+					uyd = uyd + dtodx * (fi[index_x1 + index_x3 * (2)] - fi[index_x2 + index_x3 * (2)]);
+					uxr = uxr + dtodx * (fi[index_x1 + index_x3 * (3)] - fi[index_x2 + index_x3 * (3)]);
+					uyr = uyr + dtodx * (fi[index_x1 + index_x3 * (4)] - fi[index_x2 + index_x3 * (4)]);
+
+					grid_main->cellsgrid[pos][0] = d;
+					grid_main->cellsgrid[pos][2] = uxd / d;
+					grid_main->cellsgrid[pos][4] = uyd / d;
+					grid_main->cellsgrid[pos][3] = uxr;
+					grid_main->cellsgrid[pos][5] = uyr;
 				}
-			} else {
-				for (int x = ordnung; x < CELLS[0] + ordnung + 1; x++) {
-					for (int y = ordnung; y < CELLS[1] + ordnung + 1; y++) {
-						pos = x + y * raster->width;
-						d = raster->zelle[pos].d;
-						ux = raster->zelle[pos].ux;
-						uy = raster->zelle[pos].uy;
-						uxr = raster->zelle[pos].uxr;
-						uyr = raster->zelle[pos].uyr;
+			}
+		} else if (dir == 2) {
+			cout << "update y mit dtody=" << dtody << endl;
+			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+					pos = x + y * grid_main->grid_size_total[0];
+					d = grid_main->cellsgrid[pos][0];
+					ux = grid_main->cellsgrid[pos][2];
+					uy = grid_main->cellsgrid[pos][4];
+					uxr = grid_main->cellsgrid[pos][3];
+					uyr = grid_main->cellsgrid[pos][5];
 
-						uxd = ux * d;
-						uyd = uy * d;
+					uxd = ux * d;
+					uyd = uy * d;
 
-						/*				dtody*(
-						 fi[1 + (dimension*(y-1)) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)]-
-						 fi[1 + (dimension*y) + (dimension*(height-1)*(x)) + (dimension*(height-1)*(width-1)*0)])
-						 */
+					// Form: 1 + (dimension * (YPOS)) + index_y1 + index_y2 * (VARIABLE (D=0,UXD=1, ...))
+					int index_y1 = (y-1) + (height_m1) * (x);
+					int index_y2 = (y) + (height_m1) * (x);
+					int index_y3 = (height_m1) * (width_m1);
 
-						d = d
-								+ dtody
-										* (fi[1 + (dimension * (y - 1))
-												+ (dimension * (height - 1)
-														* (x))
-												+ (dimension * (height - 1)
-														* (width - 1) * 0)]
-												- fi[1 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 0)]);
-						uxd = uxd
-								+ dtody
-										* (fi[1 + (dimension * (y - 1))
-												+ (dimension * (height - 1)
-														* (x))
-												+ (dimension * (height - 1)
-														* (width - 1) * 1)]
-												- fi[1 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 1)]);
-						uyd = uyd
-								+ dtody
-										* (fi[1 + (dimension * (y - 1))
-												+ (dimension * (height - 1)
-														* (x))
-												+ (dimension * (height - 1)
-														* (width - 1) * 2)]
-												- fi[1 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 2)]);
-						uxr = uxr
-								+ dtody
-										* (fi[1 + (dimension * (y - 1))
-												+ (dimension * (height - 1)
-														* (x))
-												+ (dimension * (height - 1)
-														* (width - 1) * 3)]
-												- fi[1 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 3)]);
-						uyr = uyr
-								+ dtody
-										* (fi[1 + (dimension * (y - 1))
-												+ (dimension * (height - 1)
-														* (x))
-												+ (dimension * (height - 1)
-														* (width - 1) * 4)]
-												- fi[1 + (dimension * y)
-														+ (dimension
-																* (height - 1)
-																* (x))
-														+ (dimension
-																* (height - 1)
-																* (width - 1)
-																* 4)]);
 
-						/*d = d + dtody*(fi.at(0).at(x).at(y-1).at(1)-
-						 fi.at(0).at(x).at(y).at(1));
-						 uxd = uxd + dtody*(fi.at(1).at(x).at(y-1).at(1)-
-						 fi.at(1).at(x).at(y).at(1));
-						 uyd = uyd + dtody*(fi.at(2).at(x).at(y-1).at(1)-
-						 fi.at(2).at(x).at(y).at(1));
-						 uxr = uxr + dtody*(fi.at(3).at(x).at(y-1).at(1)-
-						 fi.at(3).at(x).at(y).at(1));
-						 uyr = uyr + dtody*(fi.at(4).at(x).at(y-1).at(1)-
-						 fi.at(4).at(x).at(y).at(1));*/
+					d = d + dtody * (fi[index_y1 + index_y3 * (0)] - fi[index_y2 + index_y3 * (0)]);
+					uxd = uxd + dtody * (fi[index_y1 + index_y3 * (1)] - fi[index_y2 + index_y3 * (1)]);
+					uyd = uyd + dtody * (fi[index_y1 + index_y3 * (2)] - fi[index_y2 + index_y3 * (2)]);
+					uxr = uxr + dtody * (fi[index_y1 + index_y3 * (3)] - fi[index_y2 + index_y3 * (3)]);
+					uyr = uyr + dtody * (fi[index_y1 + index_y3 * (4)] - fi[index_y2 + index_y3 * (4)]);
 
-						raster->zelle[pos].d = d;
-						raster->zelle[pos].ux = uxd / d;
-						raster->zelle[pos].uy = uyd / d;
-						raster->zelle[pos].uxr = uxr;
-						raster->zelle[pos].uyr = uyr;
+					grid_main->cellsgrid[pos][0] = d;
+					grid_main->cellsgrid[pos][2] = uxd / d;
+					grid_main->cellsgrid[pos][4] = uyd / d;
+					grid_main->cellsgrid[pos][3] = uxr;
+					grid_main->cellsgrid[pos][5] = uyr;
 
-						raster->cellsgrid[pos][0] = d;
-						raster->cellsgrid[pos][2] = uxd / d;
-						raster->cellsgrid[pos][4] = uyd / d;
-						raster->cellsgrid[pos][3] = uxr;
-						raster->cellsgrid[pos][5] = uyr;
-					}
 				}
 			}
 		}
 	}
 }
+
+/*
+void numerische_methode::update(double* fi, int dir) {
+	cout << "Zellen updaten..." << endl;
+
+	double dtodx = dt / dx;
+	double dtody = dt / dy;
+	double d, ux, uy, uxd, uyd, uxr, uyr;
+
+	int width = grid_main->grid_size_total[0];
+	int height = grid_main->grid_size_total[1];
+
+	// update in 1-d
+	if (dimension == 1) {
+		for (int i = ordnung; i < grid_main->grid_size_total[0] - grid_main->orderofgrid; i++) {
+			d = grid_main->cellsgrid[i][0];
+			ux = grid_main->cellsgrid[i][2];
+			uxd = d * ux;
+			uxr = grid_main->cellsgrid[i][3];
+
+			// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
+			// TODO: Form könnte für 1D Fall vereinfacht werden
+			int index_x1 = 0 + (dimension * 0);
+			int index_x2 = dimension * (height - 1);
+			int index_x3 = (dimension * (height - 1) * (width - 1));
+
+			d = d + dtodx * (fi[index_x1 + index_x2 * (i - 1) + index_x3 * (0)] - fi[index_x1 + index_x2 * (i) + index_x3 * (0)]);
+			uxd = uxd + dtodx * (fi[index_x1 + index_x2 * (i - 1) + index_x3 * (1)] - fi[index_x1 + index_x2 * (i) + index_x3 * (1)]);
+			uxr = uxr + dtodx * (fi[index_x1 + index_x2 * (i - 1) + index_x3 * (2)] - fi[index_x1 + index_x2 * (i) + index_x3 * (2)]);
+
+			grid_main->cellsgrid[i][0] = d;
+			grid_main->cellsgrid[i][2] = uxd / d;
+			grid_main->cellsgrid[i][3] = uxr;
+		}
+	}
+
+	// update in 2-d
+	if (dimension == 2) {
+		if (with_splitting == 2) {
+			if (dir == 1)
+				cout << "update x mit dtodx=" << dtodx << endl;
+			else
+				cout << "update y mit dtody=" << dtody << endl;
+		} else {
+			cout << "update nonsplitting mit dtodx=" << dtodx << " und dtody=" << dtody << endl;
+		}
+		int pos;
+
+		if (dir == 0) {
+			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+					pos = x + y * width;
+					d = grid_main->cellsgrid[pos][0];
+					ux = grid_main->cellsgrid[pos][2];
+					uy = grid_main->cellsgrid[pos][4];
+					uxr = grid_main->cellsgrid[pos][3];
+					uyr = grid_main->cellsgrid[pos][5];
+					uxd = ux * d;
+					uyd = uy * d;
+
+					// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
+					int index_x1 = 0 + (dimension * y);
+					int index_x2 = dimension * (height - 1);
+					int index_x3 = (dimension * (height - 1) * (width - 1));
+
+					// Form: 1 + (dimension * (YPOS)) + index_y1 + index_y2 * (VARIABLE (D=0,UXD=1, ...))
+					int index_y1 = (dimension * (height - 1) * (x));
+					int index_y2 = dimension * (height - 1) * (width - 1);
+
+					d = d + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (0)] - fi[index_x1 + index_x2 * (x) + index_x3 * (0)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (0)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (0)]);
+					uxd = uxd + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (1)] - fi[index_x1 + index_x2 * (x) + index_x3 * (1)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (1)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (1)]);
+					uyd = uyd + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (2)] - fi[index_x1 + index_x2 * (x) + index_x3 * (2)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (2)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (2)]);
+					uxr = uxr + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (3)] - fi[index_x1 + index_x2 * (x) + index_x3 * (3)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (3)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (3)]);
+					uyr = uyr + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (4)] - fi[index_x1 + index_x2 * (x) + index_x3 * (4)])
+							+ dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (4)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (4)]);
+
+					grid_main->cellsgrid[pos][0] = d;
+					grid_main->cellsgrid[pos][2] = uxd / d;
+					grid_main->cellsgrid[pos][4] = uyd / d;
+					grid_main->cellsgrid[pos][3] = uxr;
+					grid_main->cellsgrid[pos][5] = uyr;
+				}
+			}
+		}
+
+		else if (dir == 1) {
+			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+					pos = x + y * grid_main->grid_size_total[0];
+					d = grid_main->cellsgrid[pos][0];
+					ux = grid_main->cellsgrid[pos][2];
+					uy = grid_main->cellsgrid[pos][4];
+					uxr = grid_main->cellsgrid[pos][3];
+					uyr = grid_main->cellsgrid[pos][5];
+
+					uxd = ux * d;
+					uyd = uy * d;
+
+					// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
+					int index_x1 = 0 + (dimension * y);
+					int index_x2 = dimension * (height - 1);
+					int index_x3 = (dimension * (height - 1) * (width - 1));
+
+					d = d + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (0)] - fi[index_x1 + index_x2 * (x) + index_x3 * (0)]);
+					uxd = uxd + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (1)] - fi[index_x1 + index_x2 * (x) + index_x3 * (1)]);
+					uyd = uyd + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (2)] - fi[index_x1 + index_x2 * (x) + index_x3 * (2)]);
+					uxr = uxr + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (3)] - fi[index_x1 + index_x2 * (x) + index_x3 * (3)]);
+					uyr = uyr + dtodx * (fi[index_x1 + index_x2 * (x - 1) + index_x3 * (4)] - fi[index_x1 + index_x2 * (x) + index_x3 * (4)]);
+
+					grid_main->cellsgrid[pos][0] = d;
+					grid_main->cellsgrid[pos][2] = uxd / d;
+					grid_main->cellsgrid[pos][4] = uyd / d;
+					grid_main->cellsgrid[pos][3] = uxr;
+					grid_main->cellsgrid[pos][5] = uyr;
+
+				}
+			}
+		} else if (dir == 2) {
+			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+					pos = x + y * grid_main->grid_size_total[0];
+					d = grid_main->cellsgrid[pos][0];
+					ux = grid_main->cellsgrid[pos][2];
+					uy = grid_main->cellsgrid[pos][4];
+					uxr = grid_main->cellsgrid[pos][3];
+					uyr = grid_main->cellsgrid[pos][5];
+
+					uxd = ux * d;
+					uyd = uy * d;
+
+					// Form: 1 + (dimension * (YPOS)) + index_y1 + index_y2 * (VARIABLE (D=0,UXD=1, ...))
+					int index_y1 = (dimension * (height - 1) * (x));
+					int index_y2 = dimension * (height - 1) * (width - 1);
+
+					d = d + dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (0)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (0)]);
+					uxd = uxd + dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (1)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (1)]);
+					uyd = uyd + dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (2)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (2)]);
+					uxr = uxr + dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (3)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (3)]);
+					uyr = uyr + dtody * (fi[1 + (dimension * (y - 1)) + index_y1 + index_y2 * (4)] - fi[1 + (dimension * y) + index_y1 + index_y2 * (4)]);
+
+					grid_main->cellsgrid[pos][0] = d;
+					grid_main->cellsgrid[pos][2] = uxd / d;
+					grid_main->cellsgrid[pos][4] = uyd / d;
+					grid_main->cellsgrid[pos][3] = uxr;
+					grid_main->cellsgrid[pos][5] = uyr;
+
+				}
+			}
+		}
+	}
+}
+*/
 
 /**
  *****************************************************************************************
@@ -964,20 +740,15 @@ void numerische_methode::write() {
 	string added;
 
 	if (dimension == 1) {
-		added = to_string(CELLS[0]) + "_" + name + "_" + to_string(dimension)
-				+ "d_" + to_string(variante) + ".variant_" + "div"
-				+ to_string(teiler) + "till" + to_string((int) teilerend) + "_"
-				+ to_string(steps) + "Steps";
+		added = to_string(grid_size[0]) + "_" + name + "_" + to_string(dimension) + "d_" + to_string(variante) + ".variant_" + "div" + to_string(teiler) + "till"
+				+ to_string((int) teilerend) + "_" + to_string(steps) + "Steps";
 
 	} else {
-		added = to_string(CELLS[0]) + "x" + to_string(CELLS[1]) + "_" + name
-				+ "_" + to_string(dimension) + "d_split" + to_string(splitting)
-				+ "_IC" + to_string(raster->choice) + "_div"
-				+ to_string(int(1. / teiler)) + "till"
-				+ to_string((int) teilerend) + "_" + to_string(steps) + "Steps";
+		added = to_string(grid_size[0]) + "x" + to_string(grid_size[1]) + "_" + name + "_" + to_string(dimension) + "d_split" + to_string(with_splitting) + "_IC"
+				+ to_string(grid_main->choice) + "_div" + to_string(int(1. / teiler)) + "till" + to_string((int) teilerend) + "_" + to_string(steps) + "Steps";
 	}
 
-	switch (raster->getdim()) {
+	switch (grid_main->dimension) {
 	case (1): {
 		string d_path = "d_" + added;
 		string uxr_path = "uxr_" + added;
@@ -989,20 +760,15 @@ void numerische_methode::write() {
 		ofstream ux_out(ux_path.c_str());
 		ofstream p_out(p_path.c_str());
 
-		for (int i = ordnung; i < CELLS[0] + ordnung + 1; i++) {
-			xpos = (mol + (mor - mol) * ((double) (i - ordnung) / CELLS[0]));
+		for (int i = ordnung; i < grid_main->grid_size_total[0] - grid_main->orderofgrid; i++) {
+			xpos = (mol + (mor - mol) * ((double) (i - ordnung) / grid_size[0]));
 
-			p = ct * pow(raster->cellsgrid[i][0], g);
+			p = ct * pow(grid_main->cellsgrid[i][0], gamma);
 
-
-			d_out << fixed << setprecision(8) << xpos << " \t"
-					<< setprecision(10) << raster->cellsgrid[i][0] << "\n";
-			uxr_out << fixed << setprecision(8) << xpos << " \t"
-					<< setprecision(10) << raster->cellsgrid[i][3] << "\n";
-			ux_out << fixed << setprecision(8) << xpos << " \t"
-					<< setprecision(10) << raster->cellsgrid[i][2] << "\n";
-			p_out << fixed << setprecision(8) << xpos << " \t" << scientific
-					<< setprecision(10) << p << "\n";
+			d_out << fixed << setprecision(8) << xpos << " \t" << setprecision(10) << grid_main->cellsgrid[i][0] << "\n";
+			uxr_out << fixed << setprecision(8) << xpos << " \t" << setprecision(10) << grid_main->cellsgrid[i][3] << "\n";
+			ux_out << fixed << setprecision(8) << xpos << " \t" << setprecision(10) << grid_main->cellsgrid[i][2] << "\n";
+			p_out << fixed << setprecision(8) << xpos << " \t" << scientific << setprecision(10) << p << "\n";
 
 		}
 
@@ -1032,36 +798,25 @@ void numerische_methode::write() {
 		// ACHTUNG, FUER 2. ORDNUNG NOCHMAL ALLE GRENZEN KONTROLLIEREN
 
 		// Output ohne Randwerte
-		for (int x = ordnung; x < CELLS[0] + ordnung + 1; x++) {
-			for (int y = ordnung; y < CELLS[1] + ordnung + 1; y++) {
-				xpos = mol
-						+ (mor - mol)
-								* (((double) x - ordnung) / (double) CELLS[0]);
-				ypos = mul
-						+ (mur - mul)
-								* (((double) y - ordnung) / (double) CELLS[1]);
+		for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+			for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+				xpos = mol + (mor - mol) * (((double) x - ordnung) / (double) grid_size[0]);
+				ypos = mul + (mur - mul) * (((double) y - ordnung) / (double) grid_size[1]);
 
-				int index = x + y * raster->width;
-				p = ct * pow(raster->cellsgrid[index][0], g);
+				int index = x + y * grid_main->grid_size_total[0];
+				p = ct * pow(grid_main->cellsgrid[index][0], gamma);
 
-				d_out << fixed << setprecision(8) << xpos << " " << fixed
-						<< setprecision(8) << ypos << " \t" << setprecision(10)
-						<< raster->cellsgrid[index][0] << "\n";
-				uxr_out << fixed << setprecision(8) << xpos << " " << fixed
-						<< setprecision(8) << ypos << " \t" << setprecision(10)
-						<< raster->cellsgrid[index][3] << "\n";
-				ux_out << fixed << setprecision(8) << xpos << " " << fixed
-						<< setprecision(8) << ypos << " \t" << setprecision(10)
-						<< raster->cellsgrid[index][2] << "\n";
-				uyr_out << fixed << setprecision(8) << xpos << " " << fixed
-						<< setprecision(8) << ypos << " \t" << setprecision(10)
-						<< raster->cellsgrid[index][5] << "\n";
-				uy_out << fixed << setprecision(8) << xpos << " " << fixed
-						<< setprecision(8) << ypos << " \t" << setprecision(10)
-						<< raster->cellsgrid[index][4] << "\n";
-				p_out << fixed << setprecision(8) << xpos << " " << fixed
-						<< setprecision(8) << ypos << " \t" << scientific
-						<< setprecision(10) << p << "\n";
+				d_out << fixed << setprecision(8) << xpos << " " << fixed << setprecision(8) << ypos << " \t" << setprecision(10)
+						<< grid_main->cellsgrid[index][0] << "\n";
+				uxr_out << fixed << setprecision(8) << xpos << " " << fixed << setprecision(8) << ypos << " \t" << setprecision(10)
+						<< grid_main->cellsgrid[index][3] << "\n";
+				ux_out << fixed << setprecision(8) << xpos << " " << fixed << setprecision(8) << ypos << " \t" << setprecision(10)
+						<< grid_main->cellsgrid[index][2] << "\n";
+				uyr_out << fixed << setprecision(8) << xpos << " " << fixed << setprecision(8) << ypos << " \t" << setprecision(10)
+						<< grid_main->cellsgrid[index][5] << "\n";
+				uy_out << fixed << setprecision(8) << xpos << " " << fixed << setprecision(8) << ypos << " \t" << setprecision(10)
+						<< grid_main->cellsgrid[index][4] << "\n";
+				p_out << fixed << setprecision(8) << xpos << " " << fixed << setprecision(8) << ypos << " \t" << scientific << setprecision(10) << p << "\n";
 			}
 		}
 
@@ -1085,53 +840,42 @@ void numerische_methode::write() {
 
 		double d = 0.0, xout, uout, urout, ux, uy, sign;
 
-		for (int x = ordnung; x < CELLS[0] + ordnung + 1; x++) {
-			for (int y = ordnung; y < CELLS[1] + ordnung + 1; y++) {
-				if (raster->choice < 3) {
-					xpos = mol
-							+ (mor - mol)
-									* (((double) x - ordnung)
-											/ (double) CELLS[0]);
-					ypos = mul
-							+ (mur - mul)
-									* (((double) y - ordnung)
-											/ (double) CELLS[1]);
+		for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+			for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+				if (grid_main->choice < 3) {
+					xpos = mol + (mor - mol) * (((double) x - ordnung) / (double) grid_size[0]);
+					ypos = mul + (mur - mul) * (((double) y - ordnung) / (double) grid_size[1]);
 
-					int index = x + y * raster->width;
+					int index = x + y * grid_main->grid_size_total[0];
 
-					p = ct * pow(raster->cellsgrid[index][0], g);
+					p = ct * pow(grid_main->cellsgrid[index][0], gamma);
 
-					if (raster->choice == 0) {
+					if (grid_main->choice == 0) {
 						d = fabs(ypos);
 					}
-					if (raster->choice == 1) {
+					if (grid_main->choice == 1) {
 						d = fabs(xpos + ypos);
 					}
-					if (raster->choice == 2) {
+					if (grid_main->choice == 2) {
 						d = fabs(xpos + 2 * ypos);
 					}
 
 					if (d < 0.0001) {
 						sign = xpos < 0 ? -1.0 : 1.0;
 						xout = sign * sqrt(xpos * xpos + ypos * ypos);
-						ux = raster->cellsgrid[index][2];
-						uy = raster->cellsgrid[index][4];
+						ux = grid_main->cellsgrid[index][2];
+						uy = grid_main->cellsgrid[index][4];
 						sign = ux < 0 ? -1.0 : 1.0;
 						uout = sign * sqrt(ux * ux + uy * uy);
-						ux = raster->cellsgrid[index][3];
-						uy = raster->cellsgrid[index][5];
+						ux = grid_main->cellsgrid[index][3];
+						uy = grid_main->cellsgrid[index][5];
 						sign = ux < 0 ? -1.0 : 1.0;
 						urout = sign * sqrt(ux * ux + uy * uy);
 
-						d_out_d1 << fixed << setprecision(8) << xout << " \t"
-								<< setprecision(10) << raster->cellsgrid[index][0]
-								<< "\n";
-						u_out_d1 << fixed << setprecision(8) << xout << " \t"
-								<< setprecision(10) << uout << "\n";
-						ur_out_d1 << fixed << setprecision(8) << xout << " \t"
-								<< setprecision(10) << urout << "\n";
-						p_out_d1 << fixed << setprecision(8) << xout << " \t"
-								<< scientific << setprecision(10) << p << "\n";
+						d_out_d1 << fixed << setprecision(8) << xout << " \t" << setprecision(10) << grid_main->cellsgrid[index][0] << "\n";
+						u_out_d1 << fixed << setprecision(8) << xout << " \t" << setprecision(10) << uout << "\n";
+						ur_out_d1 << fixed << setprecision(8) << xout << " \t" << setprecision(10) << urout << "\n";
+						p_out_d1 << fixed << setprecision(8) << xout << " \t" << scientific << setprecision(10) << p << "\n";
 					}
 				}
 			}
@@ -1150,23 +894,18 @@ void numerische_methode::write() {
  *  Jacobi-Matrix für den 1-d Fall
  *****************************************************************************************/
 
-void numerische_methode::matrix_1d(double * values, int n, double uone,
-		double utwo, double uthree, double p, double done, double dtwo,
-		double ccl, double g, double ct, double cref, int variante) {
+void numerische_methode::matrix_1d(double * values, int n, double uone, double utwo, double uthree, double p, double done, double dtwo, double ccl, double g,
+		double ct, double cref, int variante) {
 
 	switch (variante) {
 	case (1):
 		values[0] = 0;
 		values[1] = 1;
 		values[2] = 0;
-		values[3] = -(utwo * utwo) / (uone * uone)
-				+ ccl * (1 - ccl) * uthree * uthree
-				+ g * ct * pow(uone, g - 1.0);
+		values[3] = -(utwo * utwo) / (uone * uone) + ccl * (1 - ccl) * uthree * uthree + g * ct * pow(uone, g - 1.0);
 		values[4] = (2 * utwo) / uone;
 		values[5] = uone * ccl * (1.0 - ccl) * 2.0 * uthree;
-		values[6] = -utwo / (uone * uone) * uthree
-				+ pow(cref / ct, 1.0 / g) * g * ct * pow(uone, g - 2.0)
-				- (g * ct * pow(uone, g - 1.0)) / done;
+		values[6] = -utwo / (uone * uone) * uthree + pow(cref / ct, 1.0 / g) * g * ct * pow(uone, g - 2.0) - (g * ct * pow(uone, g - 1.0)) / done;
 		values[7] = uthree / uone;
 		values[8] = (utwo / uone) + (1.0 - 2.0 * ccl) * uthree;
 		break;
@@ -1174,18 +913,12 @@ void numerische_methode::matrix_1d(double * values, int n, double uone,
 		values[0] = 0;
 		values[1] = 1;
 		values[2] = 0;
-		values[3] = -(utwo * utwo) / (uone * uone)
-				+ ccl * (1 - ccl) * uthree * uthree
-				+ cref * g * pow(done, g - 1.0) * (ccl * done * done)
-						/ pow(done + (ccl - 1.0) * uone, 2.0);
+		values[3] = -(utwo * utwo) / (uone * uone) + ccl * (1 - ccl) * uthree * uthree
+				+ cref * g * pow(done, g - 1.0) * (ccl * done * done) / pow(done + (ccl - 1.0) * uone, 2.0);
 		values[4] = (2 * utwo) / uone;
 		values[5] = uone * ccl * (1.0 - ccl) * 2.0 * uthree;
 		values[6] = -utwo / (uone * uone) * uthree
-				+ cref
-						* (g * pow(dtwo, g - 2.0)
-								- (g * pow(dtwo, g - 1.0)) / done)
-						* (ccl * done * done)
-						/ pow(done + (ccl - 1.0) * uone, 2.0);
+				+ cref * (g * pow(dtwo, g - 2.0) - (g * pow(dtwo, g - 1.0)) / done) * (ccl * done * done) / pow(done + (ccl - 1.0) * uone, 2.0);
 		values[7] = uthree / uone;
 		values[8] = (utwo / uone) + (1.0 - 2.0 * ccl) * uthree;
 		break;
@@ -1193,14 +926,10 @@ void numerische_methode::matrix_1d(double * values, int n, double uone,
 		values[0] = 0;
 		values[1] = 1;
 		values[2] = 0;
-		values[3] = -(utwo * utwo) / (uone * uone)
-				+ ccl * (1 - ccl) * uthree * uthree
-				+ g * ct * pow(uone, g - 1.0);
+		values[3] = -(utwo * utwo) / (uone * uone) + ccl * (1 - ccl) * uthree * uthree + g * ct * pow(uone, g - 1.0);
 		values[4] = (2.0 * utwo) / uone;
 		values[5] = uone * ccl * (1.0 - ccl) * 2.0 * uthree;
-		values[6] = -utwo / (uone * uone) * uthree
-				+ (1.0 / ccl) * ((1.0 / uone) - (1.0 / done)) * ct * g
-						* pow(uone, g - 1.0);
+		values[6] = -utwo / (uone * uone) * uthree + (1.0 / ccl) * ((1.0 / uone) - (1.0 / done)) * ct * g * pow(uone, g - 1.0);
 		values[7] = uthree / uone;
 		values[8] = (utwo / uone) + (1.0 - 2.0 * ccl) * uthree;
 	}
@@ -1210,36 +939,29 @@ void numerische_methode::matrix_1d(double * values, int n, double uone,
  *****************************************************************************************
  *  Jacobi-Matrix für den 2-d Fall in x- und y-Richtung
  *****************************************************************************************/
-void numerische_methode::matrix_2d(double * values_x, double * values_y, int n,
-		double uone, double utwo, double uthree, double ufour, double ufive,
-		double p, double done, double dtwo, double ccl, double g, double ct,
-		double cref) {
+void numerische_methode::matrix_2d(double * values_x, double * values_y, int n, double uone, double utwo, double uthree, double ufour, double ufive, double p,
+		double done, double dtwo, double ccl, double g, double ct, double cref) {
 	values_x[0] = 0;
 	values_x[1] = 1;
 	values_x[2] = 0;
 	values_x[3] = 0;
 	values_x[4] = 0;
-	values_x[5] = -(utwo * utwo) / (uone * uone)
-			+ ccl * (1 - ccl) * ufour * ufour + g * ct * pow(uone, g - 1.0);
+	values_x[5] = -(utwo * utwo) / (uone * uone) + ccl * (1 - ccl) * ufour * ufour + g * ct * pow(uone, g - 1.0);
 	values_x[6] = (2 * utwo) / uone;
 	values_x[7] = 0;
 	values_x[8] = ccl * (1 - ccl) * 2 * uone * ufour;
 	values_x[9] = 0;
-	values_x[10] = -(utwo * uthree) / (uone * uone)
-			+ ccl * (1 - ccl) * ufour * ufive;
+	values_x[10] = -(utwo * uthree) / (uone * uone) + ccl * (1 - ccl) * ufour * ufive;
 	values_x[11] = uthree / uone;
 	values_x[12] = utwo / uone;
 	values_x[13] = ccl * (1 - ccl) * uone * ufive;
 	values_x[14] = ccl * (1 - ccl) * uone * ufour;
-	values_x[15] = -(utwo * ufour) / (uone * uone)
-			+ pow(cref / ct, 1.0 / g) * g * ct * pow(uone, g - 2.0)
-			- (g * ct * pow(uone, g - 1.0)) / (done);
+	values_x[15] = -(utwo * ufour) / (uone * uone) + pow(cref / ct, 1.0 / g) * g * ct * pow(uone, g - 2.0) - (g * ct * pow(uone, g - 1.0)) / (done);
 	values_x[16] = ufour / uone;
 	values_x[17] = 0;
 	values_x[18] = utwo / uone + (1 - 2 * ccl) * ufour;
 	values_x[19] = 0;
-	values_x[20] = -(utwo * ufive) / (uone * uone)
-			- uthree * ufour / (uone * uone);
+	values_x[20] = -(utwo * ufive) / (uone * uone) - uthree * ufour / (uone * uone);
 	values_x[21] = ufive / uone;
 	values_x[22] = ufour / uone;
 	values_x[23] = uthree / uone + (1 - 2 * ccl) * ufive;
@@ -1250,27 +972,22 @@ void numerische_methode::matrix_2d(double * values_x, double * values_y, int n,
 	values_y[2] = 1;
 	values_y[3] = 0;
 	values_y[4] = 0;
-	values_y[5] = -(utwo * uthree) / (uone * uone)
-			+ ccl * (1 - ccl) * ufour * ufive;
+	values_y[5] = -(utwo * uthree) / (uone * uone) + ccl * (1 - ccl) * ufour * ufive;
 	values_y[6] = uthree / uone;
 	values_y[7] = utwo / uone;
 	values_y[8] = ccl * (1 - ccl) * uone * ufive;
 	values_y[9] = ccl * (1 - ccl) * uone * ufour;
-	values_y[10] = -(uthree * uthree) / (uone * uone)
-			+ ccl * (1 - ccl) * ufive * ufive + g * ct * pow(uone, g - 1.0);
+	values_y[10] = -(uthree * uthree) / (uone * uone) + ccl * (1 - ccl) * ufive * ufive + g * ct * pow(uone, g - 1.0);
 	values_y[11] = 0;
 	values_y[12] = (2 * uthree) / uone;
 	values_y[13] = 0;
 	values_y[14] = ccl * (1 - ccl) * 2 * uone * ufive;
-	values_y[15] = -(utwo * ufive) / (uone * uone)
-			- uthree * ufour / (uone * uone);
+	values_y[15] = -(utwo * ufive) / (uone * uone) - uthree * ufour / (uone * uone);
 	values_y[16] = ufive / uone;
 	values_y[17] = ufour / uone;
 	values_y[18] = uthree / uone + (1 - 2 * ccl) * ufive;
 	values_y[19] = utwo / uone + (1 - 2 * ccl) * ufour;
-	values_y[20] = -(uthree * ufive) / (uone * uone)
-			+ pow(cref / ct, 1.0 / g) * g * ct * pow(uone, g - 2.0)
-			- (g * ct * pow(uone, g - 1.0)) / (done);
+	values_y[20] = -(uthree * ufive) / (uone * uone) + pow(cref / ct, 1.0 / g) * g * ct * pow(uone, g - 2.0) - (g * ct * pow(uone, g - 1.0)) / (done);
 	values_y[21] = 0;
 	values_y[22] = ufive / uone;
 	values_y[23] = 0;

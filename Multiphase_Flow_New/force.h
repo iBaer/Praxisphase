@@ -20,7 +20,7 @@ class Force : public Solver
         * @param save_in Dateiname wo für das Laden eine Speicherstands die Plots gespeichert sind.
         */
         Force(Constants *constants, Computation *computation, Grid *grid);
-        ~Force();
+        virtual ~Force();
 
     protected:
         /**
@@ -29,8 +29,8 @@ class Force : public Solver
         */
         double* calc_method_flux(double dt,int dir);
 
-  	  int width;
-  	  int height;
+  	  //int size_total[0];
+  	  //int size_total[1];
   	  int neqs;
 
   	  double *uall;
@@ -49,7 +49,7 @@ class Force : public Solver
   	  double *** g_lax;
   	  double *** g_rie;
 
-  	double* fiarray;
+  	  double** f_force;
 
 
 };

@@ -4,25 +4,31 @@ clear
 echo "##### MULTIFLOW DIFF TEST #####"
 
 cd ./DiffableResults/ 
-echo "Total comparable files $(ls -f | wc -l)"
+echo "Total comparable 2D files $(ls *till* | wc -l)"
+cd ./1DRare/
+echo "Total comparable 1DRare files $(ls *till* | wc -l)"
+cd ..
+cd ./1DShock/
+echo "Total comparable 1DShock files $(ls *till* | wc -l)"
 echo ""
+cd ..
 cd ..
 
 rm -f *till5*
 
 START=$(date +%s%N)
-
+totalfiles=0
 
 loop=0
-for(( fluxmethod=1 ; fluxmethod<=2 ; fluxmethod++ ))
+for(( initmethod=0 ; initmethod<=4 ; initmethod++ ))
 do
-	for(( initmethod=0 ; initmethod<=3 ; initmethod++ ))
+	for(( fluxmethod=0 ; fluxmethod<=1 ; fluxmethod++ ))
 	do
 		for(( splitmethod=1 ; splitmethod<=2 ; splitmethod++ ))
 		do
 			./main > /dev/null <<- EndExec
-			$initmethod
 			$fluxmethod
+			$initmethod
 			$splitmethod
 			1
 			EndExec
@@ -40,11 +46,11 @@ mv ./gas-liquid-1d.in ./gas-liquid.in
 
 for(( initmethod=0 ; initmethod<=1 ; initmethod++ ))
 do
-	for(( fluxmethod=1 ; fluxmethod<=2 ; fluxmethod++ ))
+	for(( fluxmethod=0 ; fluxmethod<=1 ; fluxmethod++ ))
 	do
 		./main > /dev/null <<- EndExec
-		$initmethod
 		$fluxmethod
+		$initmethod
 		1
 		EndExec
 		loop=$(($loop + 1))
@@ -62,8 +68,9 @@ done
 END=$(date +%s%N)
 DIFF=$(( $END - $START ))
 echo "Tests finished in $(( DIFF / 1000000000 ))s $(( DIFF / 1000000 ))ms"
-
 mv ./gas-liquid.in ./gas-liquid-1d.in
 mv ./gas-liquid-2d.in ./gas-liquid.in
 
 echo "##### ALL TESTS COMPLETE #####"
+
+./diffstart-analytisch.sh

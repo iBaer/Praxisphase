@@ -45,31 +45,31 @@ Constants::Constants() {
 				if (name == "dimension")
 					dimension = value;
 				if (name == "ordnung")
-					ordnung = value;
+					order = value;
 				if (name == "radius")
 					radius = value;
 				if (name == "CELLSX")
-					CELLSX = value;
+					grid_size_x = value;
 				if (name == "CELLSY")
-					CELLSY = value;
+					grid_size_y = value;
 				if (name == "g")
-					g = value;
+					gamma = value;
 				if (name == "mol")
-					mol = value;
+					pos_x_min = value;
 				if (name == "mor")
-					mor = value;
+					pos_x_max = value;
 				if (name == "mul")
-					mul = value;
+					pos_y_min = value;
 				if (name == "mur")
-					mur = value;
+					pos_y_max = value;
 				if (name == "upbc")
-					upbc = value;
+					bc_y_max = value;
 				if (name == "downbc")
-					downbc = value;
+					bc_y_min = value;
 				if (name == "leftbc")
-					leftbc = value;
+					bc_x_min = value;
 				if (name == "rightbc")
-					rightbc = value;
+					bc_x_max = value;
 				if (name == "cref")
 					cref = value;
 				if (name == "done")
@@ -81,11 +81,9 @@ Constants::Constants() {
 				if (name == "vl")
 					vl = value;
 				if (name == "vrl")
-					;
-				vrl = value;
+					vrl = value;
 				if (name == "vyl")
-					;
-				vyl = value;
+					vyl = value;
 				if (name == "vyrl")
 					vyrl = value;
 				if (name == "rhor")
@@ -99,8 +97,8 @@ Constants::Constants() {
 				if (name == "vyrr")
 					vyrr = value;
 
-				const_name.push_back(name);
-				const_value.push_back(value);
+				//const_name.push_back(name);
+				//const_value.push_back(value);
 			}
 			input.close();
 		} else {
@@ -110,9 +108,9 @@ Constants::Constants() {
 
     double alfll = 1.0 - rhol/done + ccl *(rhol/done);
     double dll = ccl * (rhol/alfll);
-    double pll = cref*pow(dll,g);
+    double pll = cref*pow(dll,gamma);
 
-    ct = pll/pow(rhol,g);
+    ct = pll/pow(rhol,gamma);
 
 }
 

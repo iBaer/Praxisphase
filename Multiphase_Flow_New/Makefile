@@ -2,7 +2,7 @@ CC = g++
 CPP_FILES = $(wildcard *.cpp)
 OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 LD_FLAGS = -L/usr/local/lib/
-CC_FLAGS =-Wall -O3 -std=c++11 -I/usr/local/include/
+CC_FLAGS =-Wall -O3 -std=c++11 -I/usr/local/include/ -static -g
 
 all: main
 
@@ -26,12 +26,11 @@ clean:
 
 constants.o: constants.h
 Raster.o: grid.h constants.h
-computation.o: computation.h constants.h Zelle.h
+computation.o: computation.h constants.h
 solver.o: solver.h computation.h constants.h
-LaxFriedrichMethod.o: LaxFriedrichMethod.h constants.h solver.h
+lax_friedrich.o: lax_friedrich.h constants.h solver.h
 force.o: force.h computation.h constants.h solver.h
-Zelle.o: Zelle.h
-main.o: LaxFriedrichMethod.h force.h numerische_methode.h
+main.o: lax_friedrich.h force.h numerische_methode.h
 numerische_methode.o: numerische_methode.h constants.h grid.h constants.h computation.h solver.h
 
 

@@ -1,9 +1,9 @@
 #ifndef COMPUTATION_H
 #define COMPUTATION_H
-#include "Zelle.h"
 #include <iostream>
 #include <vector>
 
+#include "exprtk.hpp"
 #include "constants.h"
 #include "grid.h"
 
@@ -33,19 +33,19 @@ class Computation
         /**
         * Vektor von u
         */
-        std::vector<std::string> u;
+        //std::vector<std::string> u;
         /**
         * Rückrechnung der erhaltenen Variablen in die physikalischen.
         */
-        std::vector<std::string> uback;
+        //std::vector<std::string> uback;
         /**
         * Vektor der Formeln von f_u.
         */
-        std::vector<std::string> f_u;
+        //std::vector<std::string> f_u;
         /**
         * Vektor der Formeln von g_u.
         */
-        std::vector<std::string> g_u;
+        //std::vector<std::string> g_u;
 
 	/**
 	 * Berechnet die Werte U in 1-D
@@ -54,7 +54,7 @@ class Computation
 	 * @param cells, Ausdehnung des Gitters
 	 * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
 	 */
-	void compute_u_1d(double *** u, Grid * raster, int * cells, int ordnung);
+	void compute_u_1d(double *** u, Grid * grid);
 
 	/**
 	 * Berechnet die Lösungen der Formel für den Fluss F in 1-D
@@ -63,7 +63,7 @@ class Computation
 	 * @param cells, Ausdehnung des Gitters
 	 * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
 	 */
-	void compute_f_1d(double *** f, Grid * raster, int * cells, int ordnung);
+	void compute_f_1d(double *** f, Grid * grid);
 
         /**
         * Berechnet die Werte U in 2-D
@@ -72,7 +72,7 @@ class Computation
         * @param cells, Ausdehnung des Gitters
         * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
         */
-	void compute_u_2d(double *** u, Grid * raster, int * cells, int ordnung);
+	void compute_u_2d(double *** u, Grid * grid);
 	
         /**
         * Berechnet die Lösungen der Formel für den Fluss F in 2-D
@@ -81,7 +81,7 @@ class Computation
         * @param cells, Ausdehnung des Gitters
         * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
         */
-	void compute_f_2d(double *** f, Grid * raster, int * cells, int ordnung);
+	void compute_f_2d(double *** f, Grid * grid);
 
         /**
         * Berechnet die Lösungen der Formel für den Fluss G in 2-D
@@ -89,7 +89,7 @@ class Computation
         * @param cells, Ausdehnung des Gitters
         * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
         */
-	void compute_g_2d(double *** g, Grid * raster, int * cells, int ordnung);
+	void compute_g_2d(double *** g, Grid * grid);
 
         /**
         * Anzahl der Gleichungen
@@ -102,7 +102,7 @@ class Computation
         * es bei Rechnungen nicht immer neu übergeben werden muss.
         */
 
- 	Constants* c;
+ 	Constants* constants;
 
 	double cref;
 	double done;

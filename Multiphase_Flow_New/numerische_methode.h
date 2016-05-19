@@ -23,11 +23,11 @@ public:
 	 */
 	numerische_methode(Solver* solver, Constants* constants,
 			Computation *computation, Grid *grid);
+	~numerische_methode();
 	/**
 	 * Startet die Berechnung.
 	 */
 	void start_method();
-protected:
 	/**
 	 * Name der Methode.
 	 * Wird hauptsächlich dazu benötigt um die
@@ -38,11 +38,11 @@ protected:
 	/**
 	 * Array welches die Anzahl der Zellen in der entsprechenden Dimension zeigt.
 	 */
-	int* CELLS;
+	int* grid_size;
 	/**
 	 * Gamma Konstante
 	 */
-	double g;
+	double gamma;
 	/**
 	 * Zeit Output
 	 */
@@ -54,7 +54,7 @@ protected:
 	/**
 	 * Bei dimensions==2, Integrationsschema splitting oder unsplitting
 	 */
-	int splitting;
+	int with_splitting;
 	/**
 	 * ordnung des Verfahrens.
 	 */
@@ -63,6 +63,10 @@ protected:
 	 * Anzahl an Schritten die gemacht wurden.
 	 */
 	int steps;
+	/**
+	 * Mit Output für jeden Berechnungsschritt.
+	 */
+	int step_output;
 	/**
 	 * Gesetztes Maximum, damit die Methode nicht unendlich läuft
 	 * (falls es einen fehler gibt oder andere umstände).
@@ -75,7 +79,7 @@ protected:
 	/**
 	 * Delta t_fixed.
 	 */
-	double dt_fixed;
+	//double dt_fixed; //TODO: implementieren?
 	/**
 	 * Delta x.
 	 */
@@ -118,12 +122,12 @@ protected:
 	 * Konstanten Objekt welches für die berechnungen benötigt wird.
 	 * @see Konstanten
 	 */
-	Constants* konstanten;
+	Constants* constants;
 	/**
 	 * Raster in den gerechnet wird.
 	 * @see Raster
 	 */
-	Grid* raster;
+	Grid* grid_main;
 	/**
 	 * Gleichungssystem Objekt.
 	 * @see Gleichungssystem
@@ -156,6 +160,8 @@ protected:
 	 * Schreibt Ergebnisse in Dateien u,d,ur,p
 	 */
 	void write();
+	void splitting();
+	void unsplitting();
 	/**
 	 * bestimmt die Elemente der Jacobi-Matrix in 3 Varianten, abhängig von der Wahl der EOS
 	 */
@@ -170,6 +176,13 @@ protected:
 			double utwo, double uthree, double ufour, double ufive, double p,
 			double done, double dtwo, double ccl, double g, double ct,
 			double cref);
+
+	//void cfl_1d_eigenvalues(int n, double &time);
+	//void cfl_1d_approx(int n, double &time);
+	//void cfl_2d_eigenvalues(int n, double &time);
+	//void cfl_1d_eigenvalues(int n, double &time);
+	//void cfl_1d_eigenvalues(int n, double &time);
+
 };
 
 #endif // NUMERISCHE_METHODE_H

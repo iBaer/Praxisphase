@@ -24,17 +24,27 @@ using namespace std;
  * Konstruktor für ein leeres eindimensionales Raster.
  *****************************************************************************************/
 Grid::Grid(int x) {
-	width = x;
-	height = 1;
+	/*** currently unused ***/
+	this->constants = 0;
+	this->choice = 0;
+	orderofgrid = 0;
+	boundary_conditions = 0;
+	/************************/
 	dimension = 1;
-	zelle = new Zelle[x];
-	cellsgrid = new double*[width];
+	grid_size = new int[dimension];
+	grid_size_total = new int[dimension];
 
-	for (int i = 0; i < width * height; i++) {
-		// d,p,ux,uxr
-		// anzahl eq + 1 (druck)
+	grid_size_total[0] = x;
+	//grid_size_total[1] = 1;
+
+
+	cellsgrid_size = grid_size_total[0];
+
+	cellsgrid = new double*[cellsgrid_size];
+
+	for (int i = 0; i < cellsgrid_size; i++) {
+
 		cellsgrid[i] = new double[4];
-
 		for (int j = 0; j < 4; j++) {
 			cellsgrid[i][j] = 0;
 		}
@@ -46,19 +56,31 @@ Grid::Grid(int x) {
  * Konstruktor für ein leeres zweidimensionales Raster.
  *****************************************************************************************/
 Grid::Grid(int x, int y) {
-	width = x;
-	height = y;
-	dimension = 2;
-	zelle = new Zelle[x * y];
-	cellsgrid = new double*[width * height];
-	for (int i = 0; i < width * height; i++) {
-				// d,p,ux,uxr,uy,uyr
-				cellsgrid[i] = new double[6];
+	/*** currently unused ***/
+	this->constants = 0;
+	this->choice = 0;
+	orderofgrid = 0;
+	boundary_conditions = 0;
+	/************************/
 
-				for (int j = 0; j < 6; j++) {
-					cellsgrid[i][j] = 0;
-				}
-			}
+	dimension = 2;
+	grid_size = new int[dimension];
+	grid_size_total = new int[dimension];
+
+	grid_size_total[0] = x;
+	grid_size_total[1] = y;
+
+	cellsgrid_size = grid_size_total[0] * grid_size_total[1];
+
+	cellsgrid = new double*[cellsgrid_size];
+
+	for (int i = 0; i < cellsgrid_size; i++) {
+
+		cellsgrid[i] = new double[6];
+		for (int j = 0; j < 6; j++) {
+			cellsgrid[i][j] = 0;
+		}
+	}
 }
 
 /**
@@ -67,478 +89,106 @@ Grid::Grid(int x, int y) {
  * @param const_in Pfad zur Datei, welche die initialisierungs Parameter enthält.
  * @param function_in Pfad zur Datei, in der die Initierungsfunktion steht.
  *****************************************************************************************/
-Grid::Grid(Constants *constants, string save_in) {
-	konstanten = constants;
-
-	//Alle Konstanten holen, die gebraucht werden
-	dimension = (int) konstanten->dimension;
-	cells[0] = (int) konstanten->CELLSX;
-	cells[1] = 1;
-	if (dimension == 2) {
-		cells[1] = (int) konstanten->CELLSY;
+Grid::Grid(Constants *constants, string save_in, int choice) {
+	this->constants = constants;
+	this->choice = choice;
+	dimension = (int) constants->dimension;
+	grid_size = new int[dimension];
+	grid_size_total = new int[dimension];
+	boundary_conditions = new int[dimension*2];
+	
+	boundary_conditions[0] = constants->bc_x_min;
+	boundary_conditions[1] = constants->bc_x_max;
+	if(dimension>=2){
+		boundary_conditions[2] = constants->bc_y_min;
+		boundary_conditions[3] = constants->bc_y_max;
+		if(dimension>=3){
+			boundary_conditions[4] = 0; //TODO: constants->bc_z_min;
+			boundary_conditions[5] = 0; //constants->bc_z_max;
+		}
 	}
-	int ordnung = (int) konstanten->ordnung;
+	
+	orderofgrid = (int) constants->order;
 
-	width = cells[0] + 2 * ordnung + 1;
-	height = cells[1] + 2 * ordnung + 1;
-	choice = 0;
-	zelle = new Zelle[width * height];
-	cellsgrid = new double*[width * height];
+	grid_size[0] = (int) constants->grid_size_x;
+	grid_size_total[0] = grid_size[0] + 2 * orderofgrid + 1;
+
+	//grid_size[1] = 1;
+	if (dimension == 2) {
+		grid_size[1] = (int) constants->grid_size_y;
+		grid_size_total[1] = grid_size[1] + 2 * orderofgrid + 1;
+	} else if (dimension == 3) {
+		grid_size[2] = 1; // TODO: (int) constants->grid_size_z
+		grid_size_total[2] = grid_size[2] + 2 * orderofgrid + 1;
+	}
+
+	cellsgrid_size = 1;
+	for (int i = 0; i < dimension; i++) {
+		cellsgrid_size *= grid_size_total[i];
+	}
+
+	//choice = 0;
+	cellsgrid = new double*[cellsgrid_size];
 	// TODO: DEPTH
+
+	// d,p,ux,uxr,uy,uyr,uz,uzr (... ?)
+	int number_of_variables = 1;	//TODO: Von neqs(+1) abhängig?
 	if (dimension == 1) {
-		for (int i = 0; i < width * height; i++) {
-			// d,p,ux,uxr
-			// anzahl eq + 1 (druck)
-			cellsgrid[i] = new double[4];
-
-			for (int j = 0; j < 4; j++) {
-				cellsgrid[i][j] = 0;
-			}
+		number_of_variables = 4;
+	} else if (dimension == 2) {
+		number_of_variables = 6;
+	} else if (dimension == 3) {
+		number_of_variables = 8;
+	}
+	for (int i = 0; i < cellsgrid_size; i++) {
+		cellsgrid[i] = new double[number_of_variables];
+		for (int j = 0; j < number_of_variables; j++) {
+			cellsgrid[i][j] = 0;
 		}
 	}
-	if (dimension == 2) {
-		for (int i = 0; i < width * height; i++) {
-			// d,p,ux,uxr,uy,uyr
-			cellsgrid[i] = new double[6];
-
-			for (int j = 0; j < 6; j++) {
-				cellsgrid[i][j] = 0;
-			}
-		}
-	}
-	if (dimension == 3) {
-		for (int i = 0; i < width * height; i++) {
-			// d,p,ux,uxr,uy,uyr,uz,uzr
-			cellsgrid[i] = new double[8];
-
-			for (int j = 0; j < 8; j++) {
-				cellsgrid[i][j] = 0;
-			}
-		}
-	} else {
-		// error
-	}
-
-	double mor = konstanten->mor;
-	double mol = konstanten->mol;
-	double mur = konstanten->mur; //2D
-	double mul = konstanten->mul; //2D
-
-	double dx = (mor - mol) / (double) cells[0];
-
-	double xpos = 0.0;
-	double ypos = 0.0;  //2D
-
-	double rhol = konstanten->rhol;
-	double vl = konstanten->vl;
-	double vrl = konstanten->vrl;
-	double vyl = konstanten->vyl;
-	double vyrl = konstanten->vyrl;
-	double rhor = konstanten->rhor;
-	double vr = konstanten->vr;
-	double vrr = konstanten->vrr;
-	double vyr = konstanten->vyr;
-	double vyrr = konstanten->vyrr;
 
 	switch (dimension) {
-	// 1-dimensionale Fall
 	case (1):
-		cout << dimension << "-dimensionales Gitter" << endl;
-		cout << "Raster Initiierung: - 0 Rarefraction wave - 1 one shock wave !"
-				<< endl;
-		cout << "Wahl:";
-		cin >> choice;
-
+		//0 = Riemann-Problem; 1 = 1D Schockwelle;
 		switch (choice) {
 		case (0): {
-			//1D Riemann-Problem
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				xpos = mol + (mor - mol) * ((double) (n - ordnung) / cells[0]);
-				if (xpos <= 0.0) {
-					set_Zelle_d(rhol, n);
-					cellsgrid[n][0] = rhol;
-
-					set_Zelle_ux(vl, n);
-					cellsgrid[n][2] = vl;
-
-					set_Zelle_uxr(vrl, n);
-					cellsgrid[n][3] = vrl;
-
-				} else {
-					set_Zelle_d(rhor, n);
-					cellsgrid[n][0] = rhor;
-
-					set_Zelle_ux(vr, n);
-					cellsgrid[n][2] = vr;
-
-					set_Zelle_uxr(vrr, n);
-					cellsgrid[n][3] = vrr;
-
-				}
-			}
+			init_1d_rarefraction();
 			break;
 		}
-			//1D Schockwelle
 		case (1): {
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				xpos = mol + (mor - mol) * ((double) (n - ordnung) / cells[0]);
-				if (xpos == 0.0) {
-					set_Zelle_d(1323, n);
-					cellsgrid[n][0] = 1323;
-
-					set_Zelle_ux(100000, n);
-					cellsgrid[n][2] = 100000;
-
-					set_Zelle_uxr(0, n);
-					cellsgrid[n][3] = 0;
-
-				} else {
-					set_Zelle_d(1000, n);
-					cellsgrid[n][0] = 1000;
-
-					set_Zelle_ux(0, n);
-					cellsgrid[n][2] = 0;
-
-					set_Zelle_uxr(0, n);
-					cellsgrid[n][3] = 0;
-
-				}
-			}
+			init_1d_shockwave();
 			break;
 		}
 		}
 		break;
-
-		// 2-dimensionale Fall
 	case (2):
-
-		cout << dimension << "-dimensionales Gitter" << endl;
-		cout << "Raster Initiierung:" << endl << "0: Rarefraction wave" << endl
-				<< "1: 60 Grad Winkel" << endl << "2: 45 Grad Winkel" << endl
-				<< "3: Blasen Simulation" << endl << "4: Speicherstand laden!"
-				<< endl;
-		cout << "Wahl:";
-		cin >> choice;
-
-		cout << "Simulationsfläche: [" << mol << "," << mul << "] bis [" << mor
-				<< "," << mur << "]" << endl;
-		cout << "Simulationsgitter: [" << cells[0] << "," << cells[1] << "]"
-				<< endl;
-
+		//0,1,2 -> 2D Riemann-Probleme
+		//0 = Rarefraction wave in x or y direction; 1 = Rarefraction wave in 60 degrees direction; 2 = Rarefraction wave in 45 degrees direction
+		//3 = Schockwelle-auf-Blase-Simulation; 4 = Konfiguration laden
 		switch (choice) {
-
-		//2D Riemann-Problem: 0 Rarefraction wave in x or y direction
 		case (0): {
-			cout << "Gerade parallel zur y-Achse" << endl;
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					xpos = mol
-							+ (mor - mol)
-									* (((double) n - ordnung)
-											/ (double) cells[0]);
-					ypos = mul
-							+ (mur - mul)
-									* (((double) m - ordnung)
-											/ (double) cells[1]);
-					if (xpos <= 0.0) {
-						int index = n + m * width;
-						cellsgrid[index][0] = rhol;
-						cellsgrid[index][2] = vl;
-						cellsgrid[index][3] = vrl;
-						cellsgrid[index][4] = vyl;
-						cellsgrid[index][5] = vyrl;
-
-						this->set_Zelle_d(rhol, n, m);
-						this->set_Zelle_ux(vl, n, m);
-						this->set_Zelle_uxr(vrl, n, m);
-						this->set_Zelle_uy(vyl, n, m);
-						this->set_Zelle_uyr(vyrl, n, m);
-					} else {
-						int index = n + m * width;
-						cellsgrid[index][0] = rhor;
-						cellsgrid[index][2] = vr;
-						cellsgrid[index][3] = vrr;
-						cellsgrid[index][4] = vyr;
-						cellsgrid[index][5] = vyrr;
-
-						this->set_Zelle_d(rhor, n, m);
-						this->set_Zelle_ux(vr, n, m);
-						this->set_Zelle_uxr(vrr, n, m);
-						this->set_Zelle_uy(vyr, n, m);
-						this->set_Zelle_uyr(vyrr, n, m);
-					}
-				}
-			}
+			init_2d_rarefraction_0();
 			break;
 		}
-
-			//2D Riemann-Problem mit Winkel, Rarefraction wave in 60 degrees direction
 		case (1): {
-			cout << "Gerade mit der Gleichung ypos=" << WINKEL_60F
-					<< " als Grenze " << endl;
-
-			double alpha = ALPHA_60 * M_PI / 180.0;
-			double vxl_winkel = -fabs(vl) * sin(alpha);
-			double vyl_winkel = fabs(vl) * cos(alpha);
-			double vxr_winkel = fabs(vr) * sin(alpha);
-			double vyr_winkel = -fabs(vr) * cos(alpha);
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					xpos = mol
-							+ (mor - mol)
-									* (((double) n - ordnung)
-											/ (double) cells[0]);
-					ypos = mul
-							+ (mur - mul)
-									* (((double) m - ordnung)
-											/ (double) cells[1]);
-					if (ypos >= WINKEL_60(xpos, dx)) {
-						this->set_Zelle_d(rhol, n, m);
-						this->set_Zelle_ux(vxl_winkel, n, m);
-						this->set_Zelle_uy(vyl_winkel, n, m);
-
-						this->set_Zelle_uxr(vrl, n, m);
-						this->set_Zelle_uyr(vyrl, n, m);
-
-						int index = n + m * width;
-						cellsgrid[index][0] = rhol;
-						cellsgrid[index][2] = vxl_winkel;
-						cellsgrid[index][3] = vrl;
-						cellsgrid[index][4] = vyl_winkel;
-						cellsgrid[index][5] = vyrl;
-					} else {
-						this->set_Zelle_d(rhor, n, m);
-						this->set_Zelle_ux(vxr_winkel, n, m);
-						this->set_Zelle_uy(vyr_winkel, n, m);
-
-						this->set_Zelle_uxr(vrr, n, m);
-						this->set_Zelle_uyr(vyrr, n, m);
-
-						int index = n + m * width;
-						cellsgrid[index][0] = rhor;
-						cellsgrid[index][2] = vxr_winkel;
-						cellsgrid[index][3] = vrr;
-						cellsgrid[index][4] = vyr_winkel;
-						cellsgrid[index][5] = vyrr;
-					}
-				}
-			}
+			init_2d_rarefraction_60();
 			break;
 		}
-
-			//2D Riemann-Problem mit Winkel, Rarefraction wave in 45 degrees direction
 		case (2): {
-			cout << "Gerade mit der Gleichung ypos=" << WINKEL_45F
-					<< " als Grenze " << endl;
-
-			double alpha = ALPHA_45 * M_PI / 180.0;
-			double vxl_winkel = -fabs(vl) * sin(alpha);
-			double vyl_winkel = fabs(vl) * cos(alpha);
-			double vxr_winkel = fabs(vr) * sin(alpha);
-			double vyr_winkel = -fabs(vr) * cos(alpha);
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					xpos = mol
-							+ (mor - mol)
-									* (((double) n - ordnung)
-											/ (double) cells[0]);
-					ypos = mul
-							+ (mur - mul)
-									* (((double) m - ordnung)
-											/ (double) cells[1]);
-					if (ypos >= WINKEL_45(xpos, dx)) {
-						this->set_Zelle_d(rhol, n, m);
-						this->set_Zelle_ux(vxl_winkel, n, m);
-						this->set_Zelle_uy(vyl_winkel, n, m);
-						this->set_Zelle_uxr(vrl, n, m);
-						this->set_Zelle_uyr(vyrl, n, m);
-
-						int index = n + m * width;
-						cellsgrid[index][0] = rhol;
-						cellsgrid[index][2] = vxl_winkel;
-						cellsgrid[index][3] = vrl;
-						cellsgrid[index][4] = vyl_winkel;
-						cellsgrid[index][5] = vyrl;
-					} else {
-						this->set_Zelle_d(rhor, n, m);
-						this->set_Zelle_ux(vxr_winkel, n, m);
-						this->set_Zelle_uy(vyr_winkel, n, m);
-						this->set_Zelle_uxr(vrr, n, m);
-						this->set_Zelle_uyr(vyrr, n, m);
-
-						int index = n + m * width;
-						cellsgrid[index][0] = rhor;
-						cellsgrid[index][2] = vxr_winkel;
-						cellsgrid[index][3] = vrr;
-						cellsgrid[index][4] = vyr_winkel;
-						cellsgrid[index][5] = vyrr;
-					}
-				}
-			}
+			init_2d_rarefraction_45();
 			break;
 		}
-
-			//Schockwelle-auf-Blase-Simulation
 		case (3): {
-
-			double radius = konstanten->radius;
-
-			cout << "Kreis mit Radius " << radius << " und Gleichung "
-					<< KREIS_F << endl;
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					xpos = mol
-							+ (mor - mol)
-									* (((double) n - ordnung)
-											/ (double) cells[0]);
-					ypos = mul
-							+ (mur - mul)
-									* (((double) m - ordnung)
-											/ (double) cells[1]);
-
-					int index = n + m * width;
-
-					if (radius >= KREIS(xpos, ypos)) {
-						set_Zelle_d(8, n, m);
-						cellsgrid[index][0] = 8;
-
-					} else {
-						set_Zelle_d(10, n, m);
-						cellsgrid[index][0] = 10;
-
-					}
-					set_Zelle_ux(0, n, m);
-					set_Zelle_uxr(0, n, m);
-					set_Zelle_uy(0, n, m);
-					set_Zelle_uyr(0, n, m);
-
-					cellsgrid[index][2] = 0;
-					cellsgrid[index][3] = 0;
-					cellsgrid[index][4] = 0;
-					cellsgrid[index][5] = 0;
-				}
-			}
-
-			//int shockwave_pos = mor + 1.8/(mor - mol);
-			//int shockwave_zell = 1.8/(mor - mol)*cells[0];
-			int shockwave_zell = 0.5 * (mor - mol) / (mor - mol) * cells[0];
-			double shockwave_pos = mol + shockwave_zell * dx;
-			cout << "Schockwelle bei " << shockwave_pos << ", x-Zelle "
-					<< shockwave_zell << endl;
-			for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-				int index = shockwave_zell + m * width;
-				cellsgrid[index][0] = 20;
-				cellsgrid[index][2] = 10;
-
-				set_Zelle_d(20, shockwave_zell, m);
-				set_Zelle_ux(10, shockwave_zell, m);
-			}
+			init_2d_shockwave_bubble();
 			break;
 		}
-
-			// Konfiguration laden
 		case (4): {
-			//Speicherstand laden
-			ifstream save_input(save_in.c_str());
-			ifstream save_input_line;
-			string line_open;
-			string line;
-
-			getline(save_input, line_open);
-			save_input_line.open(line_open.c_str());
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					getline(save_input_line, line);
-					line = line.substr(line.find("\t") + 1);
-					set_Zelle_d(atof(line.c_str()), n, m);
-
-					cellsgrid[n + m * width][0] = atof(line.c_str());
-				}
-			}
-			save_input_line.close();
-
-			getline(save_input, line_open);
-			save_input_line.open(line_open.c_str());
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					getline(save_input_line, line);
-					line = line.substr(line.find("\t") + 1);
-					set_Zelle_ux(atof(line.c_str()), n, m);
-
-					cellsgrid[n + m * width][2] = atof(line.c_str());
-
-				}
-			}
-			save_input_line.close();
-
-			getline(save_input, line_open);
-			save_input_line.open(line_open.c_str());
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					getline(save_input_line, line);
-					line = line.substr(line.find("\t") + 1);
-					set_Zelle_uy(atof(line.c_str()), n, m);
-
-					cellsgrid[n + m * width][4] = atof(line.c_str());
-
-				}
-			}
-			save_input_line.close();
-
-			getline(save_input, line_open);
-			save_input_line.open(line_open.c_str());
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					getline(save_input_line, line);
-					line = line.substr(line.find("\t") + 1);
-					set_Zelle_uxr(atof(line.c_str()), n, m);
-
-					cellsgrid[n + m * width][3] = atof(line.c_str());
-
-				}
-			}
-			save_input_line.close();
-
-			getline(save_input, line_open);
-			save_input_line.open(line_open.c_str());
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					getline(save_input_line, line);
-					line = line.substr(line.find("\t") + 1);
-					set_Zelle_uyr(atof(line.c_str()), n, m);
-
-					cellsgrid[n + m * width][5] = atof(line.c_str());
-
-				}
-			}
-			save_input_line.close();
-
-			getline(save_input, line_open);
-			save_input_line.open(line_open.c_str());
-
-			for (int n = ordnung; n < cells[0] + ordnung + 1; n++) {
-				for (int m = ordnung; m < cells[1] + ordnung + 1; m++) {
-					getline(save_input_line, line);
-					line = line.substr(line.find("\t") + 1);
-					set_Zelle_p(atof(line.c_str()), n, m);
-
-					cellsgrid[n + m * width][1] = atof(line.c_str());
-
-				}
-			}
-			save_input_line.close();
-
+			init_2d_load_file(save_in);
 			break;
 		}
 		}
+		break;
+	case (3):
 		break;
 	}
 }
@@ -548,164 +198,135 @@ Grid::Grid(Constants *constants, string save_in) {
  * Destruktor
  *****************************************************************************************/
 Grid::~Grid() {
-	delete[] zelle;
+	//delete[] zelle;
+
+	for (int i = 0; i < cellsgrid_size; i++) {
+		delete[] cellsgrid[i];
+	}
+	delete[] cellsgrid;
+	delete[] grid_size_total;
+	delete[] grid_size;
 }
 
 /**
  *****************************************************************************************
  * boundary condition
  *****************************************************************************************/
-void Grid::bcondi(int* CELLS, int ordnung) {
-	double upbc = konstanten->upbc;
-	double downbc = konstanten->downbc;
-	double rightbc = konstanten->rightbc;
-	double leftbc = konstanten->leftbc;
-	//double xpos = 0.0 , ypos = 0.0;
+void Grid::bcondi() {
 
-	// ACHTUNG, FUER 2. ORDNUNG NOCHMAL ALLE GRENZEN KONTROLLIEREN
+	// TODO: ACHTUNG, FUER 2. ORDNUNG (und höher) NOCHMAL ALLE GRENZEN KONTROLLIEREN
 
 	switch (dimension) {
-	case (1):
-		if (leftbc == 0) {
-
-			set_Zelle_d(cellsgrid[ordnung][0], 0);
-			set_Zelle_ux(cellsgrid[ordnung][2], 0);
-			set_Zelle_uxr(cellsgrid[ordnung][3], 0);
+	case (1): {
+		if (boundary_conditions[0] == 0) {
+			cellsgrid[0][0] = cellsgrid[orderofgrid][0];
+			cellsgrid[0][2] = cellsgrid[orderofgrid][2];
+			cellsgrid[0][3] = cellsgrid[orderofgrid][3];
 		} else {
-
-			set_Zelle_d(cellsgrid[ordnung][0], 0);
-			set_Zelle_ux(-cellsgrid[ordnung][2], 0); // 0.0 - get...
-			set_Zelle_uxr(cellsgrid[ordnung][3], 0);
+			cellsgrid[0][0] = cellsgrid[orderofgrid][0];
+			cellsgrid[0][2] = -cellsgrid[orderofgrid][2];
+			cellsgrid[0][3] = cellsgrid[orderofgrid][3];
 		}
-		if (rightbc == 0) {
 
-			set_Zelle_d(cellsgrid[CELLS[0] + ordnung][0],
-					CELLS[0] + ordnung + 1);
-			set_Zelle_ux(cellsgrid[CELLS[0] + ordnung][2],
-					CELLS[0] + ordnung + 1);
-			set_Zelle_uxr(cellsgrid[CELLS[0] + ordnung][3],
-					CELLS[0] + ordnung + 1);
+		int index_dst = grid_size_total[0] - orderofgrid;
+		int index_src = index_dst - 1;
 
+		if (boundary_conditions[1] == 0) {
+			cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+			cellsgrid[index_dst][2] = cellsgrid[index_src][2];
+			cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 		} else {
-
-			set_Zelle_d(cellsgrid[CELLS[0] + ordnung][0],
-					CELLS[0] + ordnung + 1);
-			set_Zelle_ux(0.0 - cellsgrid[CELLS[0] + ordnung][2],
-					CELLS[0] + ordnung + 1);
-			set_Zelle_uxr(cellsgrid[CELLS[0] + ordnung][3],
-					CELLS[0] + ordnung + 1);
+			cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+			cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
+			cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 		}
 		break;
+	}
 	case (2):
 		//2D
+		//TODO: For-Loop Performance!?
 		for (int n = 0; n < 2; n++) {
-			for (int x = 0; x < CELLS[0] + 2 * ordnung + 1; x++) {
-				for (int y = 0; y < CELLS[1] + 2 * ordnung + 1; y++) {
+			for (int x = 0; x < grid_size_total[0]; x++) {
+				for (int y = 0; y < grid_size_total[1]; y++) {
 					if (x == 0) {
-						if (leftbc == 0) {
-							int index = ordnung + y * width;
 
-							set_Zelle_d(cellsgrid[index][0], 0, y);
-							set_Zelle_ux(cellsgrid[index][2], 0, y);
-							set_Zelle_uxr(cellsgrid[index][3], 0, y);
-							set_Zelle_uy(cellsgrid[index][4], 0, y);
-							set_Zelle_uyr(cellsgrid[index][5], 0, y);
+						int index_dst = 0 + y * grid_size_total[0];
+						int index_src = index_dst + orderofgrid;
 
+						if (boundary_conditions[0] == 0) {
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
-							int index = ordnung + y * width;
-
-							set_Zelle_d(cellsgrid[index][0], 0, y);
-							set_Zelle_ux(0.0 - cellsgrid[index][2], 0, y);
-							set_Zelle_uxr(cellsgrid[index][3], 0, y);
-							set_Zelle_uy(0.0 - cellsgrid[index][4], 0, y);
-							set_Zelle_uyr(cellsgrid[index][5], 0, y);
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						}
 
-					}
-					if (x == (CELLS[0] + ordnung + 1)) {
-						if (rightbc == 0) {
+					} else if (x == (grid_size_total[0] - orderofgrid)) {
 
-							int index = (CELLS[0] + ordnung) + y * width;
-							set_Zelle_d(cellsgrid[index][0],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_ux(cellsgrid[index][2],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_uxr(cellsgrid[index][3],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_uy(cellsgrid[index][4],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_uyr(cellsgrid[index][5],
-									CELLS[0] + ordnung + 1, y);
+						int index_dst = grid_size_total[0] - orderofgrid + y * grid_size_total[0];
+						int index_src = index_dst - 1;
 
+						if (boundary_conditions[1] == 0) {
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
-
-							int index = (CELLS[0] + ordnung) + y * width;
-							set_Zelle_d(cellsgrid[index][0],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_ux(0.0 - cellsgrid[index][2],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_uxr(cellsgrid[index][3],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_uy(0.0 - cellsgrid[index][4],
-									CELLS[0] + ordnung + 1, y);
-							set_Zelle_uyr(cellsgrid[index][5],
-									CELLS[0] + ordnung + 1, y);
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						}
 					}
 					if (y == 0) {
-						if (downbc == 0) {
-							int index = x + ordnung * width;
 
-							set_Zelle_d(cellsgrid[index][0], x, 0);
-							set_Zelle_uy(cellsgrid[index][4], x, 0);
-							set_Zelle_uyr(cellsgrid[index][5], x, 0);
-							set_Zelle_ux(cellsgrid[index][2], x, 0);
-							set_Zelle_uxr(cellsgrid[index][3], x, 0);
+						int index_dst = x;
+						int index_src = x + orderofgrid * grid_size_total[0];
+
+						if (boundary_conditions[2] == 0) {
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
-							int index = x + ordnung * width;
-
-							set_Zelle_d(cellsgrid[index][0], x, 0);
-							set_Zelle_uy(0.0 - cellsgrid[index][4], x, 0);
-							set_Zelle_uyr(cellsgrid[index][5], x, 0);
-							set_Zelle_ux(0.0 - cellsgrid[index][2], x, 0);
-							set_Zelle_uxr(cellsgrid[index][3], x, 0);
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						}
-					}
-					if (y == (CELLS[1] + ordnung + 1)) {
-						if (upbc == 0) {
+					} else if (y == (grid_size_total[1] - orderofgrid)) {
 
-							int index = x + (CELLS[1] + ordnung) * width;
-							set_Zelle_d(cellsgrid[index][0], x,
-									CELLS[1] + ordnung + 1);
-							set_Zelle_uy(cellsgrid[index][4], x,
-									CELLS[1] + ordnung + 1);
-							set_Zelle_uyr(cellsgrid[index][5], x,
-									CELLS[1] + ordnung + 1);
-							set_Zelle_ux(cellsgrid[index][2], x,
-									(CELLS[1] + ordnung + 1));
-							set_Zelle_uxr(cellsgrid[index][3], x,
-									CELLS[1] + ordnung + 1);
+						int index_dst = x + (grid_size_total[1] - orderofgrid) * grid_size_total[0];
+						int index_src = x + (grid_size_total[1] - orderofgrid - 1) * grid_size_total[0];
 
+						if (boundary_conditions[3] == 0) {
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
-
-							int index = x + (CELLS[1] + ordnung) * width;
-							set_Zelle_d(cellsgrid[index][2], x,
-									CELLS[1] + ordnung + 1);
-							set_Zelle_uy(0.0 - cellsgrid[index][4], x,
-									CELLS[1] + ordnung + 1);
-							set_Zelle_uyr(cellsgrid[index][5], x,
-									CELLS[1] + ordnung + 1);
-							set_Zelle_ux(0.0 - cellsgrid[index][2], x,
-									CELLS[1] + ordnung + 1);
-							set_Zelle_uxr(cellsgrid[index][3], x,
-									CELLS[1] + ordnung + 1);
+							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
+							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
+							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
+							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						}
 					}
 
 				}
 			}
 		}
-
 		break;
 	}
 
@@ -713,100 +334,402 @@ void Grid::bcondi(int* CELLS, int ordnung) {
 
 /**
  *****************************************************************************************
- * überflüssige Get- und Setmethoden
+ * Gitter Initialisierungsmethoden
  *****************************************************************************************/
 
-int Grid::getwidth() {
-	return width;
+void Grid::init_1d_rarefraction() {
+	double xpos = 0.0;
+	double mor = constants->pos_x_max;
+	double mol = constants->pos_x_min;
+	double rhol = constants->rhol;
+	double vl = constants->vl;
+	double vrl = constants->vrl;
+	double rhor = constants->rhor;
+	double vr = constants->vr;
+	double vrr = constants->vrr;
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		xpos = mol + (mor - mol) * ((double) (n - orderofgrid) / grid_size[0]);
+		if (xpos <= 0.0) {
+			cellsgrid[n][0] = rhol;
+			cellsgrid[n][2] = vl;
+			cellsgrid[n][3] = vrl;
+		} else {
+			cellsgrid[n][0] = rhor;
+			cellsgrid[n][2] = vr;
+			cellsgrid[n][3] = vrr;
+		}
+	}
+	return;
 }
 
-int Grid::getheight() {
-	return height;
+void Grid::init_1d_shockwave() {
+	double xpos = 0.0;
+	double mor = constants->pos_x_max;
+	double mol = constants->pos_x_min;
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		xpos = mol + (mor - mol) * ((double) (n - orderofgrid) / grid_size[0]);
+		if (xpos == 0.0) {
+			cellsgrid[n][0] = 1323;
+			cellsgrid[n][2] = 100000;
+			cellsgrid[n][3] = 0;
+		} else {
+			cellsgrid[n][0] = 1000;
+			cellsgrid[n][2] = 0;
+			cellsgrid[n][3] = 0;
+		}
+	}
+	return;
 }
 
-int Grid::getdim() {
-	return dimension;
+void Grid::init_2d_rarefraction_0() {
+	double mor = constants->pos_x_max;
+	double mol = constants->pos_x_min;
+	/*double mur = konstanten->mur; //2D
+	 double mul = konstanten->mul; //2D*/
+
+	double xpos = 0.0;
+	//double ypos = 0.0;  //2D
+
+	double rhol = constants->rhol;
+	double vl = constants->vl;
+	double vrl = constants->vrl;
+	double vyl = constants->vyl;
+	double vyrl = constants->vyrl;
+	double rhor = constants->rhor;
+	double vr = constants->vr;
+	double vrr = constants->vrr;
+	double vyr = constants->vyr;
+	double vyrr = constants->vyrr;
+
+	cout << "Gerade parallel zur y-Achse" << endl;
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			/*ypos = mul
+			 + (mur - mul)
+			 * (((double) m - orderofgrid)
+			 / (double) grid_size[1]);*/
+
+			int index = n + m * grid_size_total[0];
+
+			if (xpos <= 0.0) {
+				cellsgrid[index][0] = rhol;
+				cellsgrid[index][2] = vl;
+				cellsgrid[index][3] = vrl;
+				cellsgrid[index][4] = vyl;
+				cellsgrid[index][5] = vyrl;
+
+			} else {
+				cellsgrid[index][0] = rhor;
+				cellsgrid[index][2] = vr;
+				cellsgrid[index][3] = vrr;
+				cellsgrid[index][4] = vyr;
+				cellsgrid[index][5] = vyrr;
+
+			}
+		}
+	}
+	return;
 }
 
-Zelle Grid::get_Zelle(int x) {
-	return get_Zelle(x, 0, 0);
+void Grid::init_2d_rarefraction_90() {
+	//double mor = constants->mor;
+	//double mol = constants->mol;
+	double mur = constants->pos_y_max; //2D
+	double mul = constants->pos_y_min; //2D
+
+	//double xpos = 0.0;
+	double ypos = 0.0;  //2D
+
+	double rhol = constants->rhol;
+	double vl = constants->vl;
+	double vrl = constants->vrl;
+	double vyl = constants->vyl;
+	double vyrl = constants->vyrl;
+	double rhor = constants->rhor;
+	double vr = constants->vr;
+	double vrr = constants->vrr;
+	double vyr = constants->vyr;
+	double vyrr = constants->vyrr;
+
+	cout << "Gerade parallel zur y-Achse" << endl;
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			/*xpos = mol
+			 + (mor - mol)
+			 * (((double) n - orderofgrid)
+			 / (double) grid_size[0]);*/
+			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+
+			int index = n + m * grid_size_total[1];
+			if (ypos <= 0.0) {
+				cellsgrid[index][0] = rhol;
+				cellsgrid[index][2] = vl;
+				cellsgrid[index][3] = vrl;
+				cellsgrid[index][4] = vyl;
+				cellsgrid[index][5] = vyrl;
+
+			} else {
+				cellsgrid[index][0] = rhor;
+				cellsgrid[index][2] = vr;
+				cellsgrid[index][3] = vrr;
+				cellsgrid[index][4] = vyr;
+				cellsgrid[index][5] = vyrr;
+
+			}
+		}
+	}
+	return;
 }
 
-Zelle Grid::get_Zelle(int x, int y) {
-	return get_Zelle(x, y, 0);
+void Grid::init_2d_rarefraction_60() {
+	double mor = constants->pos_x_max;
+	double mol = constants->pos_x_min;
+	double mur = constants->pos_y_max; //2D
+	double mul = constants->pos_y_min; //2D
+
+	double dx = (mor - mol) / (double) grid_size[0];
+
+	double xpos = 0.0;
+	double ypos = 0.0;  //2D
+
+	double rhol = constants->rhol;
+	double vl = constants->vl;
+	double vrl = constants->vrl;
+	double vyrl = constants->vyrl;
+	double rhor = constants->rhor;
+	double vr = constants->vr;
+	double vrr = constants->vrr;
+	double vyrr = constants->vyrr;
+
+	cout << "Gerade mit der Gleichung ypos=" << WINKEL_60F << " als Grenze " << endl;
+
+	double alpha = ALPHA_60 * M_PI / 180.0;
+	double vxl_winkel = -fabs(vl) * sin(alpha);
+	double vyl_winkel = fabs(vl) * cos(alpha);
+	double vxr_winkel = fabs(vr) * sin(alpha);
+	double vyr_winkel = -fabs(vr) * cos(alpha);
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+
+			int index = n + m * grid_size_total[0];
+
+			if (ypos >= WINKEL_60(xpos, dx)) {
+				cellsgrid[index][0] = rhol;
+				cellsgrid[index][2] = vxl_winkel;
+				cellsgrid[index][3] = vrl;
+				cellsgrid[index][4] = vyl_winkel;
+				cellsgrid[index][5] = vyrl;
+			} else {
+				cellsgrid[index][0] = rhor;
+				cellsgrid[index][2] = vxr_winkel;
+				cellsgrid[index][3] = vrr;
+				cellsgrid[index][4] = vyr_winkel;
+				cellsgrid[index][5] = vyrr;
+			}
+		}
+	}
+	return;
 }
 
-Zelle Grid::get_Zelle(int x, int y, int z) {
-	//return zelle[x + y * width + z * width * height];
-	return zelle[x + y * width + z * width * height];
+void Grid::init_2d_rarefraction_45() {
+	double mor = constants->pos_x_max;
+	double mol = constants->pos_x_min;
+	double mur = constants->pos_y_max; //2D
+	double mul = constants->pos_y_min; //2D
+
+	double dx = (mor - mol) / (double) grid_size[0];
+
+	double xpos = 0.0;
+	double ypos = 0.0;  //2D
+
+	double rhol = constants->rhol;
+	double vl = constants->vl;
+	double vrl = constants->vrl;
+	double vyrl = constants->vyrl;
+	double rhor = constants->rhor;
+	double vr = constants->vr;
+	double vrr = constants->vrr;
+	double vyrr = constants->vyrr;
+
+	cout << "Gerade mit der Gleichung ypos=" << WINKEL_45F << " als Grenze " << endl;
+
+	double alpha = ALPHA_45 * M_PI / 180.0;
+	double vxl_winkel = -fabs(vl) * sin(alpha);
+	double vyl_winkel = fabs(vl) * cos(alpha);
+	double vxr_winkel = fabs(vr) * sin(alpha);
+	double vyr_winkel = -fabs(vr) * cos(alpha);
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+
+			int index = n + m * grid_size_total[0];
+			if (ypos >= WINKEL_45(xpos, dx)) {
+				cellsgrid[index][0] = rhol;
+				cellsgrid[index][2] = vxl_winkel;
+				cellsgrid[index][3] = vrl;
+				cellsgrid[index][4] = vyl_winkel;
+				cellsgrid[index][5] = vyrl;
+			} else {
+				cellsgrid[index][0] = rhor;
+				cellsgrid[index][2] = vxr_winkel;
+				cellsgrid[index][3] = vrr;
+				cellsgrid[index][4] = vyr_winkel;
+				cellsgrid[index][5] = vyrr;
+			}
+		}
+	}
+	return;
 }
 
-void Grid::set_Zelle_ux(double in, int x) {
-	zelle[x].ux = in;
-	cellsgrid[x][2] = in;
+void Grid::init_2d_shockwave_bubble() {
+	double mor = constants->pos_x_max;
+	double mol = constants->pos_x_min;
+	double mur = constants->pos_y_max; //2D
+	double mul = constants->pos_y_min; //2D
+
+	double dx = (mor - mol) / (double) grid_size[0];
+
+	double xpos = 0.0;
+	double ypos = 0.0;  //2D
+
+	double radius = constants->radius;
+
+	cout << "Kreis mit Radius " << radius << " und Gleichung " << KREIS_F << endl;
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+
+			int index = n + m * grid_size_total[0];
+
+			if (radius >= KREIS(xpos, ypos)) {
+				cellsgrid[index][0] = 8;
+
+			} else {
+				cellsgrid[index][0] = 10;
+
+			}
+
+			cellsgrid[index][2] = 0;
+			cellsgrid[index][3] = 0;
+			cellsgrid[index][4] = 0;
+			cellsgrid[index][5] = 0;
+		}
+	}
+
+	//int shockwave_pos = mor + 1.8/(mor - mol);
+	//int shockwave_zell = 1.8/(mor - mol)*cells[0];
+	int shockwave_zell = 0.5 * (mor - mol) / (mor - mol) * grid_size[0];
+	double shockwave_pos = mol + shockwave_zell * dx;
+	cout << "Schockwelle bei " << shockwave_pos << ", x-Zelle " << shockwave_zell << endl;
+	for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+		int index = shockwave_zell + m * grid_size_total[0];
+		cellsgrid[index][0] = 20;
+		cellsgrid[index][2] = 10;
+
+	}
+	return;
 }
 
-void Grid::set_Zelle_ux(double in, int x, int y) {
-	zelle[x + y * width].ux = in;
-	cellsgrid[x + y * width][2] = in;
-}
+void Grid::init_2d_load_file(std::string save_in) {
 
-void Grid::set_Zelle_uxr(double in, int x) {
-	zelle[x].uxr = in;
-	cellsgrid[x][3] = in;
-}
+	//TODO: Savefile Auswahl
+	//Speicherstand laden
+	ifstream save_input(save_in.c_str());
+	ifstream save_input_line;
+	string line_open;
+	string line;
 
-void Grid::set_Zelle_uxr(double in, int x, int y) {
-	zelle[x + y * width].uxr = in;
-	cellsgrid[x + y * width][3] = in;
+	getline(save_input, line_open);
+	save_input_line.open(line_open.c_str());
 
-}
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			getline(save_input_line, line);
+			line = line.substr(line.find("\t") + 1);
 
-void Grid::set_Zelle_uy(double in, int x) {
-	zelle[x].uy = in;
-	cellsgrid[x][4] = in;
+			cellsgrid[n + m * grid_size_total[0]][0] = atof(line.c_str());
+		}
+	}
+	save_input_line.close();
 
-}
+	getline(save_input, line_open);
+	save_input_line.open(line_open.c_str());
 
-void Grid::set_Zelle_uy(double in, int x, int y) {
-	zelle[x + y * width].uy = in;
-	cellsgrid[x + y * width][4] = in;
-	if (zelle[x + y * width].uy != cellsgrid[x + y * width][4])
-		cout << " ===== SET Falscher Setwert UY" << endl;
-}
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			getline(save_input_line, line);
+			line = line.substr(line.find("\t") + 1);
 
-void Grid::set_Zelle_uyr(double in, int x) {
-	zelle[x].uyr = in;
-	cellsgrid[x][5] = in;
+			cellsgrid[n + m * grid_size_total[0]][2] = atof(line.c_str());
 
-}
+		}
+	}
+	save_input_line.close();
 
-void Grid::set_Zelle_uyr(double in, int x, int y) {
-	zelle[x + y * width].uyr = in;
-	cellsgrid[x + y * width][5] = in;
+	getline(save_input, line_open);
+	save_input_line.open(line_open.c_str());
 
-}
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			getline(save_input_line, line);
+			line = line.substr(line.find("\t") + 1);
 
-void Grid::set_Zelle_d(double in, int x) {
-	zelle[x].d = in;
-	cellsgrid[x][0] = in;
+			cellsgrid[n + m * grid_size_total[0]][4] = atof(line.c_str());
 
-}
+		}
+	}
+	save_input_line.close();
 
-void Grid::set_Zelle_d(double in, int x, int y) {
-	zelle[x + y * width].d = in;
-	cellsgrid[x + y * width][0] = in;
+	getline(save_input, line_open);
+	save_input_line.open(line_open.c_str());
 
-}
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			getline(save_input_line, line);
+			line = line.substr(line.find("\t") + 1);
 
-void Grid::set_Zelle_p(double in, int x) {
-	zelle[x].p = in;
-	cellsgrid[x][1] = in;
+			cellsgrid[n + m * grid_size_total[0]][3] = atof(line.c_str());
 
-}
+		}
+	}
+	save_input_line.close();
 
-void Grid::set_Zelle_p(double in, int x, int y) {
-	zelle[x + y * width].p = in;
-	cellsgrid[x + y * width][1] = in;
+	getline(save_input, line_open);
+	save_input_line.open(line_open.c_str());
 
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			getline(save_input_line, line);
+			line = line.substr(line.find("\t") + 1);
+
+			cellsgrid[n + m * grid_size_total[0]][5] = atof(line.c_str());
+
+		}
+	}
+	save_input_line.close();
+
+	getline(save_input, line_open);
+	save_input_line.open(line_open.c_str());
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			getline(save_input_line, line);
+			line = line.substr(line.find("\t") + 1);
+
+			cellsgrid[n + m * grid_size_total[0]][1] = atof(line.c_str());
+
+		}
+	}
+	save_input_line.close();
+	return;
 }

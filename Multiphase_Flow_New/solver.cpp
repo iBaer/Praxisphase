@@ -1,31 +1,32 @@
 #include "solver.h"
 
-Solver::Solver(string methodname, Constants* constants, Computation *computation, Grid* grid)
+Solver::Solver(string solver_name, Constants* constants, Computation *computation, Grid* grid)
 {
-	name = methodname;
-	konstanten = constants;
-	gs = computation;
+
+	name = solver_name;
+	this->constants = constants;
+	this->computation = computation;
 	this->grid = grid;
-    ordnung = 1;
+    dimension = constants->dimension;
 
-    dimension = konstanten->dimension;
-    CELLS = new int(dimension);
+    size_total = new int[dimension];
+    size_m1 = new int[dimension];
 
-    mor = konstanten->mor;
-    mol = konstanten->mol;
-    mur = konstanten->mur; //2D
-    mul = konstanten->mul; //2D
-    timeou = konstanten->timeou;
-    steps = 0;
-    maxnt = konstanten->maxnt;
-    teilerend = konstanten->teilerend;
-    teiler = konstanten->teiler;
-    variante = (int) konstanten->variante;
+    for (int i = 0; i < dimension; i++){
+    	size_total[i] = grid->grid_size_total[i];
+    	size_m1[i] = size_total[i] - 1;
+    }
 
+    //TODO: dz; oder "delta array"
+    dx = (constants->pos_x_max - constants->pos_x_min)/(double)grid->grid_size[0];
+    if (dimension ==2){
+        dy = (constants->pos_y_max - constants->pos_y_min)/(double)grid->grid_size[1];
+    }
+}
 
-    CELLS[0] = konstanten->CELLSX;
-    CELLS[1] = konstanten->CELLSY;
-    dx = (mor-mol)/(double)CELLS[0];
-    dy = (mur-mul)/(double)CELLS[1];
+Solver::~Solver(){
+	delete[] size_total;
+	delete[] size_m1;
 
 }
+
