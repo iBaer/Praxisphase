@@ -20,6 +20,9 @@ class Lax_Friedrich : public Solver
         * Ruft einfach den Konstrukter von der geerbten Klasse auf.
         */
         Lax_Friedrich(Constants *constants, Computation *computation, Grid *grid);
+        void solve_1d(double dt);
+        void solve_2d_unsplit(double dt);
+        void solve_2d_split(double dt);
         virtual ~Lax_Friedrich();
 
     protected:

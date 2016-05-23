@@ -51,7 +51,9 @@ class Force : public Solver
 
   	  double** f_force;
 
-
+      void solve_1d(double dt);
+      void solve_2d_unsplit(double dt);
+      void solve_2d_split(double dt);
 };
 
 #endif // FORCE_H

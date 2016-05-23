@@ -91,13 +91,15 @@ void numerische_methode::start_method() {
 
 		// update
 		if (dimension==1)
-			update(solver->calc_method_flux(dt, 1), 1);
-		else if (with_splitting == 1)
-			unsplitting();
+			solver->calc_method_flux(dt, 1);
 
-		else if (with_splitting == 2) {
-			splitting();
-		}
+			//update(solver->calc_method_flux(dt, 1), 1);
+		else if (with_splitting == 1)
+			solver->calc_method_flux(dt, 0);
+
+		else if (with_splitting == 2)
+			solver->calc_method_flux(dt, 1);
+
 		timedif = fabs(time - time_output);
 		steps = n;
 
@@ -106,33 +108,13 @@ void numerische_methode::start_method() {
 }
 
 void numerische_methode::unsplitting() {
-	// TODO: DER INDEX IN CALC_METHOD_FLUX IST NOCH OHNE BEDEUTUNG,
-	// SONDERN ES WIRD IMMER F UND G BERECHNET, MUSS NOCH GEAENDERT WERDEN
 
-	cout << "do unsplitting updates" << endl;
-
-	//update(solver->calc_method_flux(dt, 0), 0);
-
-	double* flux_x = solver->calc_method_flux(dt, 1);
-	double* flux_y = solver->calc_method_flux(dt, 2);
-	update(flux_x, 1);
-	update(flux_y, 2);
+	solver->calc_method_flux(dt, 0);
 }
 
 void numerische_methode::splitting() {
-	// TODO: Splitting aus folgenden Funktionen hier hin (eventuell)
-	// numerische_methode::cflcon
-	// numerische_methode::update
 
-	cout << "do splitting updates" << endl;
-
-	update(solver->calc_method_flux(dt, 1), 1);
-	grid_main->bcondi();
-
-	// ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
-	// ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
-	// DEN NEUEN WERTEN, SONST KANN EINEM DAS SYSTEM DIVERGIEREN!
-	update(solver->calc_method_flux(dt, 2), 2);
+	solver->calc_method_flux(dt, 1);
 
 }
 
@@ -426,7 +408,7 @@ double numerische_methode::cfl_condition(int n, double time) {
  *****************************************************************************************
  *  Aktualisiert alle zelle mithilfe des berechneten Flusses.
  *****************************************************************************************/
-void numerische_methode::update(double* fi, int dir) {
+/*void numerische_methode::update(double* fi, int dir) {
 	cout << "Zellen updaten..." << endl;
 
 	double dtodx = dt / dx;
@@ -465,7 +447,7 @@ void numerische_methode::update(double* fi, int dir) {
 	// update in 2-d
 	if (dimension == 2) {
 		int pos;
-		/*if (dir == 0) {
+		if (dir == 0) {
 			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
 				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
 					pos = x + y * width;
@@ -505,7 +487,7 @@ void numerische_methode::update(double* fi, int dir) {
 					grid_main->cellsgrid[pos][5] = uyr;
 				}
 			}
-		}*/
+		}
 
 		if (dir == 1) {
 			cout << "update x mit dtodx=" << dtodx << endl;
@@ -579,7 +561,6 @@ void numerische_methode::update(double* fi, int dir) {
 	}
 }
 
-/*
 void numerische_methode::update(double* fi, int dir) {
 	cout << "Zellen updaten..." << endl;
 

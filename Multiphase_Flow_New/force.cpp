@@ -106,208 +106,16 @@ double* Force::calc_method_flux(double dt, int dir) {
 
 	switch (dimension) {
 	case (1): {
-		computation->compute_u_1d(cs, grid);
-		computation->compute_f_1d(fd, grid);
-		//LaxFriedrichFluss berechnen
-		for (int k = 0; k < neqs; k++) {
-			for (int i = 0; i < size_total[0] - grid->orderofgrid; i++) {
-				f_lax[k][i][0] = 0.5 * (fd[k][i][0] + fd[k][i + 1][0]) + 0.5 * (dx / dt) * (cs[k][i][0] - cs[k][i + 1][0]);
-			}
-		}
-
-		//LaxFriedrichFluss berechnen
-		/*for (int i = 0; i < CELLS[0] + ordnung + 1; i++) {
-		 for (unsigned int k = 0; k < gs->u.size(); k++) {
-		 f_lax[k][i][0] = 0.5 * (fd[k][i][0] + fd[k][i + 1][0])
-		 + 0.5 * (dx / dt) * (cs[k][i][0] - cs[k][i + 1][0]);
-		 }
-		 }*/
-
-		//Richtmyer Fluss berechnen
-		Grid *u_rie = new Grid(size_total[0]);
-		for (int i = 0; i < size_total[0] - grid->orderofgrid; i++) {
-			u_rie->cellsgrid[i][0] = 0.5 * (cs[0][i][0] + cs[0][i + 1][0]) + 0.5 * (dt / dx) * (fd[0][i][0] - fd[0][i + 1][0]);
-			u_rie->cellsgrid[i][2] = (0.5 * (cs[1][i][0] + cs[1][i + 1][0]) + 0.5 * (dt / dx) * (fd[1][i][0] - fd[1][i + 1][0])) / u_rie->cellsgrid[i][0];
-			u_rie->cellsgrid[i][3] = 0.5 * (cs[2][i][0] + cs[2][i + 1][0]) + 0.5 * (dt / dx) * (fd[2][i][0] - fd[2][i + 1][0]);
-			u_rie->cellsgrid[i][1] = constants->ct * pow(u_rie->cellsgrid[i][0], constants->gamma);
-		}
-
-		//Richtmyer Fluss berechnen
-		computation->compute_f_1d(f_rie, u_rie);
-
-		delete u_rie;
-
-		//FORCE Fluss berechnen
-		for (int k = 0; k < neqs; k++) {
-			for (int i = 0; i < size_total[0] - grid->orderofgrid; i++) {
-
-				f_force[0][0 + (size_m1[1]) * i + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (f_lax[k][i][0] + f_rie[k][i][0]);
-			}
-		}
-		//break;
-		return f_force[0];
+		solve_1d(dt);
+		break;
 	}
 	case (2): {
 		//2D ACHTUNG - EVENTUELL NOCH FALSCH !!!!!!!!!!!!!!!!!!!!!!!!!!
-		/*if (dir == 0) {
-			computation->compute_u_2d(cs, grid);
-			computation->compute_f_2d(fd, grid);
-			computation->compute_g_2d(gd, grid);
-			cout << "neqs " << computation->neqs << " gs->u.size() " << computation->u.size() << endl;
-			//Lax-Friedrich Fluss berechnen
-			for (int k = 0; k < computation->neqs; k++) {
-				for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
-					for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
-						f_lax[k][x][y] = 0.5 * (fd[k][x][y] + fd[k][x + 1][y]) + 0.25 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]);
-
-						g_lax[k][x][y] = 0.5 * (gd[k][x][y] + gd[k][x][y + 1]) + 0.25 * (dy / dt) * (cs[k][x][y] - cs[k][x][y + 1]);
-					}
-				}
-			}
-
-			//Richtmyer Fluss berechnen
-			Grid* u_rie_f = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
-			Grid* u_rie_g = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
-			int pos;
-
-			for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
-				for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
-					pos = x + y * size_total[0];
-
-					u_rie_f->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x + 1][y]) + (dt / 2 * dx) * (fd[0][x][y] - fd[0][x + 1][y]);
-					u_rie_f->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x + 1][y]) + (dt / 2 * dx) * (fd[1][x][y] - fd[1][x + 1][y]))
-							/ u_rie_f->cellsgrid[pos][0];
-					u_rie_f->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x + 1][y]) + (dt / 2 * dx) * (fd[2][x][y] - fd[2][x + 1][y]))
-							/ u_rie_f->cellsgrid[pos][0];
-					u_rie_f->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x + 1][y]) + (dt / 2 * dx) * (fd[3][x][y] - fd[3][x + 1][y]);
-					u_rie_f->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x + 1][y]) + (dt / 2 * dx) * (fd[4][x][y] - fd[4][x + 1][y]);
-					u_rie_f->cellsgrid[pos][1] = constants->ct * pow(u_rie_f->cellsgrid[pos][0], constants->gamma);
-
-					u_rie_g->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x][y + 1]) + (dt / 2 * dy) * (gd[0][x][y] - gd[0][x][y + 1]);
-					u_rie_g->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x][y + 1]) + (dt / 2 * dy) * (gd[1][x][y] - gd[1][x][y + 1]))
-							/ u_rie_g->cellsgrid[pos][0];
-					u_rie_g->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x][y + 1]) + (dt / 2 * dy) * (gd[2][x][y] - gd[2][x][y + 1]))
-							/ u_rie_g->cellsgrid[pos][0];
-					u_rie_g->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x][y + 1]) + (dt / 2 * dy) * (gd[3][x][y] - gd[3][x][y + 1]);
-					u_rie_g->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x][y + 1]) + (dt / 2 * dy) * (gd[4][x][y] - gd[4][x][y + 1]);
-					u_rie_g->cellsgrid[pos][1] = constants->ct * pow(u_rie_g->cellsgrid[pos][0], constants->gamma);
-				}
-			}
-
-			//Richtmyer Fluss berechnen
-			computation->compute_f_2d(f_rie, u_rie_f);
-			computation->compute_g_2d(g_rie, u_rie_g);
-
-			//FORCE Fluss berechnen
-			for (int k = 0; k < computation->neqs; k++) {
-				for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
-					for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
-						fiarray[0 + (dimension * y) + (dimension * (size_m1[1]) * x) + (dimension * (size_m1[1]) * (size_m1[0]) * k)] = 0.5
-								* (f_lax[k][x][y] + f_rie[k][x][y]);
-						fiarray[1 + (dimension * y) + (dimension * (size_m1[1]) * x) + (dimension * (size_m1[1]) * (size_m1[0]) * k)] = 0.5
-								* (g_lax[k][x][y] + g_rie[k][x][y]);
-					}
-				}
-			}
-
-			delete u_rie_f;
-			delete u_rie_g;
-		}*/
-		if (dir == 1) {
-			computation->compute_u_2d(cs, grid);
-			computation->compute_f_2d(fd, grid);
-			//Lax-Friedrich Fluss berechnen
-			for (int k = 0; k < neqs; k++) {
-				for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
-					for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
-						f_lax[k][x][y] = 0.5 * (fd[k][x][y] + fd[k][x + 1][y]) + 0.25 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]);
-
-					}
-				}
-			}
-
-			//Richtmyer Fluss berechnen
-			Grid* u_rie_f = new Grid(size_total[0], size_total[1]);
-
-			int pos;
-			for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
-				for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
-
-					pos = x + y * size_total[0];
-
-					u_rie_f->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x + 1][y]) + (dt / 2 * dx) * (fd[0][x][y] - fd[0][x + 1][y]);
-					u_rie_f->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x + 1][y]) + (dt / 2 * dx) * (fd[1][x][y] - fd[1][x + 1][y]))
-							/ u_rie_f->cellsgrid[pos][0];
-					u_rie_f->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x + 1][y]) + (dt / 2 * dx) * (fd[2][x][y] - fd[2][x + 1][y]))
-							/ u_rie_f->cellsgrid[pos][0];
-					u_rie_f->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x + 1][y]) + (dt / 2 * dx) * (fd[3][x][y] - fd[3][x + 1][y]);
-					u_rie_f->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x + 1][y]) + (dt / 2 * dx) * (fd[4][x][y] - fd[4][x + 1][y]);
-					u_rie_f->cellsgrid[pos][1] = constants->ct * pow(u_rie_f->cellsgrid[pos][0], constants->gamma);
-
-				}
-			}
-
-			//Richtmyer Fluss berechnen
-			computation->compute_f_2d(f_rie, u_rie_f);
-
-			//FORCE Fluss berechnen
-			for (int k = 0; k < neqs; k++) {
-				for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
-					for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
-						f_force[0][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (f_lax[k][x][y] + f_rie[k][x][y]);
-					}
-				}
-			}
-
-			delete u_rie_f;
-			return f_force[0];
-		} else {
-			computation->compute_u_2d(cs, grid);
-			computation->compute_g_2d(gd, grid);
-			//Lax-Friedrich Fluss berechnen
-			for (int k = 0; k < neqs; k++) {
-				for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
-					for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
-						g_lax[k][x][y] = 0.5 * (gd[k][x][y] + gd[k][x][y + 1]) + 0.25 * (dy / dt) * (cs[k][x][y] - cs[k][x][y + 1]);
-					}
-				}
-			}
-
-			//Richtmyer Fluss berechnen
-			Grid* u_rie_g = new Grid(size_total[0], size_total[1]);
-			int pos;
-
-			for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
-				for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
-					pos = x + y * size_total[0];
-
-					u_rie_g->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x][y + 1]) + (dt / 2 * dy) * (gd[0][x][y] - gd[0][x][y + 1]);
-					u_rie_g->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x][y + 1]) + (dt / 2 * dy) * (gd[1][x][y] - gd[1][x][y + 1]))
-							/ u_rie_g->cellsgrid[pos][0];
-					u_rie_g->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x][y + 1]) + (dt / 2 * dy) * (gd[2][x][y] - gd[2][x][y + 1]))
-							/ u_rie_g->cellsgrid[pos][0];
-					u_rie_g->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x][y + 1]) + (dt / 2 * dy) * (gd[3][x][y] - gd[3][x][y + 1]);
-					u_rie_g->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x][y + 1]) + (dt / 2 * dy) * (gd[4][x][y] - gd[4][x][y + 1]);
-					u_rie_g->cellsgrid[pos][1] = constants->ct * pow(u_rie_g->cellsgrid[pos][0], constants->gamma);
-				}
-			}
-
-			//Richtmyer Fluss berechnen
-			computation->compute_g_2d(g_rie, u_rie_g);
-
-			//FORCE Fluss berechnen
-			for (int k = 0; k < neqs; k++) {
-				for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
-					for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
-
-						f_force[1][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (g_lax[k][x][y] + g_rie[k][x][y]);
-
-					}
-				}
-			}
-
-			delete u_rie_g;
-			return f_force[1];
+		if (dir == 0) {
+			solve_2d_unsplit(dt);
+		}
+		else{
+			solve_2d_split(dt);
 		}
 		break;
 
@@ -317,4 +125,355 @@ double* Force::calc_method_flux(double dt, int dir) {
 	//return fiarray;
 	return f_force[0];
 
+}
+
+void Force::solve_1d(double dt){
+	int order = grid->orderofgrid;
+	double dtodx = dt / dx;
+	double d, ux, uxd, uxr;
+	int width_m1 = grid->grid_size_total[0] - 1;
+	int height_m1 = grid->grid_size_total[1] - 1;
+
+	computation->compute_u_1d(cs, grid);
+	computation->compute_f_1d(fd, grid);
+	//LaxFriedrichFluss berechnen
+	for (int k = 0; k < neqs; k++) {
+		for (int i = 0; i < size_total[0] - grid->orderofgrid; i++) {
+			f_lax[k][i][0] = 0.5 * (fd[k][i][0] + fd[k][i + 1][0]) + 0.5 * (dx / dt) * (cs[k][i][0] - cs[k][i + 1][0]);
+		}
+	}
+
+	//LaxFriedrichFluss berechnen
+	/*for (int i = 0; i < CELLS[0] + ordnung + 1; i++) {
+	 for (unsigned int k = 0; k < gs->u.size(); k++) {
+	 f_lax[k][i][0] = 0.5 * (fd[k][i][0] + fd[k][i + 1][0])
+	 + 0.5 * (dx / dt) * (cs[k][i][0] - cs[k][i + 1][0]);
+	 }
+	 }*/
+
+	//Richtmyer Fluss berechnen
+	Grid *u_rie = new Grid(size_total[0]);
+	for (int i = 0; i < size_total[0] - grid->orderofgrid; i++) {
+		u_rie->cellsgrid[i][0] = 0.5 * (cs[0][i][0] + cs[0][i + 1][0]) + 0.5 * (dt / dx) * (fd[0][i][0] - fd[0][i + 1][0]);
+		u_rie->cellsgrid[i][2] = (0.5 * (cs[1][i][0] + cs[1][i + 1][0]) + 0.5 * (dt / dx) * (fd[1][i][0] - fd[1][i + 1][0])) / u_rie->cellsgrid[i][0];
+		u_rie->cellsgrid[i][3] = 0.5 * (cs[2][i][0] + cs[2][i + 1][0]) + 0.5 * (dt / dx) * (fd[2][i][0] - fd[2][i + 1][0]);
+		u_rie->cellsgrid[i][1] = constants->ct * pow(u_rie->cellsgrid[i][0], constants->gamma);
+	}
+
+	//Richtmyer Fluss berechnen
+	computation->compute_f_1d(f_rie, u_rie);
+
+	delete u_rie;
+
+	//FORCE Fluss berechnen
+	for (int k = 0; k < neqs; k++) {
+		for (int i = 0; i < size_total[0] - grid->orderofgrid; i++) {
+
+			f_force[0][0 + (size_m1[1]) * i + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (f_lax[k][i][0] + f_rie[k][i][0]);
+		}
+	}
+
+	// Updateschritt
+	for (int i = order; i < grid->grid_size_total[0] - grid->orderofgrid; i++) {
+		d = grid->cellsgrid[i][0];
+		ux = grid->cellsgrid[i][2];
+		uxd = d * ux;
+		uxr = grid->cellsgrid[i][3];
+
+		// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
+		// TODO: Form könnte für 1D Fall vereinfacht werden
+		int index_x1 = 0 + (height_m1) * (i - 1);
+		int index_x2 = 0 + (height_m1) * (i);
+		int index_x3 = (height_m1) * (width_m1);
+
+		d = d + dtodx * (f_force[0][index_x1 + index_x3 * (0)] - f_force[0][index_x2 + index_x3 * (0)]);
+		uxd = uxd + dtodx * (f_force[0][index_x1 + index_x3 * (1)] - f_force[0][index_x2 + index_x3 * (1)]);
+		uxr = uxr + dtodx * (f_force[0][index_x1 + index_x3 * (2)] - f_force[0][index_x2 + index_x3 * (2)]);
+
+		grid->cellsgrid[i][0] = d;
+		grid->cellsgrid[i][2] = uxd / d;
+		grid->cellsgrid[i][3] = uxr;
+	}
+}
+
+void Force::solve_2d_unsplit(double dt){
+	int order = grid->orderofgrid;
+	double dtodx = dt / dx;
+	double dtody = dt / dy;
+	double d, ux, uy, uxd, uyd, uxr, uyr;
+	int width_m1 = grid->grid_size_total[0] - 1;
+	int height_m1 = grid->grid_size_total[1] - 1;
+	int pos;
+
+	computation->compute_u_2d(cs, grid);
+	computation->compute_f_2d(fd, grid);
+	computation->compute_g_2d(gd, grid);
+	//Lax-Friedrich Fluss berechnen
+	for (int k = 0; k < computation->neqs; k++) {
+		for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+				f_lax[k][x][y] = 0.5 * (fd[k][x][y] + fd[k][x + 1][y]) + 0.25 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]);
+
+				g_lax[k][x][y] = 0.5 * (gd[k][x][y] + gd[k][x][y + 1]) + 0.25 * (dy / dt) * (cs[k][x][y] - cs[k][x][y + 1]);
+			}
+		}
+	}
+
+	//Richtmyer Fluss berechnen
+	Grid* u_rie_f = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
+	Grid* u_rie_g = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
+
+	for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+		for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+			pos = x + y * size_total[0];
+
+			u_rie_f->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x + 1][y]) + (dt / 2 * dx) * (fd[0][x][y] - fd[0][x + 1][y]);
+			u_rie_f->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x + 1][y]) + (dt / 2 * dx) * (fd[1][x][y] - fd[1][x + 1][y]))
+					/ u_rie_f->cellsgrid[pos][0];
+			u_rie_f->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x + 1][y]) + (dt / 2 * dx) * (fd[2][x][y] - fd[2][x + 1][y]))
+					/ u_rie_f->cellsgrid[pos][0];
+			u_rie_f->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x + 1][y]) + (dt / 2 * dx) * (fd[3][x][y] - fd[3][x + 1][y]);
+			u_rie_f->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x + 1][y]) + (dt / 2 * dx) * (fd[4][x][y] - fd[4][x + 1][y]);
+			u_rie_f->cellsgrid[pos][1] = constants->ct * pow(u_rie_f->cellsgrid[pos][0], constants->gamma);
+
+			u_rie_g->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x][y + 1]) + (dt / 2 * dy) * (gd[0][x][y] - gd[0][x][y + 1]);
+			u_rie_g->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x][y + 1]) + (dt / 2 * dy) * (gd[1][x][y] - gd[1][x][y + 1]))
+					/ u_rie_g->cellsgrid[pos][0];
+			u_rie_g->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x][y + 1]) + (dt / 2 * dy) * (gd[2][x][y] - gd[2][x][y + 1]))
+					/ u_rie_g->cellsgrid[pos][0];
+			u_rie_g->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x][y + 1]) + (dt / 2 * dy) * (gd[3][x][y] - gd[3][x][y + 1]);
+			u_rie_g->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x][y + 1]) + (dt / 2 * dy) * (gd[4][x][y] - gd[4][x][y + 1]);
+			u_rie_g->cellsgrid[pos][1] = constants->ct * pow(u_rie_g->cellsgrid[pos][0], constants->gamma);
+		}
+	}
+
+	//Richtmyer Fluss berechnen
+	computation->compute_f_2d(f_rie, u_rie_f);
+	computation->compute_g_2d(g_rie, u_rie_g);
+
+	//FORCE Fluss berechnen
+	for (int k = 0; k < computation->neqs; k++) {
+		for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+				f_force[0][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (f_lax[k][x][y] + f_rie[k][x][y]);
+				f_force[1][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (g_lax[k][x][y] + g_rie[k][x][y]);
+			}
+		}
+	}
+
+	delete u_rie_f;
+	delete u_rie_g;
+
+	cout << "update x mit dtodx=" << dtodx << endl;
+	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+		for (int y = order; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+			pos = x + y * grid->grid_size_total[0];
+			d = grid->cellsgrid[pos][0];
+			ux = grid->cellsgrid[pos][2];
+			uy = grid->cellsgrid[pos][4];
+			uxr = grid->cellsgrid[pos][3];
+			uyr = grid->cellsgrid[pos][5];
+
+			uxd = ux * d;
+			uyd = uy * d;
+
+
+			int index_x1 = y + (height_m1) * (x - 1);
+			int index_x2 = y + (height_m1) * (x);
+			int index_x3 = (height_m1) * (width_m1);
+
+			int index_y1 = (y-1) + (height_m1) * (x);
+			int index_y2 = (y) + (height_m1) * (x);
+			int index_y3 = (height_m1) * (width_m1);
+
+			d = d + dtodx * (f_force[0][index_x1 + index_x3 * (0)] - f_force[0][index_x2 + index_x3 * (0)])
+					+ dtody * (f_force[1][index_y1 + index_y3 * (0)] - f_force[1][index_y2 + index_y3 * (0)]);
+			uxd = uxd + dtodx * (f_force[0][index_x1 + index_x3 * (1)] - f_force[0][index_x2 + index_x3 * (1)])
+					+ dtody * (f_force[1][index_y1 + index_y3 * (1)] - f_force[1][index_y2 + index_y3 * (1)]);
+			uyd = uyd + dtodx * (f_force[0][index_x1 + index_x3 * (2)] - f_force[0][index_x2 + index_x3 * (2)])
+					+ dtody * (f_force[1][index_y1 + index_y3 * (2)] - f_force[1][index_y2 + index_y3 * (2)]);
+			uxr = uxr + dtodx * (f_force[0][index_x1 + index_x3 * (3)] - f_force[0][index_x2 + index_x3 * (3)])
+					+ dtody * (f_force[1][index_y1 + index_y3 * (3)] - f_force[1][index_y2 + index_y3 * (3)]);
+			uyr = uyr + dtodx * (f_force[0][index_x1 + index_x3 * (4)] - f_force[0][index_x2 + index_x3 * (4)])
+					+ dtody * (f_force[1][index_y1 + index_y3 * (4)] - f_force[1][index_y2 + index_y3 * (4)]);
+
+			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][2] = uxd / d;
+			grid->cellsgrid[pos][4] = uyd / d;
+			grid->cellsgrid[pos][3] = uxr;
+			grid->cellsgrid[pos][5] = uyr;
+		}
+	}
+}
+
+void Force::solve_2d_split(double dt){
+
+	int order = grid->orderofgrid;
+	double dtodx = dt / dx;
+	double dtody = dt / dy;
+	double d, ux, uy, uxd, uyd, uxr, uyr;
+	int width_m1 = grid->grid_size_total[0] - 1;
+	int height_m1 = grid->grid_size_total[1] - 1;
+	int pos;
+
+	computation->compute_u_2d(cs, grid);
+	computation->compute_f_2d(fd, grid);
+	//Lax-Friedrich Fluss berechnen
+	for (int k = 0; k < neqs; k++) {
+		for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+				f_lax[k][x][y] = 0.5 * (fd[k][x][y] + fd[k][x + 1][y]) + 0.25 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]);
+
+			}
+		}
+	}
+
+	//Richtmyer Fluss berechnen
+	Grid* u_rie_f = new Grid(size_total[0], size_total[1]);
+
+	for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+		for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+
+			pos = x + y * size_total[0];
+
+			u_rie_f->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x + 1][y]) + (dt / 2 * dx) * (fd[0][x][y] - fd[0][x + 1][y]);
+			u_rie_f->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x + 1][y]) + (dt / 2 * dx) * (fd[1][x][y] - fd[1][x + 1][y]))
+					/ u_rie_f->cellsgrid[pos][0];
+			u_rie_f->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x + 1][y]) + (dt / 2 * dx) * (fd[2][x][y] - fd[2][x + 1][y]))
+					/ u_rie_f->cellsgrid[pos][0];
+			u_rie_f->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x + 1][y]) + (dt / 2 * dx) * (fd[3][x][y] - fd[3][x + 1][y]);
+			u_rie_f->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x + 1][y]) + (dt / 2 * dx) * (fd[4][x][y] - fd[4][x + 1][y]);
+			u_rie_f->cellsgrid[pos][1] = constants->ct * pow(u_rie_f->cellsgrid[pos][0], constants->gamma);
+
+		}
+	}
+
+	//Richtmyer Fluss berechnen
+	computation->compute_f_2d(f_rie, u_rie_f);
+
+	//FORCE Fluss berechnen
+	for (int k = 0; k < neqs; k++) {
+		for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+				f_force[0][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (f_lax[k][x][y] + f_rie[k][x][y]);
+			}
+		}
+	}
+
+	delete u_rie_f;
+
+	cout << "update x mit dtodx=" << dtodx << endl;
+	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+		for (int y = order; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+			pos = x + y * grid->grid_size_total[0];
+			d = grid->cellsgrid[pos][0];
+			ux = grid->cellsgrid[pos][2];
+			uy = grid->cellsgrid[pos][4];
+			uxr = grid->cellsgrid[pos][3];
+			uyr = grid->cellsgrid[pos][5];
+
+			uxd = ux * d;
+			uyd = uy * d;
+
+			// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
+
+			int index_x1 = y + (height_m1) * (x - 1);
+			int index_x2 = y + (height_m1) * (x);
+			int index_x3 = (height_m1) * (width_m1);
+			//cout << "Dir 1 fi["<< index_x1 + index_x3 * (0)<<"]: "<<fi[index_x1 + index_x3 * (0)]<<endl;
+
+			d = d + dtodx * (f_force[0][index_x1 + index_x3 * (0)] - f_force[0][index_x2 + index_x3 * (0)]);
+			uxd = uxd + dtodx * (f_force[0][index_x1 + index_x3 * (1)] - f_force[0][index_x2 + index_x3 * (1)]);
+			uyd = uyd + dtodx * (f_force[0][index_x1 + index_x3 * (2)] - f_force[0][index_x2 + index_x3 * (2)]);
+			uxr = uxr + dtodx * (f_force[0][index_x1 + index_x3 * (3)] - f_force[0][index_x2 + index_x3 * (3)]);
+			uyr = uyr + dtodx * (f_force[0][index_x1 + index_x3 * (4)] - f_force[0][index_x2 + index_x3 * (4)]);
+
+			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][2] = uxd / d;
+			grid->cellsgrid[pos][4] = uyd / d;
+			grid->cellsgrid[pos][3] = uxr;
+			grid->cellsgrid[pos][5] = uyr;
+		}
+	}
+
+	grid->bcondi();
+
+	computation->compute_u_2d(cs, grid);
+	computation->compute_g_2d(gd, grid);
+	//Lax-Friedrich Fluss berechnen
+	for (int k = 0; k < neqs; k++) {
+		for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+				g_lax[k][x][y] = 0.5 * (gd[k][x][y] + gd[k][x][y + 1]) + 0.25 * (dy / dt) * (cs[k][x][y] - cs[k][x][y + 1]);
+			}
+		}
+	}
+
+	//Richtmyer Fluss berechnen
+	Grid* u_rie_g = new Grid(size_total[0], size_total[1]);
+
+	for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+		for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+			pos = x + y * size_total[0];
+
+			u_rie_g->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x][y + 1]) + (dt / 2 * dy) * (gd[0][x][y] - gd[0][x][y + 1]);
+			u_rie_g->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x][y + 1]) + (dt / 2 * dy) * (gd[1][x][y] - gd[1][x][y + 1]))
+					/ u_rie_g->cellsgrid[pos][0];
+			u_rie_g->cellsgrid[pos][4] = (0.5 * (cs[2][x][y] + cs[2][x][y + 1]) + (dt / 2 * dy) * (gd[2][x][y] - gd[2][x][y + 1]))
+					/ u_rie_g->cellsgrid[pos][0];
+			u_rie_g->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x][y + 1]) + (dt / 2 * dy) * (gd[3][x][y] - gd[3][x][y + 1]);
+			u_rie_g->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x][y + 1]) + (dt / 2 * dy) * (gd[4][x][y] - gd[4][x][y + 1]);
+			u_rie_g->cellsgrid[pos][1] = constants->ct * pow(u_rie_g->cellsgrid[pos][0], constants->gamma);
+		}
+	}
+
+	//Richtmyer Fluss berechnen
+	computation->compute_g_2d(g_rie, u_rie_g);
+
+	//FORCE Fluss berechnen
+	for (int k = 0; k < neqs; k++) {
+		for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+
+				f_force[1][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] = 0.5 * (g_lax[k][x][y] + g_rie[k][x][y]);
+
+			}
+		}
+	}
+
+	delete u_rie_g;
+
+	cout << "update y mit dtody=" << dtody << endl;
+	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+		for (int y = order; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+			pos = x + y * grid->grid_size_total[0];
+			d = grid->cellsgrid[pos][0];
+			ux = grid->cellsgrid[pos][2];
+			uy = grid->cellsgrid[pos][4];
+			uxr = grid->cellsgrid[pos][3];
+			uyr = grid->cellsgrid[pos][5];
+
+			uxd = ux * d;
+			uyd = uy * d;
+
+			// Form: 1 + (dimension * (YPOS)) + index_y1 + index_y2 * (VARIABLE (D=0,UXD=1, ...))
+			int index_y1 = (y-1) + (height_m1) * (x);
+			int index_y2 = (y) + (height_m1) * (x);
+			int index_y3 = (height_m1) * (width_m1);
+
+
+			d = d + dtody * (f_force[1][index_y1 + index_y3 * (0)] - f_force[1][index_y2 + index_y3 * (0)]);
+			uxd = uxd + dtody * (f_force[1][index_y1 + index_y3 * (1)] - f_force[1][index_y2 + index_y3 * (1)]);
+			uyd = uyd + dtody * (f_force[1][index_y1 + index_y3 * (2)] - f_force[1][index_y2 + index_y3 * (2)]);
+			uxr = uxr + dtody * (f_force[1][index_y1 + index_y3 * (3)] - f_force[1][index_y2 + index_y3 * (3)]);
+			uyr = uyr + dtody * (f_force[1][index_y1 + index_y3 * (4)] - f_force[1][index_y2 + index_y3 * (4)]);
+
+			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][2] = uxd / d;
+			grid->cellsgrid[pos][4] = uyd / d;
+			grid->cellsgrid[pos][3] = uxr;
+			grid->cellsgrid[pos][5] = uyr;
+
+		}
+	}
 }
