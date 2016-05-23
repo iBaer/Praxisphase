@@ -77,8 +77,6 @@ Lax_Friedrich::~Lax_Friedrich() {
 double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
 	cout << "Lax-Friedrich Fluss berechnen..." << endl;
 
-	//double* f_lax;
-	//f_lax = new double[neqs * (size_m1[0]) * (size_m1[1])];
 
 	switch (dimension) {
 	// Eine Dimension
@@ -98,7 +96,7 @@ double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
 		// Zwei Dimensionen
 	case (2): {
 
-		/*if (dir == 0) {
+		if (dir == 0) {
 
 			//Berechne U, F und G
 			computation->compute_u_2d(cs, grid);
@@ -115,13 +113,13 @@ double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
 				for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
 					for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
 
-						fiarray[0 + (dimension * y) + (dimension * (size_m1[1]) * x) + (dimension * (size_m1[1]) * (size_m1[0]) * k)] = 0.5
+						f_lax[0][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] = 0.5
 								* (f[k][x][y] + f[k][x + 1][y])
 
 						//+ 0.25*(dx/dt)*(cs[k][x][y] - cs[k][x+1][y]);
 								+ 0.5 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]);
 
-						fiarray[1 + (dimension * y) + (dimension * (size_m1[1]) * x) + (dimension * (size_m1[1]) * (size_m1[0]) * k)] =
+						f_lax[1][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] =
 
 						0.5 * (g[k][x][y] + g[k][x][y + 1])
 						//+ 0.25*(dy/dt)*(cs[k][x][y] - cs[k][x][y+1]);
@@ -132,9 +130,9 @@ double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
 			}
 
 			break;
-		}*/
+		}
 
-		if (dir == 1) {
+		else if (dir == 1) {
 
 			//Berechne U, F und G
 			computation->compute_u_2d(cs, grid);
@@ -148,7 +146,6 @@ double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
 			for (int k = 0; k < neqs; k++) {
 				for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
 					for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
-
 						f_lax[0][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] =
 							0.5 * (f[k][x][y] + f[k][x + 1][y])
 								//+ 0.25*(dx/dt)*(cs[k][x][y] - cs[k][x+1][y]);
@@ -184,12 +181,9 @@ double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
 			}
 			return f_lax[1];
 
-			//break;
 		}
 	}
 	}
-	//return fiarray;
-	//cout << "lax_x["<< 5<<"]: "<<f_lax[5]<<endl;
 
 	return f_lax[0];
 }

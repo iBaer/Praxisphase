@@ -46,7 +46,7 @@ public:
 	/**
 	 * Zeit Output
 	 */
-	double timeou;
+	double time_output;
 	/**
 	 * Dimension in der gerechnet wird.
 	 */
@@ -58,7 +58,7 @@ public:
 	/**
 	 * ordnung des Verfahrens.
 	 */
-	int ordnung;
+	int order;
 	/**
 	 * Anzahl an Schritten die gemacht wurden.
 	 */
@@ -87,11 +87,11 @@ public:
 	/**
 	 * teiler, Faktor für die ersten Delta t Schritte
 	 */
-	double teiler;
+	double divider;
 	/**
 	 * teilerend, Ende der Multiplikation der Zeitschritte mit teiler
 	 */
-	double teilerend;
+	double divider_end;
 	/**
 	 * Delta y für die 2. Dimension
 	 */
@@ -99,23 +99,23 @@ public:
 	/**
 	 * Linke Grenze.
 	 */
-	int mol;
+	int pos_x_min;
 	/**
 	 * Rechte Grenze.
 	 */
-	int mor;
+	int pos_x_max;
 	/**
 	 * Obere Grenze.
 	 */
-	int mul;
+	int pos_y_min;
 	/**
 	 * Untere Grenze.
 	 */
-	int mur;
+	int pos_y_max;
 	/**
 	 * Variante der EOS.
 	 */
-	int variante;
+	int clf_option;
 
 	double ct;
 	/**
@@ -132,7 +132,7 @@ public:
 	 * Gleichungssystem Objekt.
 	 * @see Gleichungssystem
 	 */
-	Computation* gs;
+	Computation* computation;
 	/**
 	 * Solver Objekt.
 	 * @see Solver
@@ -144,7 +144,7 @@ public:
 	 * @param time aktuelle Zeit.
 	 * @return neue Zeit.
 	 */
-	double cflcon(int n, double time);
+	double cfl_condition(int n, double time);
 	/**
 	 * Abstrakte methode zur berechnung des Flusses der jeweiligen numerischen Methode.
 	 * @return Matrix der Flüsse (1D)

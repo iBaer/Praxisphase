@@ -24,31 +24,31 @@ using namespace std;
 numerische_methode::numerische_methode(Solver* solver, Constants* constants, Computation *computation, Grid *grid) {
 
 	this->constants = constants;
-	gs = computation;
+	this->computation = computation;
 	grid_main = grid;
 	name = solver->name;
 	this->solver = solver;
-	ordnung = 1;
+	order = 1;
 
 	dimension = constants->dimension;
 	grid_size = new int[dimension];
 
-	mor = constants->pos_x_max;
-	mol = constants->pos_x_min;
-	mur = constants->pos_y_max; //2D
-	mul = constants->pos_y_min; //2D
-	timeou = constants->timeou;
+	pos_x_max = constants->pos_x_max;
+	pos_x_min = constants->pos_x_min;
+	pos_y_max = constants->pos_y_max; //2D
+	pos_y_min = constants->pos_y_min; //2D
+	time_output = constants->timeou;
 	steps = 0;
 	maxnt = constants->maxnt;
-	teilerend = constants->teilerend;
-	teiler = constants->teiler;
-	variante = (int) constants->variante;
+	divider_end = constants->teilerend;
+	divider = constants->teiler;
+	clf_option = (int) constants->variante;
 
 	grid_size[0] = constants->grid_size_x;
 	grid_size[1] = constants->grid_size_y;
 	gamma = constants->gamma;
-	dx = (mor - mol) / (double) grid_size[0];
-	dy = (mur - mul) / (double) grid_size[1];
+	dx = (pos_x_max - pos_x_min) / (double) grid_size[0];
+	dy = (pos_y_max - pos_y_min) / (double) grid_size[1];
 
 	dt = 0.0;
 
@@ -87,7 +87,7 @@ void numerische_methode::start_method() {
 			write();
 
 		// compute time step
-		time = cflcon(n, time);
+		time = cfl_condition(n, time);
 
 		// update
 		if (dimension==1)
@@ -98,7 +98,7 @@ void numerische_methode::start_method() {
 		else if (with_splitting == 2) {
 			splitting();
 		}
-		timedif = fabs(time - timeou);
+		timedif = fabs(time - time_output);
 		steps = n;
 
 	}
@@ -108,9 +108,10 @@ void numerische_methode::start_method() {
 void numerische_methode::unsplitting() {
 	// TODO: DER INDEX IN CALC_METHOD_FLUX IST NOCH OHNE BEDEUTUNG,
 	// SONDERN ES WIRD IMMER F UND G BERECHNET, MUSS NOCH GEAENDERT WERDEN
-	//update(solver->calc_method_flux(dt, 0), 0);
 
 	cout << "do unsplitting updates" << endl;
+
+	//update(solver->calc_method_flux(dt, 0), 0);
 
 	double* flux_x = solver->calc_method_flux(dt, 1);
 	double* flux_y = solver->calc_method_flux(dt, 2);
@@ -142,15 +143,21 @@ void numerische_methode::splitting() {
  * @param time aktuelle Zeit.
  * @return neue Zeit.
  *****************************************************************************************/
-double numerische_methode::cflcon(int n, double time) {
+double numerische_methode::cfl_condition(int n, double time) {
 	double cref = constants->cref;
 	double cfl = constants->cfl;
 	double ccl = constants->ccl;
 	double done = constants->done;
 	double gi = 1.0 / gamma;
 
-	double maxd = 0.0, maxu = 0.0, maxur = 0.0, maxuy = 0.0, maxuyr = 0.0;
+	double max_d;
+	double* max_u = new double[dimension];
+	double* max_ur = new double[dimension];
+	
+	max_d = 0.0, max_u[0] = 0.0, max_ur[0] = 0.0, max_u[1] = 0.0, max_ur[1] = 0.0;
+	double p = 0.0, ux = 0.0, d = 0.0, uxr = 0.0, dtwo = 0.0, uy = 0.0, uyr = 0.0;
 
+	//TODO: max_u, max_u_step
 	double smax = 0.0, maxs = 0.0;
 
 	int n_eqns;  // number of equations, up in a first line in "formeln....in"
@@ -164,8 +171,6 @@ double numerische_methode::cflcon(int n, double time) {
 	double* u_eqns = new double[n_eqns];
 	
 	string line;
-
-	double p = 0.0, ux = 0.0, d = 0.0, uxr = 0.0, dtwo = 0.0, uy = 0.0, uyr = 0.0;
 
 	switch (dimension) {
 	case (1): {
@@ -182,7 +187,7 @@ double numerische_methode::cflcon(int n, double time) {
 			for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
 
 				// ACHTUNG, NUR VARIANTE 1 IST IN DEN GLEICHUNGEN IMPLEMENTIERT!
-				switch (variante) {
+				switch (clf_option) {
 				case (1):
 
 					p = ct * pow(grid_main->cellsgrid[x][0], gamma);
@@ -207,7 +212,7 @@ double numerische_methode::cflcon(int n, double time) {
 				u_eqns[2] = grid_main->cellsgrid[x][3];
 
 				//Schritt 2: Einsetzen in die Jacobi-Matrix
-				matrix_1d(values, n, u_eqns[0], u_eqns[1], u_eqns[2], p, done, dtwo, ccl, gamma, ct, cref, variante);
+				matrix_1d(values, n, u_eqns[0], u_eqns[1], u_eqns[2], p, done, dtwo, ccl, gamma, ct, cref, clf_option);
 
 				//Schritt 3: Berechnen der Eigenwerte
 				LaGenMatDouble A(values, 3, 3, true);
@@ -224,11 +229,12 @@ double numerische_methode::cflcon(int n, double time) {
 
 			dt = cfl * dx / smax;
 
-			if (n <= teilerend)
-				dt = dt * teiler;
+			//TODO: else if, unteres if prior?
+			if (n <= divider_end)
+				dt = dt * divider;
 
-			if ((time + dt) > timeou)
-				dt = timeou - time;
+			if ((time + dt) > time_output)
+				dt = time_output - time;
 			time = time + dt;
 			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 
@@ -242,7 +248,7 @@ double numerische_methode::cflcon(int n, double time) {
 				uxr = grid_main->cellsgrid[i][3];
 				ux = grid_main->cellsgrid[i][2];
 
-				switch (variante) {
+				switch (clf_option) {
 				case (1): {
 					p = ct * pow(d, gamma);
 					grid_main->cellsgrid[i][1] = p;
@@ -275,11 +281,11 @@ double numerische_methode::cflcon(int n, double time) {
 
 			dt = cfl * dx / smax;
 
-			if (n <= teilerend)
-				dt = dt * teiler;
+			if (n <= divider_end)
+				dt = dt * divider;
 
-			if ((time + dt) > timeou)
-				dt = timeou - time;
+			if ((time + dt) > time_output)
+				dt = time_output - time;
 			time = time + dt;
 			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 		}
@@ -322,11 +328,11 @@ double numerische_methode::cflcon(int n, double time) {
 
 			dt = cfl * min(dx, dy) / smax;
 
-			if (n <= teilerend)
-				dt = dt * teiler;
+			if (n <= divider_end)
+				dt = dt * divider;
 
-			if ((time + dt) > timeou)
-				dt = timeou - time;
+			if ((time + dt) > time_output)
+				dt = time_output - time;
 			time = time + dt;
 			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 		}
@@ -346,25 +352,25 @@ double numerische_methode::cflcon(int n, double time) {
 			for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
 				for (int y = 0; y < grid_main->grid_size_total[1]; y++) {
 
-					maxd = grid_main->cellsgrid[x][0];
-					maxu = grid_main->cellsgrid[x][2];
-					maxuy = grid_main->cellsgrid[x][4];
-					maxur = grid_main->cellsgrid[x][3];
-					maxuyr = grid_main->cellsgrid[x][5];
+					max_d = grid_main->cellsgrid[x][0];
+					max_u[0] = grid_main->cellsgrid[x][2];
+					max_u[1] = grid_main->cellsgrid[x][4];
+					max_ur[0] = grid_main->cellsgrid[x][3];
+					max_ur[1] = grid_main->cellsgrid[x][5];
 
 					p = ct * pow(grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][0], gamma);
 					grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][1] = p;
 					dtwo = pow((p / cref), gi);
 
-					maxu = maxu * maxd;
-					maxuy = maxuy * maxd;
+					max_u[0] = max_u[0] * max_d;
+					max_u[1] = max_u[1] * max_d;
 
 					//Schritt 2: Einsetzen
-					u_eqns[0] = maxd;
-					u_eqns[1] = maxu;
-					u_eqns[2] = maxuy;
-					u_eqns[3] = maxur;
-					u_eqns[4] = maxuyr;
+					u_eqns[0] = max_d;
+					u_eqns[1] = max_u[0];
+					u_eqns[2] = max_u[1];
+					u_eqns[3] = max_ur[0];
+					u_eqns[4] = max_ur[1];
 					matrix_2d(values1, values2, n_eqns2, u_eqns[0], u_eqns[1], u_eqns[2], u_eqns[3], u_eqns[4], p, done, dtwo, ccl, gamma, ct, cref);
 
 					//Schritt 3: Berechnen der Eigenwerte
@@ -397,11 +403,11 @@ double numerische_methode::cflcon(int n, double time) {
 				dt = cfl / max(smax1 / dx, smax2 / dy);
 			}
 
-			if (n <= teilerend)
-				dt = dt * teiler;
+			if (n <= divider_end)
+				dt = dt * divider;
 
-			if ((time + dt) > timeou)
-				dt = timeou - time;
+			if ((time + dt) > time_output)
+				dt = time_output - time;
 			time = time + dt;
 			cout << "Größte Eigenwerte: " << smax1 << " und " << smax2 << endl;
 			cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
@@ -434,7 +440,7 @@ void numerische_methode::update(double* fi, int dir) {
 
 	// update in 1-d
 	if (dimension == 1) {
-		for (int i = ordnung; i < grid_main->grid_size_total[0] - grid_main->orderofgrid; i++) {
+		for (int i = order; i < grid_main->grid_size_total[0] - grid_main->orderofgrid; i++) {
 			d = grid_main->cellsgrid[i][0];
 			ux = grid_main->cellsgrid[i][2];
 			uxd = d * ux;
@@ -503,8 +509,8 @@ void numerische_methode::update(double* fi, int dir) {
 
 		if (dir == 1) {
 			cout << "update x mit dtodx=" << dtodx << endl;
-			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
-				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+			for (int x = order; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = order; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
 					pos = x + y * grid_main->grid_size_total[0];
 					d = grid_main->cellsgrid[pos][0];
 					ux = grid_main->cellsgrid[pos][2];
@@ -537,8 +543,8 @@ void numerische_methode::update(double* fi, int dir) {
 			}
 		} else if (dir == 2) {
 			cout << "update y mit dtody=" << dtody << endl;
-			for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
-				for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+			for (int x = order; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+				for (int y = order; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
 					pos = x + y * grid_main->grid_size_total[0];
 					d = grid_main->cellsgrid[pos][0];
 					ux = grid_main->cellsgrid[pos][2];
@@ -740,12 +746,12 @@ void numerische_methode::write() {
 	string added;
 
 	if (dimension == 1) {
-		added = to_string(grid_size[0]) + "_" + name + "_" + to_string(dimension) + "d_" + to_string(variante) + ".variant_" + "div" + to_string(teiler) + "till"
-				+ to_string((int) teilerend) + "_" + to_string(steps) + "Steps";
+		added = to_string(grid_size[0]) + "_" + name + "_" + to_string(dimension) + "d_" + to_string(clf_option) + ".variant_" + "div" + to_string(divider) + "till"
+				+ to_string((int) divider_end) + "_" + to_string(steps) + "Steps";
 
 	} else {
 		added = to_string(grid_size[0]) + "x" + to_string(grid_size[1]) + "_" + name + "_" + to_string(dimension) + "d_split" + to_string(with_splitting) + "_IC"
-				+ to_string(grid_main->choice) + "_div" + to_string(int(1. / teiler)) + "till" + to_string((int) teilerend) + "_" + to_string(steps) + "Steps";
+				+ to_string(grid_main->choice) + "_div" + to_string(int(1. / divider)) + "till" + to_string((int) divider_end) + "_" + to_string(steps) + "Steps";
 	}
 
 	switch (grid_main->dimension) {
@@ -760,8 +766,8 @@ void numerische_methode::write() {
 		ofstream ux_out(ux_path.c_str());
 		ofstream p_out(p_path.c_str());
 
-		for (int i = ordnung; i < grid_main->grid_size_total[0] - grid_main->orderofgrid; i++) {
-			xpos = (mol + (mor - mol) * ((double) (i - ordnung) / grid_size[0]));
+		for (int i = order; i < grid_main->grid_size_total[0] - grid_main->orderofgrid; i++) {
+			xpos = (pos_x_min + (pos_x_max - pos_x_min) * ((double) (i - order) / grid_size[0]));
 
 			p = ct * pow(grid_main->cellsgrid[i][0], gamma);
 
@@ -798,10 +804,10 @@ void numerische_methode::write() {
 		// ACHTUNG, FUER 2. ORDNUNG NOCHMAL ALLE GRENZEN KONTROLLIEREN
 
 		// Output ohne Randwerte
-		for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
-			for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
-				xpos = mol + (mor - mol) * (((double) x - ordnung) / (double) grid_size[0]);
-				ypos = mul + (mur - mul) * (((double) y - ordnung) / (double) grid_size[1]);
+		for (int x = order; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+			for (int y = order; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+				xpos = pos_x_min + (pos_x_max - pos_x_min) * (((double) x - order) / (double) grid_size[0]);
+				ypos = pos_y_min + (pos_y_max - pos_y_min) * (((double) y - order) / (double) grid_size[1]);
 
 				int index = x + y * grid_main->grid_size_total[0];
 				p = ct * pow(grid_main->cellsgrid[index][0], gamma);
@@ -838,13 +844,14 @@ void numerische_methode::write() {
 		ofstream ur_out_d1(ur_path_d1.c_str());
 		ofstream p_out_d1(p_path_d1.c_str());
 
+		//d => Abstand 1d betrachtung x-y (punkte einer geraden~)
 		double d = 0.0, xout, uout, urout, ux, uy, sign;
 
-		for (int x = ordnung; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
-			for (int y = ordnung; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
+		for (int x = order; x < grid_main->grid_size_total[0] - grid_main->orderofgrid; x++) {
+			for (int y = order; y < grid_main->grid_size_total[1] - grid_main->orderofgrid; y++) {
 				if (grid_main->choice < 3) {
-					xpos = mol + (mor - mol) * (((double) x - ordnung) / (double) grid_size[0]);
-					ypos = mul + (mur - mul) * (((double) y - ordnung) / (double) grid_size[1]);
+					xpos = pos_x_min + (pos_x_max - pos_x_min) * (((double) x - order) / (double) grid_size[0]);
+					ypos = pos_y_min + (pos_y_max - pos_y_min) * (((double) y - order) / (double) grid_size[1]);
 
 					int index = x + y * grid_main->grid_size_total[0];
 
