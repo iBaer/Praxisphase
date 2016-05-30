@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['numerische_5fmethode',['numerische_methode',['../classnumerische__methode.html#ae3d1f1d622e07a1ef02aeb6e3ee07811',1,'numerische_methode']]]
+  ['numerical_5fmethod',['Numerical_Method',['../classNumerical__Method.html#a85c50cdbf748553e9d31b4066d2c022f',1,'Numerical_Method']]]
 ];

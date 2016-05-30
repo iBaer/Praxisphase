@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['laxfriedrichmethod',['LaxFriedrichMethod',['../classLaxFriedrichMethod.html',1,'LaxFriedrichMethod'],['../classLaxFriedrichMethod.html#abfe41ba9eae1ef560cc5a21bf042f7e9',1,'LaxFriedrichMethod::LaxFriedrichMethod()']]]
+  ['lax_5ffriedrich',['Lax_Friedrich',['../classLax__Friedrich.html',1,'Lax_Friedrich'],['../classLax__Friedrich.html#ae81b6a1af98230c75ed8f11b99f95532',1,'Lax_Friedrich::Lax_Friedrich()']]]
 ];

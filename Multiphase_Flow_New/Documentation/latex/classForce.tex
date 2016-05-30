@@ -1,0 +1,128 @@
+\hypertarget{classForce}{\section{Force Class Reference}
+\label{classForce}\index{Force@{Force}}
+}
+Inheritance diagram for Force\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classForce}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classForce_a7649ae54f95bba54f4e15784f92900e6}{Force} (\hyperlink{classConstants}{Constants} $\ast$\hyperlink{classSolver_af8791d3a5042e7be5980ae3247cb60de}{constants}, \hyperlink{classComputation}{Computation} $\ast$\hyperlink{classSolver_a158efd10f04099b8be28561f990b646a}{computation}, \hyperlink{classGrid}{Grid} $\ast$\hyperlink{classSolver_a147ba19192faf8f24dadfc569f3d403f}{grid})
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classForce_a6c395b2d375796332c6d688760c79dc4}{calc\-\_\-method\-\_\-flux} (double dt, int dir)
+\item 
+\hypertarget{classForce_ade35a929b504e623e66453f0a3d0cb2a}{void {\bfseries solve\-\_\-1d} (double dt)}\label{classForce_ade35a929b504e623e66453f0a3d0cb2a}
+
+\item 
+\hypertarget{classForce_a433b3d8f8ffbb5e3761d7e92397ce2a0}{void {\bfseries solve\-\_\-2d\-\_\-unsplit} (double dt)}\label{classForce_a433b3d8f8ffbb5e3761d7e92397ce2a0}
+
+\item 
+\hypertarget{classForce_a3aab917b725dd97e966b41f3dc6c3d8f}{void {\bfseries solve\-\_\-2d\-\_\-split} (double dt)}\label{classForce_a3aab917b725dd97e966b41f3dc6c3d8f}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classForce_a907a325345155efe7b3ba4ec182ede2e}{int {\bfseries neqs}}\label{classForce_a907a325345155efe7b3ba4ec182ede2e}
+
+\item 
+\hypertarget{classForce_aee5c074eaaab2b1a4304317628102c78}{double $\ast$ {\bfseries uall}}\label{classForce_aee5c074eaaab2b1a4304317628102c78}
+
+\item 
+\hypertarget{classForce_adbb006665c3b6192b8bcd65ad0077e9e}{double $\ast$ {\bfseries fall}}\label{classForce_adbb006665c3b6192b8bcd65ad0077e9e}
+
+\item 
+\hypertarget{classForce_a6925da28ddbfbfa5157093d67285ee38}{double $\ast$ {\bfseries gall}}\label{classForce_a6925da28ddbfbfa5157093d67285ee38}
+
+\item 
+\hypertarget{classForce_a188408f567873a822d9e63267d613f3c}{double $\ast$ {\bfseries f\-\_\-laxall}}\label{classForce_a188408f567873a822d9e63267d613f3c}
+
+\item 
+\hypertarget{classForce_a7180e4de77cf8299a0dd4333057c7d26}{double $\ast$ {\bfseries f\-\_\-rieall}}\label{classForce_a7180e4de77cf8299a0dd4333057c7d26}
+
+\item 
+\hypertarget{classForce_a89e725ac253fb6274ce747f93d87c8a0}{double $\ast$ {\bfseries g\-\_\-laxall}}\label{classForce_a89e725ac253fb6274ce747f93d87c8a0}
+
+\item 
+\hypertarget{classForce_aaa1af4cc9174fdabf16f8e822c02840a}{double $\ast$ {\bfseries g\-\_\-rieall}}\label{classForce_aaa1af4cc9174fdabf16f8e822c02840a}
+
+\item 
+\hypertarget{classForce_a04c220d5edd00045706c95c929086c95}{double $\ast$$\ast$$\ast$ {\bfseries cs}}\label{classForce_a04c220d5edd00045706c95c929086c95}
+
+\item 
+\hypertarget{classForce_a94180f5b1cd0087c0fd5c309a1edb747}{double $\ast$$\ast$$\ast$ {\bfseries fd}}\label{classForce_a94180f5b1cd0087c0fd5c309a1edb747}
+
+\item 
+\hypertarget{classForce_aee959ad673ab398cc8309322ae42ecd2}{double $\ast$$\ast$$\ast$ {\bfseries gd}}\label{classForce_aee959ad673ab398cc8309322ae42ecd2}
+
+\item 
+\hypertarget{classForce_afc58bdb5903d6eafa1740ad762c8b214}{double $\ast$$\ast$$\ast$ {\bfseries f\-\_\-lax}}\label{classForce_afc58bdb5903d6eafa1740ad762c8b214}
+
+\item 
+\hypertarget{classForce_a4a43242ebf85eb2d603ea444ec243f8a}{double $\ast$$\ast$$\ast$ {\bfseries f\-\_\-rie}}\label{classForce_a4a43242ebf85eb2d603ea444ec243f8a}
+
+\item 
+\hypertarget{classForce_aca3165e40a8789286d288659b7309d28}{double $\ast$$\ast$$\ast$ {\bfseries g\-\_\-lax}}\label{classForce_aca3165e40a8789286d288659b7309d28}
+
+\item 
+\hypertarget{classForce_a8f97242d9677a2023e82f906fce096ab}{double $\ast$$\ast$$\ast$ {\bfseries g\-\_\-rie}}\label{classForce_a8f97242d9677a2023e82f906fce096ab}
+
+\item 
+\hypertarget{classForce_a192a91d08a845804c681ddfb06b131e3}{double $\ast$$\ast$ {\bfseries f\-\_\-force}}\label{classForce_a192a91d08a845804c681ddfb06b131e3}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classForce_a7649ae54f95bba54f4e15784f92900e6}{\index{Force@{Force}!Force@{Force}}
+\index{Force@{Force}!Force@{Force}}
+\subsubsection[{Force}]{\setlength{\rightskip}{0pt plus 5cm}Force\-::\-Force (
+\begin{DoxyParamCaption}
+\item[{{\bf Constants} $\ast$}]{constants, }
+\item[{{\bf Computation} $\ast$}]{computation, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classForce_a7649ae54f95bba54f4e15784f92900e6}
+Konstruktor der \hyperlink{classFORCE}{F\-O\-R\-C\-E} Methode. Ruft den Konstruktor der geerbten Klasse auf. 
+\begin{DoxyParams}{Parameters}
+{\em const\-\_\-in} & Dateiname wo \hyperlink{classKonstanten}{Konstanten} gespeichert sind. \\
+\hline
+{\em formel\-\_\-in} & Dateinamen-\/\-Kern für die Formeln. \\
+\hline
+{\em save\-\_\-in} & Dateiname wo für das Laden eine Speicherstands die Plots gespeichert sind. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classForce_a6c395b2d375796332c6d688760c79dc4}{\index{Force@{Force}!calc\-\_\-method\-\_\-flux@{calc\-\_\-method\-\_\-flux}}
+\index{calc\-\_\-method\-\_\-flux@{calc\-\_\-method\-\_\-flux}!Force@{Force}}
+\subsubsection[{calc\-\_\-method\-\_\-flux}]{\setlength{\rightskip}{0pt plus 5cm}void Force\-::calc\-\_\-method\-\_\-flux (
+\begin{DoxyParamCaption}
+\item[{double}]{dt, }
+\item[{int}]{dir}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}}\label{classForce_a6c395b2d375796332c6d688760c79dc4}
+Berechnung des \hyperlink{classFORCE}{F\-O\-R\-C\-E} Flusses. \begin{DoxyReturn}{Returns}
+4 Dimensionaler Vektor. Zusammenstellung\-: Gleichung, x-\/\-Position, y-\/\-Position , dimension
+\end{DoxyReturn}
+Aktualisiert alle zelle mithilfe des berechneten Flusses. Berechnung des \hyperlink{classFORCE}{F\-O\-R\-C\-E} Flusses. \begin{DoxyReturn}{Returns}
+4 Dimensionaler Vektor. Zusammenstellung\-: Gleichung, x-\/\-Position, y-\/\-Position , dimension 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classSolver_ab0c03d26d92272de997fa6984a2a86de}{Solver}.
+
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+force.\-h\item 
+force.\-cpp\end{DoxyCompactItemize}

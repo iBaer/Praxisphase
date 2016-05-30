@@ -1,31 +1,33 @@
 #include <fstream>
 
 #include "computation.h"
+#include "equations.h"
+
 using namespace std;
 
 Computation::Computation(Constants *constants) {
 	this->constants = constants;
 
 	cref = constants->cref;
-	done = constants->done;
+	done = constants->rho_one;
 	ccl = constants->ccl;
-	gc = constants->gamma;
+	gamma = constants->gamma;
 
 	ccl12 = 1.0 - 2.0 * ccl;
 	ccl12h = 0.5 * (1.0 - 2.0 * ccl);
-	gcinv = 1.0 / gc;
-	gcdgcm1 = gc / (gc - 1.0);
-	gcm1dgc = (gc - 1.0) / gc;
+	gcinv = 1.0 / gamma;
+	gcdgcm1 = gamma / (gamma - 1.0);
+	gcm1dgc = (gamma - 1.0) / gamma;
 	cclm1 = ccl * (1.0 - ccl);
 	powcref = pow(cref, gcinv);
 
 	int dim = constants->dimension;
 
 	if (dim == 1)
-		neqs = 3;
+		neqs = NEQS_1D;
 	if (dim == 2)
-		neqs = 5;
-//TODO: exprtk oder Header Files müssen neqs setzen
+		neqs = NEQS_2D;
+	//TODO: exprtk oder Header Files müssen neqs setzen
 
 }
 
@@ -42,10 +44,17 @@ Computation& Computation::instance(Constants *constants) {
  * @param ordnung des Algorithmus, wichtig für die Ausdehnung des Gitters
  */
 void Computation::compute_u_1d(double *** u, Grid * grid) {
+	double d, ux, uxr;
+
 	for (int i = 0; i < grid->grid_size_total[0]; i++) {
-		u[0][i][0] = grid->cellsgrid[i][0];
-		u[1][i][0] = grid->cellsgrid[i][0] * grid->cellsgrid[i][2];
-		u[2][i][0] = grid->cellsgrid[i][3];
+
+		d = grid->cellsgrid[i][0];
+		ux = grid->cellsgrid[i][2];
+		uxr = grid->cellsgrid[i][3];
+
+		u[0][i][0] = COMP_U_1;
+		u[1][i][0] = COMP_U_2;
+		u[2][i][0] = COMP_U_3;
 	}
 }
 
@@ -66,10 +75,9 @@ void Computation::compute_f_1d(double *** f, Grid * grid) {
 		uxr = grid->cellsgrid[i][3];
 		p = grid->cellsgrid[i][1];
 
-		f[0][i][0] = d * ux;
-		f[1][i][0] = d * ux * ux + d * cclm1 * uxr * uxr + p;
-		f[2][i][0] = ux * uxr + ccl12h * uxr * uxr
-				+ powcref * gcdgcm1 * pow(p, gcm1dgc) - (p / done);
+		f[0][i][0] = COMP_F_1;
+		f[1][i][0] = COMP_F_2;
+		f[2][i][0] = COMP_F_3;
 	}
 }
 
@@ -93,11 +101,11 @@ void Computation::compute_u_2d(double *** u, Grid * grid) {
 			uxr = grid->cellsgrid[pos][3];
 			uyr = grid->cellsgrid[pos][5];
 
-			u[0][x][y] = d;
-			u[1][x][y] = d * ux;
-			u[2][x][y] = d * uy;
-			u[3][x][y] = uxr;
-			u[4][x][y] = uyr;
+			u[0][x][y] = COMP_U_1;
+			u[1][x][y] = COMP_U_2;
+			u[2][x][y] = COMP_U_4;
+			u[3][x][y] = COMP_U_3;
+			u[4][x][y] = COMP_U_5;
 		}
 	}
 }
@@ -124,12 +132,11 @@ void Computation::compute_f_2d(double *** f, Grid * grid) {
 			uyr = grid->cellsgrid[pos][5];
 			p = grid->cellsgrid[pos][1];
 
-			f[0][x][y] = d * ux;
-			f[1][x][y] = d * ux * ux + d * cclm1 * uxr * uxr + p;
-			f[2][x][y] = d * ux * uy + d * cclm1 * uxr * uyr;
-			f[3][x][y] = ux * uxr + ccl12h * uxr * uxr
-					+ powcref * gcdgcm1 * pow(p, gcm1dgc) - (p / done);
-			f[4][x][y] = ux * uyr + uy * uxr + ccl12 * uxr * uyr;
+			f[0][x][y] = COMP_F_1;
+			f[1][x][y] = COMP_F_2;
+			f[2][x][y] = COMP_F_4;
+			f[3][x][y] = COMP_F_3;
+			f[4][x][y] = COMP_F_5;
 		}
 	}
 }
@@ -156,12 +163,11 @@ void Computation::compute_g_2d(double *** g, Grid * grid) {
 			uyr = grid->cellsgrid[pos][5];
 			p = grid->cellsgrid[pos][1];
 
-			g[0][x][y] = d * uy;
-			g[1][x][y] = d * ux * uy + d * cclm1 * uxr * uyr;
-			g[2][x][y] = d * uy * uy + d * cclm1 * uyr * uyr + p;
-			g[3][x][y] = ux * uyr + uy * uxr + ccl12 * uxr * uyr;
-			g[4][x][y] = uy * uyr + ccl12h * uyr * uyr
-					+ powcref * gcdgcm1 * pow(p, gcm1dgc) - (p / done);
+			g[0][x][y] = COMP_G_1;
+			g[1][x][y] = COMP_G_2;
+			g[2][x][y] = COMP_G_4;
+			g[3][x][y] = COMP_G_3;
+			g[4][x][y] = COMP_G_5;
 		}
 	}
 }

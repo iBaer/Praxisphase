@@ -36,7 +36,7 @@ public:
 	 * Abstrakte Methode zur berechnung des Flusses der jeweiligen numerischen Methode.
 	 * @return Matrix der Flüsse (1D)
 	 */
-	virtual double* calc_method_flux(double dt, int dir) = 0;
+	virtual void calc_method_flux(double dt, int dir) = 0;
 
 	/**
 	 * Konstanten Objekt welches für die berechnungen benötigt wird.

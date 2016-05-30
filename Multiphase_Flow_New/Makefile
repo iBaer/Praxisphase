@@ -25,13 +25,13 @@ clean:
 
 
 constants.o: constants.h
-Raster.o: grid.h constants.h
+grid.o: grid.h constants.h
 computation.o: computation.h constants.h
 solver.o: solver.h computation.h constants.h
 lax_friedrich.o: lax_friedrich.h constants.h solver.h
 force.o: force.h computation.h constants.h solver.h
-main.o: lax_friedrich.h force.h numerische_methode.h
-numerische_methode.o: numerische_methode.h constants.h grid.h constants.h computation.h solver.h
+main.o: lax_friedrich.h force.h numerical_method.h
+numerical_method.o: numerical_method.h constants.h grid.h constants.h computation.h solver.h
 
 
 

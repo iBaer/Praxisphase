@@ -1,0 +1,129 @@
+\hypertarget{classSolver}{\section{Solver Class Reference}
+\label{classSolver}\index{Solver@{Solver}}
+}
+
+
+{\ttfamily \#include $<$solver.\-h$>$}
+
+Inheritance diagram for Solver\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classSolver}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classSolver_a0075747c547c2da8911f2c95bdadaed4}{Solver} (string solver\-\_\-name, \hyperlink{classConstants}{Constants} $\ast$\hyperlink{classSolver_af8791d3a5042e7be5980ae3247cb60de}{constants}, \hyperlink{classComputation}{Computation} $\ast$\hyperlink{classSolver_a158efd10f04099b8be28561f990b646a}{computation}, \hyperlink{classGrid}{Grid} $\ast$\hyperlink{classSolver_a147ba19192faf8f24dadfc569f3d403f}{grid})
+\item 
+virtual void \hyperlink{classSolver_ab0c03d26d92272de997fa6984a2a86de}{calc\-\_\-method\-\_\-flux} (double dt, int dir)=0
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classConstants}{Constants} $\ast$ \hyperlink{classSolver_af8791d3a5042e7be5980ae3247cb60de}{constants}
+\item 
+\hyperlink{classGrid}{Grid} $\ast$ \hyperlink{classSolver_a147ba19192faf8f24dadfc569f3d403f}{grid}
+\item 
+\hyperlink{classComputation}{Computation} $\ast$ \hyperlink{classSolver_a158efd10f04099b8be28561f990b646a}{computation}
+\item 
+\hypertarget{classSolver_a75135e4bd38563a60b6682856946b595}{string {\bfseries name}}\label{classSolver_a75135e4bd38563a60b6682856946b595}
+
+\item 
+int \hyperlink{classSolver_a9f81101cc1872e3da6b2f20fb678fa02}{dimension}
+\item 
+double \hyperlink{classSolver_a52a573400ef79611f2b7cf28e0a101ac}{dx}
+\item 
+double \hyperlink{classSolver_a716c9ccbc57382159d803e8fe7e9874b}{dy}
+\item 
+int $\ast$ \hyperlink{classSolver_accc6d00868567cda6fc234b3c1934a13}{size\-\_\-total}
+\item 
+int $\ast$ \hyperlink{classSolver_ab954613f6a40bbcbcbc7c04469f36db5}{size\-\_\-m1}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Abstrakte Klasse für sämtliche Methoden zur Lösung von Differential Gleichungen 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classSolver_a0075747c547c2da8911f2c95bdadaed4}{\index{Solver@{Solver}!Solver@{Solver}}
+\index{Solver@{Solver}!Solver@{Solver}}
+\subsubsection[{Solver}]{\setlength{\rightskip}{0pt plus 5cm}Solver\-::\-Solver (
+\begin{DoxyParamCaption}
+\item[{string}]{solver\-\_\-name, }
+\item[{{\bf Constants} $\ast$}]{constants, }
+\item[{{\bf Computation} $\ast$}]{computation, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classSolver_a0075747c547c2da8911f2c95bdadaed4}
+Konstruktor. 
+\begin{DoxyParams}{Parameters}
+{\em dim} & Setzt Dimension für die Berechnung. \\
+\hline
+{\em ordn} & Ordnung der numerischen Methode. \\
+\hline
+{\em cells} & Anzahl der Zellen. \\
+\hline
+{\em method} & Name der Methode für unterscheidung bei Output. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classSolver_ab0c03d26d92272de997fa6984a2a86de}{\index{Solver@{Solver}!calc\-\_\-method\-\_\-flux@{calc\-\_\-method\-\_\-flux}}
+\index{calc\-\_\-method\-\_\-flux@{calc\-\_\-method\-\_\-flux}!Solver@{Solver}}
+\subsubsection[{calc\-\_\-method\-\_\-flux}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Solver\-::calc\-\_\-method\-\_\-flux (
+\begin{DoxyParamCaption}
+\item[{double}]{dt, }
+\item[{int}]{dir}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}}\label{classSolver_ab0c03d26d92272de997fa6984a2a86de}
+Abstrakte Methode zur berechnung des Flusses der jeweiligen numerischen Methode. \begin{DoxyReturn}{Returns}
+Matrix der Flüsse (1\-D) 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classLax__Friedrich_a77ace0aa368e5b04263b23a69d2b3fe7}{Lax\-\_\-\-Friedrich}, and \hyperlink{classForce_a6c395b2d375796332c6d688760c79dc4}{Force}.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classSolver_a158efd10f04099b8be28561f990b646a}{\index{Solver@{Solver}!computation@{computation}}
+\index{computation@{computation}!Solver@{Solver}}
+\subsubsection[{computation}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Computation}$\ast$ Solver\-::computation}}\label{classSolver_a158efd10f04099b8be28561f990b646a}
+Gleichungssystem Objekt. \begin{DoxySeeAlso}{See Also}
+Gleichungssystem 
+\end{DoxySeeAlso}
+\hypertarget{classSolver_af8791d3a5042e7be5980ae3247cb60de}{\index{Solver@{Solver}!constants@{constants}}
+\index{constants@{constants}!Solver@{Solver}}
+\subsubsection[{constants}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Constants}$\ast$ Solver\-::constants}}\label{classSolver_af8791d3a5042e7be5980ae3247cb60de}
+\hyperlink{classKonstanten}{Konstanten} Objekt welches für die berechnungen benötigt wird. \begin{DoxySeeAlso}{See Also}
+\hyperlink{classKonstanten}{Konstanten} 
+\end{DoxySeeAlso}
+\hypertarget{classSolver_a9f81101cc1872e3da6b2f20fb678fa02}{\index{Solver@{Solver}!dimension@{dimension}}
+\index{dimension@{dimension}!Solver@{Solver}}
+\subsubsection[{dimension}]{\setlength{\rightskip}{0pt plus 5cm}int Solver\-::dimension}}\label{classSolver_a9f81101cc1872e3da6b2f20fb678fa02}
+Dimension in der gerechnet wird. \hypertarget{classSolver_a52a573400ef79611f2b7cf28e0a101ac}{\index{Solver@{Solver}!dx@{dx}}
+\index{dx@{dx}!Solver@{Solver}}
+\subsubsection[{dx}]{\setlength{\rightskip}{0pt plus 5cm}double Solver\-::dx}}\label{classSolver_a52a573400ef79611f2b7cf28e0a101ac}
+Delta x. \hypertarget{classSolver_a716c9ccbc57382159d803e8fe7e9874b}{\index{Solver@{Solver}!dy@{dy}}
+\index{dy@{dy}!Solver@{Solver}}
+\subsubsection[{dy}]{\setlength{\rightskip}{0pt plus 5cm}double Solver\-::dy}}\label{classSolver_a716c9ccbc57382159d803e8fe7e9874b}
+Delta y für die 2. Dimension \hypertarget{classSolver_a147ba19192faf8f24dadfc569f3d403f}{\index{Solver@{Solver}!grid@{grid}}
+\index{grid@{grid}!Solver@{Solver}}
+\subsubsection[{grid}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Grid}$\ast$ Solver\-::grid}}\label{classSolver_a147ba19192faf8f24dadfc569f3d403f}
+Raster in den gerechnet wird. \begin{DoxySeeAlso}{See Also}
+Raster 
+\end{DoxySeeAlso}
+\hypertarget{classSolver_ab954613f6a40bbcbcbc7c04469f36db5}{\index{Solver@{Solver}!size\-\_\-m1@{size\-\_\-m1}}
+\index{size\-\_\-m1@{size\-\_\-m1}!Solver@{Solver}}
+\subsubsection[{size\-\_\-m1}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ Solver\-::size\-\_\-m1}}\label{classSolver_ab954613f6a40bbcbcbc7c04469f36db5}
+Größe des Rasters für die Flussberechnung \hypertarget{classSolver_accc6d00868567cda6fc234b3c1934a13}{\index{Solver@{Solver}!size\-\_\-total@{size\-\_\-total}}
+\index{size\-\_\-total@{size\-\_\-total}!Solver@{Solver}}
+\subsubsection[{size\-\_\-total}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ Solver\-::size\-\_\-total}}\label{classSolver_accc6d00868567cda6fc234b3c1934a13}
+Größe des Rasters 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+solver.\-h\item 
+solver.\-cpp\end{DoxyCompactItemize}

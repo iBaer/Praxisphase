@@ -1,0 +1,202 @@
+\hypertarget{classComputation}{\section{Computation Class Reference}
+\label{classComputation}\index{Computation@{Computation}}
+}
+
+
+{\ttfamily \#include $<$computation.\-h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classComputation_af2a835928bcf124b803756730b47aecb}{compute\-\_\-u\-\_\-1d} (double $\ast$$\ast$$\ast$u, \hyperlink{classGrid}{Grid} $\ast$grid)
+\item 
+void \hyperlink{classComputation_a6ae111f850757aa9e494b25fa397bfb5}{compute\-\_\-f\-\_\-1d} (double $\ast$$\ast$$\ast$f, \hyperlink{classGrid}{Grid} $\ast$grid)
+\item 
+void \hyperlink{classComputation_a158cbdbd7b5a770b9e96175287421dd1}{compute\-\_\-u\-\_\-2d} (double $\ast$$\ast$$\ast$u, \hyperlink{classGrid}{Grid} $\ast$grid)
+\item 
+void \hyperlink{classComputation_a86cd911682059748fa6a0031c69275f0}{compute\-\_\-f\-\_\-2d} (double $\ast$$\ast$$\ast$f, \hyperlink{classGrid}{Grid} $\ast$grid)
+\item 
+void \hyperlink{classComputation_aa41d173cd841966f00bedd9e040b5e78}{compute\-\_\-g\-\_\-2d} (double $\ast$$\ast$$\ast$g, \hyperlink{classGrid}{Grid} $\ast$grid)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classComputation_a8900cb37bdf5e88b60c3472423df8bbf}{static \hyperlink{classComputation}{Computation} \& {\bfseries instance} (\hyperlink{classConstants}{Constants} $\ast$\hyperlink{classComputation_ad83b15fa4885674df22b99bb3f9ffc40}{constants})}\label{classComputation_a8900cb37bdf5e88b60c3472423df8bbf}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{classComputation_a927cc1ebb3cadf7a465eb8cd1144beed}{neqs}
+\item 
+\hyperlink{classConstants}{Constants} $\ast$ \hyperlink{classComputation_ad83b15fa4885674df22b99bb3f9ffc40}{constants}
+\item 
+\hypertarget{classComputation_a5f3502842df5af2e1303bc147aea89d7}{double {\bfseries cref}}\label{classComputation_a5f3502842df5af2e1303bc147aea89d7}
+
+\item 
+\hypertarget{classComputation_ab232a054e34ed21bfa7a24f833c93b57}{double {\bfseries done}}\label{classComputation_ab232a054e34ed21bfa7a24f833c93b57}
+
+\item 
+\hypertarget{classComputation_af9e1a00de0bc1d24ecb5af19c5353d12}{double {\bfseries ccl}}\label{classComputation_af9e1a00de0bc1d24ecb5af19c5353d12}
+
+\item 
+\hypertarget{classComputation_a3c28d827c509596982f121cb59338361}{double {\bfseries gamma}}\label{classComputation_a3c28d827c509596982f121cb59338361}
+
+\item 
+\hypertarget{classComputation_a74b3040ac82fbffe2c6fe90920a86b86}{double {\bfseries ccl12}}\label{classComputation_a74b3040ac82fbffe2c6fe90920a86b86}
+
+\item 
+\hypertarget{classComputation_aaebd39f609368178f1ac5a144c24a49f}{double {\bfseries ccl12h}}\label{classComputation_aaebd39f609368178f1ac5a144c24a49f}
+
+\item 
+\hypertarget{classComputation_ac4c32bee51db9e26193a68843e739397}{double {\bfseries gcinv}}\label{classComputation_ac4c32bee51db9e26193a68843e739397}
+
+\item 
+\hypertarget{classComputation_aae3ea92e493ef3b703e8c21fa9eaf24e}{double {\bfseries gcdgcm1}}\label{classComputation_aae3ea92e493ef3b703e8c21fa9eaf24e}
+
+\item 
+\hypertarget{classComputation_ad3fb5d8835f9dfddc6c8c56b491abe0e}{double {\bfseries gcm1dgc}}\label{classComputation_ad3fb5d8835f9dfddc6c8c56b491abe0e}
+
+\item 
+\hypertarget{classComputation_a4e063ea6fb7dc463b28eda000a837fe7}{double {\bfseries cclm1}}\label{classComputation_a4e063ea6fb7dc463b28eda000a837fe7}
+
+\item 
+\hypertarget{classComputation_a1fade3b3ea69fb28256f5cb6eb453333}{double {\bfseries powcref}}\label{classComputation_a1fade3b3ea69fb28256f5cb6eb453333}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Die Klasse \hyperlink{classComputation}{Computation} verwaltet die Formelvektoren u,f\-\_\-u und s\-\_\-u. Die Formelvektoren wurden in der ursprüngliche Version als Strings in Vektoren abgespeichert, und dann mittels Funktionen der exprtk Libiary interpretiert, aber das dauerte viel zu lange 
+
+\subsection{Member Function Documentation}
+\hypertarget{classComputation_a6ae111f850757aa9e494b25fa397bfb5}{\index{Computation@{Computation}!compute\-\_\-f\-\_\-1d@{compute\-\_\-f\-\_\-1d}}
+\index{compute\-\_\-f\-\_\-1d@{compute\-\_\-f\-\_\-1d}!Computation@{Computation}}
+\subsubsection[{compute\-\_\-f\-\_\-1d}]{\setlength{\rightskip}{0pt plus 5cm}void Computation\-::compute\-\_\-f\-\_\-1d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{f, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classComputation_a6ae111f850757aa9e494b25fa397bfb5}
+Berechnet die Lösungen der Formel für den Fluss F in 1-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em f,3-\/d} & Feld für die F-\/\-Werte \\
+\hline
+{\em Raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classComputation_a86cd911682059748fa6a0031c69275f0}{\index{Computation@{Computation}!compute\-\_\-f\-\_\-2d@{compute\-\_\-f\-\_\-2d}}
+\index{compute\-\_\-f\-\_\-2d@{compute\-\_\-f\-\_\-2d}!Computation@{Computation}}
+\subsubsection[{compute\-\_\-f\-\_\-2d}]{\setlength{\rightskip}{0pt plus 5cm}void Computation\-::compute\-\_\-f\-\_\-2d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{f, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classComputation_a86cd911682059748fa6a0031c69275f0}
+Berechnet die Lösungen der Formel für den Fluss F in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em f,3-\/d} & Feld für die F-\/\-Werte \\
+\hline
+{\em Raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classComputation_aa41d173cd841966f00bedd9e040b5e78}{\index{Computation@{Computation}!compute\-\_\-g\-\_\-2d@{compute\-\_\-g\-\_\-2d}}
+\index{compute\-\_\-g\-\_\-2d@{compute\-\_\-g\-\_\-2d}!Computation@{Computation}}
+\subsubsection[{compute\-\_\-g\-\_\-2d}]{\setlength{\rightskip}{0pt plus 5cm}void Computation\-::compute\-\_\-g\-\_\-2d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{g, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classComputation_aa41d173cd841966f00bedd9e040b5e78}
+Berechnet die Lösungen der Formel für den Fluss G in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em Raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters\\
+\hline
+\end{DoxyParams}
+Berechnet die Lösungen der Formel für den Fluss G in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em g,3-\/d} & Feld für die G-\/\-Werte \\
+\hline
+{\em Raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classComputation_af2a835928bcf124b803756730b47aecb}{\index{Computation@{Computation}!compute\-\_\-u\-\_\-1d@{compute\-\_\-u\-\_\-1d}}
+\index{compute\-\_\-u\-\_\-1d@{compute\-\_\-u\-\_\-1d}!Computation@{Computation}}
+\subsubsection[{compute\-\_\-u\-\_\-1d}]{\setlength{\rightskip}{0pt plus 5cm}void Computation\-::compute\-\_\-u\-\_\-1d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{u, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classComputation_af2a835928bcf124b803756730b47aecb}
+Vektor von u Rückrechnung der erhaltenen Variablen in die physikalischen. Vektor der Formeln von f\-\_\-u. Vektor der Formeln von g\-\_\-u. Berechnet die Werte U in 1-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em u,3-\/d} & Feld für die U-\/\-Werte \\
+\hline
+{\em Raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters\\
+\hline
+\end{DoxyParams}
+Berechnet die Werte U in 1-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em u,3-\/d} & Feld für die U-\/\-Werte \\
+\hline
+{\em raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+\hypertarget{classComputation_a158cbdbd7b5a770b9e96175287421dd1}{\index{Computation@{Computation}!compute\-\_\-u\-\_\-2d@{compute\-\_\-u\-\_\-2d}}
+\index{compute\-\_\-u\-\_\-2d@{compute\-\_\-u\-\_\-2d}!Computation@{Computation}}
+\subsubsection[{compute\-\_\-u\-\_\-2d}]{\setlength{\rightskip}{0pt plus 5cm}void Computation\-::compute\-\_\-u\-\_\-2d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$$\ast$$\ast$}]{u, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classComputation_a158cbdbd7b5a770b9e96175287421dd1}
+Berechnet die Werte U in 2-\/\-D 
+\begin{DoxyParams}{Parameters}
+{\em u,3-\/d} & Feld für die U-\/\-Werte \\
+\hline
+{\em Raster,welche} & die Werte zur Berechnung enthält. \\
+\hline
+{\em cells,Ausdehnung} & des Gitters \\
+\hline
+{\em ordnung} & des Algorithmus, wichtig für die Ausdehnung des Gitters \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classComputation_ad83b15fa4885674df22b99bb3f9ffc40}{\index{Computation@{Computation}!constants@{constants}}
+\index{constants@{constants}!Computation@{Computation}}
+\subsubsection[{constants}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Constants}$\ast$ Computation\-::constants}}\label{classComputation_ad83b15fa4885674df22b99bb3f9ffc40}
+Abgespeichertes \hyperlink{classKonstanten}{Konstanten} Objekt. Wird nur einmal beim Konstruktor gesetzt, damit es bei Rechnungen nicht immer neu übergeben werden muss. \hypertarget{classComputation_a927cc1ebb3cadf7a465eb8cd1144beed}{\index{Computation@{Computation}!neqs@{neqs}}
+\index{neqs@{neqs}!Computation@{Computation}}
+\subsubsection[{neqs}]{\setlength{\rightskip}{0pt plus 5cm}int Computation\-::neqs}}\label{classComputation_a927cc1ebb3cadf7a465eb8cd1144beed}
+Anzahl der Gleichungen 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+computation.\-h\item 
+computation.\-cpp\end{DoxyCompactItemize}

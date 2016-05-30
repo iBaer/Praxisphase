@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['update',['update',['../classnumerische__methode.html#a46867c6648593607c3c596a3eb34402b',1,'numerische_methode']]]
+  ['update',['update',['../classNumerical__Method.html#aab43b6c7beb59cba227643f5885da089',1,'Numerical_Method']]]
 ];

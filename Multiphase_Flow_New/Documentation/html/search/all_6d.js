@@ -1,10 +1,5 @@
 var searchData=
 [
-  ['matrix_5f1d',['matrix_1d',['../classnumerische__methode.html#a0730ea8b5f2561d5bd2474ea0a34a531',1,'numerische_methode']]],
-  ['matrix_5f2d',['matrix_2d',['../classnumerische__methode.html#a1ed1a084c11e18bb8fc3beadc2a793e7',1,'numerische_methode']]],
-  ['maxnt',['maxnt',['../classnumerische__methode.html#ae52e51b4b4607ee26d4cc9bac2f61922',1,'numerische_methode']]],
-  ['mol',['mol',['../classnumerische__methode.html#a6ffb8741f1f1d5975994cb006d436d8f',1,'numerische_methode']]],
-  ['mor',['mor',['../classnumerische__methode.html#ab33e0205421976197d24355cf010bfe8',1,'numerische_methode']]],
-  ['mul',['mul',['../classnumerische__methode.html#a20e0d47e90b9a0f9a83aab2b225a4616',1,'numerische_methode']]],
-  ['mur',['mur',['../classnumerische__methode.html#a36f2c35ed9b3448c6bb8656e057ae44a',1,'numerische_methode']]]
+  ['matrix_5f1d',['matrix_1d',['../classNumerical__Method.html#a47e020d020e45910016f893dfbca7294',1,'Numerical_Method']]],
+  ['matrix_5f2d',['matrix_2d',['../classNumerical__Method.html#a108b1816052479a3fd104ddde7703016',1,'Numerical_Method']]]
 ];

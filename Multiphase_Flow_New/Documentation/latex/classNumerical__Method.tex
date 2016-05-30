@@ -1,0 +1,345 @@
+\hypertarget{classNumerical__Method}{\section{Numerical\-\_\-\-Method Class Reference}
+\label{classNumerical__Method}\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}}
+}
+
+
+{\ttfamily \#include $<$numerical\-\_\-method.\-h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classNumerical__Method_a85c50cdbf748553e9d31b4066d2c022f}{Numerical\-\_\-\-Method} (\hyperlink{classSolver}{Solver} $\ast$\hyperlink{classNumerical__Method_ace474723e7f6407dea6b099a0f5d82f6}{solver}, \hyperlink{classConstants}{Constants} $\ast$\hyperlink{classNumerical__Method_a63a7ffa9eb0ab132ae008aa4d1e0dfc6}{constants}, \hyperlink{classComputation}{Computation} $\ast$\hyperlink{classNumerical__Method_aec80d2974afbd7ed72f7b7592b0f7595}{computation}, \hyperlink{classGrid}{Grid} $\ast$grid)
+\item 
+\hyperlink{classNumerical__Method_af7b847dd302c8d489e944ca24cd79b79}{$\sim$\-Numerical\-\_\-\-Method} ()
+\item 
+void \hyperlink{classNumerical__Method_a181d5218fdf2aeaa738c94613ff0921c}{start\-\_\-method} ()
+\item 
+double \hyperlink{classNumerical__Method_ace0a53699bed22690e5dccacd912aff7}{cfl\-\_\-condition} (int n, double time)
+\item 
+void \hyperlink{classNumerical__Method_a67738f11775c38a65a5c80caf8d8d1b3}{cfl\-\_\-1d\-\_\-eigenvalues} (int n, double \&time)
+\item 
+void \hyperlink{classNumerical__Method_a2e803d77e4bda6927c0a6ae6a5a6204d}{cfl\-\_\-1d\-\_\-approx} (int n, double \&time)
+\item 
+void \hyperlink{classNumerical__Method_a5716ee699a4c14a4c2ba211f7182f846}{cfl\-\_\-2d\-\_\-eigenvalues} (int n, double \&time)
+\item 
+void \hyperlink{classNumerical__Method_ad757e76048489549664925eca952c315}{cfl\-\_\-2d\-\_\-approx} (int n, double \&time)
+\item 
+void \hyperlink{classNumerical__Method_ad93454872f20536000b9585631dfb7b9}{write} ()
+\item 
+void \hyperlink{classNumerical__Method_a47e020d020e45910016f893dfbca7294}{matrix\-\_\-1d} (double $\ast$values, int n, double $\ast$u, double p, double dtwo, int variante)
+\item 
+void \hyperlink{classNumerical__Method_a108b1816052479a3fd104ddde7703016}{matrix\-\_\-2d} (double $\ast$values\-\_\-x, double $\ast$values\-\_\-y, int n, double $\ast$u, double p, double dtwo)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\-::string \hyperlink{classNumerical__Method_a4292dc8b238e8377cf35df477628f45f}{solver\-\_\-name}
+\item 
+int $\ast$ \hyperlink{classNumerical__Method_a916bdb33da9738c2d387b46a37b89ddc}{grid\-\_\-size}
+\item 
+double \hyperlink{classNumerical__Method_a03221980e39158a3116b00d777a86606}{gamma}
+\item 
+double \hyperlink{classNumerical__Method_a2edf6c77c3d30d1250e0410de12f5cc5}{time\-\_\-limit}
+\item 
+int \hyperlink{classNumerical__Method_ae867f42bb0ab0d0bdfdc7d8301c3f45f}{dimension}
+\item 
+int \hyperlink{classNumerical__Method_a1a565e278873462880e6abb92660c3cb}{with\-\_\-splitting}
+\item 
+int \hyperlink{classNumerical__Method_a711b3c69b3bd338fd8c2ee5c4396ba7b}{order}
+\item 
+int \hyperlink{classNumerical__Method_ad61abc8035cbd22e32903af1282cb610}{steps}
+\item 
+int \hyperlink{classNumerical__Method_acc1d72ff59613cb41b3fb4b4bd47f176}{step\-\_\-output}
+\item 
+int \hyperlink{classNumerical__Method_a21a906effd1727e5c82b884712ef8ef4}{step\-\_\-limit}
+\item 
+double \hyperlink{classNumerical__Method_a7eae91e02cf957aa4b702ebba91ce859}{dt}
+\item 
+double \hyperlink{classNumerical__Method_a3787608790a9dbe0dd9d4d27aafa6008}{dx}
+\item 
+double \hyperlink{classNumerical__Method_a9767068bb9f5f20c83567f6c9c2ba314}{divider}
+\item 
+double \hyperlink{classNumerical__Method_a914fcf77b93b98de47e5535dde982f6b}{divider\-\_\-end}
+\item 
+double \hyperlink{classNumerical__Method_a531122199f55330a4fff143fdae3198d}{dy}
+\item 
+int \hyperlink{classNumerical__Method_a225e6d56e3b3fac30631bc97d65250da}{pos\-\_\-x\-\_\-min}
+\item 
+int \hyperlink{classNumerical__Method_a3d5c5f4b1c31e8b12569cc7bef0710ef}{pos\-\_\-x\-\_\-max}
+\item 
+int \hyperlink{classNumerical__Method_a4d01637ef8b385ce84838349e944077a}{pos\-\_\-y\-\_\-min}
+\item 
+int \hyperlink{classNumerical__Method_acb20f8b0ee0e8ef5e18f8c02037bc4cb}{pos\-\_\-y\-\_\-max}
+\item 
+int \hyperlink{classNumerical__Method_a3a886e522a1cba5cfc5fcf3023bef720}{cfl\-\_\-option}
+\item 
+double \hyperlink{classNumerical__Method_a6218be59c261f1fc6ed8f68141f4db71}{ct}
+\item 
+\hyperlink{classConstants}{Constants} $\ast$ \hyperlink{classNumerical__Method_a63a7ffa9eb0ab132ae008aa4d1e0dfc6}{constants}
+\item 
+\hyperlink{classGrid}{Grid} $\ast$ \hyperlink{classNumerical__Method_a78f90e67fce4934dfd2b7473d3f4c896}{grid\-\_\-main}
+\item 
+\hyperlink{classComputation}{Computation} $\ast$ \hyperlink{classNumerical__Method_aec80d2974afbd7ed72f7b7592b0f7595}{computation}
+\item 
+\hyperlink{classSolver}{Solver} $\ast$ \hyperlink{classNumerical__Method_ace474723e7f6407dea6b099a0f5d82f6}{solver}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Die abstrakte Klasse numerische\-\_\-methode gibt den Rahmen für alle erbenden numerischen Methoden vor. 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classNumerical__Method_a85c50cdbf748553e9d31b4066d2c022f}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}}
+\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{Numerical\-\_\-\-Method}]{\setlength{\rightskip}{0pt plus 5cm}Numerical\-\_\-\-Method\-::\-Numerical\-\_\-\-Method (
+\begin{DoxyParamCaption}
+\item[{{\bf Solver} $\ast$}]{solver, }
+\item[{{\bf Constants} $\ast$}]{constants, }
+\item[{{\bf Computation} $\ast$}]{computation, }
+\item[{{\bf Grid} $\ast$}]{grid}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_a85c50cdbf748553e9d31b4066d2c022f}
+Konstruktor. 
+\begin{DoxyParams}{Parameters}
+{\em solver} & Pointer auf das Objekt des jeweiligen numerischen Lösers für die P\-D\-G. \\
+\hline
+{\em constants} & Pointer auf das Objekt, welches die \hyperlink{classKonstanten}{Konstanten} enthält. \\
+\hline
+{\em computation} & Pointer auf das Objekt, das für die Berechnungen benötigt wird \\
+\hline
+{\em grid} & Pointer auf Raster-\/\-Objekt.\\
+\hline
+\end{DoxyParams}
+Konstruktor. 
+\begin{DoxyParams}{Parameters}
+{\em solver} & Pointer auf das Objekt des jeweiligen numerischen Lösers für die P\-D\-G. \\
+\hline
+{\em constants} & Pointer auf das Objekt, welches die \hyperlink{classKonstanten}{Konstanten} enthält. \\
+\hline
+{\em computation} & Pointer auf das Objekt, das für die Berechnungen benötigt wird \\
+\hline
+{\em grid} & Pointer auf Raster-\/\-Objekt. 1 \\
+\hline
+\end{DoxyParams}
+\hypertarget{classNumerical__Method_af7b847dd302c8d489e944ca24cd79b79}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!$\sim$\-Numerical\-\_\-\-Method@{$\sim$\-Numerical\-\_\-\-Method}}
+\index{$\sim$\-Numerical\-\_\-\-Method@{$\sim$\-Numerical\-\_\-\-Method}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{$\sim$\-Numerical\-\_\-\-Method}]{\setlength{\rightskip}{0pt plus 5cm}Numerical\-\_\-\-Method\-::$\sim$\-Numerical\-\_\-\-Method (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_af7b847dd302c8d489e944ca24cd79b79}
+Destruktor 
+
+\subsection{Member Function Documentation}
+\hypertarget{classNumerical__Method_a2e803d77e4bda6927c0a6ae6a5a6204d}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!cfl\-\_\-1d\-\_\-approx@{cfl\-\_\-1d\-\_\-approx}}
+\index{cfl\-\_\-1d\-\_\-approx@{cfl\-\_\-1d\-\_\-approx}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{cfl\-\_\-1d\-\_\-approx}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::cfl\-\_\-1d\-\_\-approx (
+\begin{DoxyParamCaption}
+\item[{int}]{n, }
+\item[{double \&}]{time}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_a2e803d77e4bda6927c0a6ae6a5a6204d}
+Unterfunktion der Methode \hyperlink{classNumerical__Method_ace0a53699bed22690e5dccacd912aff7}{cfl\-\_\-condition()}. Berechnung der C\-F\-L Bedingung in 1\-D über Annäherung. 
+\begin{DoxyParams}{Parameters}
+{\em n} & aktueller Zeitschritt. \\
+\hline
+{\em time} & aktuelle Zeit. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classNumerical__Method_a67738f11775c38a65a5c80caf8d8d1b3}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!cfl\-\_\-1d\-\_\-eigenvalues@{cfl\-\_\-1d\-\_\-eigenvalues}}
+\index{cfl\-\_\-1d\-\_\-eigenvalues@{cfl\-\_\-1d\-\_\-eigenvalues}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{cfl\-\_\-1d\-\_\-eigenvalues}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::cfl\-\_\-1d\-\_\-eigenvalues (
+\begin{DoxyParamCaption}
+\item[{int}]{n, }
+\item[{double \&}]{time}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_a67738f11775c38a65a5c80caf8d8d1b3}
+Unterfunktion der Methode \hyperlink{classNumerical__Method_ace0a53699bed22690e5dccacd912aff7}{cfl\-\_\-condition()}. Berechnung der C\-F\-L Bedingung in 1\-D mit Eigenwerten. 
+\begin{DoxyParams}{Parameters}
+{\em n} & aktueller Zeitschritt. \\
+\hline
+{\em time} & aktuelle Zeit. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classNumerical__Method_ad757e76048489549664925eca952c315}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!cfl\-\_\-2d\-\_\-approx@{cfl\-\_\-2d\-\_\-approx}}
+\index{cfl\-\_\-2d\-\_\-approx@{cfl\-\_\-2d\-\_\-approx}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{cfl\-\_\-2d\-\_\-approx}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::cfl\-\_\-2d\-\_\-approx (
+\begin{DoxyParamCaption}
+\item[{int}]{n, }
+\item[{double \&}]{time}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_ad757e76048489549664925eca952c315}
+Unterfunktion der Methode \hyperlink{classNumerical__Method_ace0a53699bed22690e5dccacd912aff7}{cfl\-\_\-condition()}. Berechnung der C\-F\-L Bedingung in 2\-D über Annäherung. 
+\begin{DoxyParams}{Parameters}
+{\em n} & aktueller Zeitschritt. \\
+\hline
+{\em time} & aktuelle Zeit. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classNumerical__Method_a5716ee699a4c14a4c2ba211f7182f846}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!cfl\-\_\-2d\-\_\-eigenvalues@{cfl\-\_\-2d\-\_\-eigenvalues}}
+\index{cfl\-\_\-2d\-\_\-eigenvalues@{cfl\-\_\-2d\-\_\-eigenvalues}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{cfl\-\_\-2d\-\_\-eigenvalues}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::cfl\-\_\-2d\-\_\-eigenvalues (
+\begin{DoxyParamCaption}
+\item[{int}]{n, }
+\item[{double \&}]{time}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_a5716ee699a4c14a4c2ba211f7182f846}
+Unterfunktion der Methode \hyperlink{classNumerical__Method_ace0a53699bed22690e5dccacd912aff7}{cfl\-\_\-condition()}. Berechnung der C\-F\-L Bedingung in 2\-D mit Eigenwerten. 
+\begin{DoxyParams}{Parameters}
+{\em n} & aktueller Zeitschritt. \\
+\hline
+{\em time} & aktuelle Zeit. \\
+\hline
+\end{DoxyParams}
+\hypertarget{classNumerical__Method_ace0a53699bed22690e5dccacd912aff7}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!cfl\-\_\-condition@{cfl\-\_\-condition}}
+\index{cfl\-\_\-condition@{cfl\-\_\-condition}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{cfl\-\_\-condition}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::cfl\-\_\-condition (
+\begin{DoxyParamCaption}
+\item[{int}]{n, }
+\item[{double}]{time}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_ace0a53699bed22690e5dccacd912aff7}
+C\-F\-L Bedingung anwenden und neue Zeit berechnen. 
+\begin{DoxyParams}{Parameters}
+{\em n} & aktueller Zeitschritt. \\
+\hline
+{\em time} & aktuelle Zeit. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+neue Zeit. 
+\end{DoxyReturn}
+\hypertarget{classNumerical__Method_a47e020d020e45910016f893dfbca7294}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!matrix\-\_\-1d@{matrix\-\_\-1d}}
+\index{matrix\-\_\-1d@{matrix\-\_\-1d}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{matrix\-\_\-1d}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::matrix\-\_\-1d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$}]{values, }
+\item[{int}]{n, }
+\item[{double $\ast$}]{u, }
+\item[{double}]{p, }
+\item[{double}]{dtwo, }
+\item[{int}]{variante}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_a47e020d020e45910016f893dfbca7294}
+Bestimmt die Elemente der Jacobi-\/\-Matrix für eine Dimension \hypertarget{classNumerical__Method_a108b1816052479a3fd104ddde7703016}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!matrix\-\_\-2d@{matrix\-\_\-2d}}
+\index{matrix\-\_\-2d@{matrix\-\_\-2d}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{matrix\-\_\-2d}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::matrix\-\_\-2d (
+\begin{DoxyParamCaption}
+\item[{double $\ast$}]{values\-\_\-x, }
+\item[{double $\ast$}]{values\-\_\-y, }
+\item[{int}]{n, }
+\item[{double $\ast$}]{u, }
+\item[{double}]{p, }
+\item[{double}]{dtwo}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_a108b1816052479a3fd104ddde7703016}
+Bestimmt die Elemente der Jacobi-\/\-Matrix für zwei Dimensionen \hypertarget{classNumerical__Method_a181d5218fdf2aeaa738c94613ff0921c}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!start\-\_\-method@{start\-\_\-method}}
+\index{start\-\_\-method@{start\-\_\-method}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{start\-\_\-method}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::start\-\_\-method (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_a181d5218fdf2aeaa738c94613ff0921c}
+Startet die numerische Berechnung der Mehrphasenströmung. \hypertarget{classNumerical__Method_ad93454872f20536000b9585631dfb7b9}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!write@{write}}
+\index{write@{write}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{write}]{\setlength{\rightskip}{0pt plus 5cm}void Numerical\-\_\-\-Method\-::write (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classNumerical__Method_ad93454872f20536000b9585631dfb7b9}
+Schreibt Ergebnisse in Dateien für d,p und u,ur für die jeweilige Dimension 
+
+\subsection{Member Data Documentation}
+\hypertarget{classNumerical__Method_a3a886e522a1cba5cfc5fcf3023bef720}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!cfl\-\_\-option@{cfl\-\_\-option}}
+\index{cfl\-\_\-option@{cfl\-\_\-option}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{cfl\-\_\-option}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::cfl\-\_\-option}}\label{classNumerical__Method_a3a886e522a1cba5cfc5fcf3023bef720}
+Variante der E\-O\-S (Equation of States/\-Zustandsgleichung) \hypertarget{classNumerical__Method_aec80d2974afbd7ed72f7b7592b0f7595}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!computation@{computation}}
+\index{computation@{computation}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{computation}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Computation}$\ast$ Numerical\-\_\-\-Method\-::computation}}\label{classNumerical__Method_aec80d2974afbd7ed72f7b7592b0f7595}
+Pointer auf das Objekt, das für die Berechnungen benötigt wird. \begin{DoxySeeAlso}{See Also}
+\hyperlink{classComputation}{Computation} 
+\end{DoxySeeAlso}
+\hypertarget{classNumerical__Method_a63a7ffa9eb0ab132ae008aa4d1e0dfc6}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!constants@{constants}}
+\index{constants@{constants}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{constants}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Constants}$\ast$ Numerical\-\_\-\-Method\-::constants}}\label{classNumerical__Method_a63a7ffa9eb0ab132ae008aa4d1e0dfc6}
+Pointer auf das Objekt, welches die \hyperlink{classKonstanten}{Konstanten} enthält. \begin{DoxySeeAlso}{See Also}
+\hyperlink{classConstants}{Constants} 
+\end{DoxySeeAlso}
+\hypertarget{classNumerical__Method_a6218be59c261f1fc6ed8f68141f4db71}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!ct@{ct}}
+\index{ct@{ct}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{ct}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::ct}}\label{classNumerical__Method_a6218be59c261f1fc6ed8f68141f4db71}
+Die konstante Größe C\-T aus dem Fortranprogramm ist äquivalent zu K\-\_\-g \hypertarget{classNumerical__Method_ae867f42bb0ab0d0bdfdc7d8301c3f45f}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!dimension@{dimension}}
+\index{dimension@{dimension}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{dimension}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::dimension}}\label{classNumerical__Method_ae867f42bb0ab0d0bdfdc7d8301c3f45f}
+Dimension des Rasters \hypertarget{classNumerical__Method_a9767068bb9f5f20c83567f6c9c2ba314}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!divider@{divider}}
+\index{divider@{divider}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{divider}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::divider}}\label{classNumerical__Method_a9767068bb9f5f20c83567f6c9c2ba314}
+Faktor für die ersten Delta t Schritte \hypertarget{classNumerical__Method_a914fcf77b93b98de47e5535dde982f6b}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!divider\-\_\-end@{divider\-\_\-end}}
+\index{divider\-\_\-end@{divider\-\_\-end}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{divider\-\_\-end}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::divider\-\_\-end}}\label{classNumerical__Method_a914fcf77b93b98de47e5535dde982f6b}
+Ende der Multiplikation der Zeitschritte mit divider \hypertarget{classNumerical__Method_a7eae91e02cf957aa4b702ebba91ce859}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!dt@{dt}}
+\index{dt@{dt}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{dt}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::dt}}\label{classNumerical__Method_a7eae91e02cf957aa4b702ebba91ce859}
+Delta t. \hypertarget{classNumerical__Method_a3787608790a9dbe0dd9d4d27aafa6008}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!dx@{dx}}
+\index{dx@{dx}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{dx}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::dx}}\label{classNumerical__Method_a3787608790a9dbe0dd9d4d27aafa6008}
+Delta t\-\_\-fixed. Delta x. \hypertarget{classNumerical__Method_a531122199f55330a4fff143fdae3198d}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!dy@{dy}}
+\index{dy@{dy}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{dy}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::dy}}\label{classNumerical__Method_a531122199f55330a4fff143fdae3198d}
+Delta y für die 2. Dimension \hypertarget{classNumerical__Method_a03221980e39158a3116b00d777a86606}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!gamma@{gamma}}
+\index{gamma@{gamma}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{gamma}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::gamma}}\label{classNumerical__Method_a03221980e39158a3116b00d777a86606}
+Gamma Konstante \hypertarget{classNumerical__Method_a78f90e67fce4934dfd2b7473d3f4c896}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!grid\-\_\-main@{grid\-\_\-main}}
+\index{grid\-\_\-main@{grid\-\_\-main}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{grid\-\_\-main}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Grid}$\ast$ Numerical\-\_\-\-Method\-::grid\-\_\-main}}\label{classNumerical__Method_a78f90e67fce4934dfd2b7473d3f4c896}
+Pointer auf Raster-\/\-Objekt. \begin{DoxySeeAlso}{See Also}
+\hyperlink{classGrid}{Grid} 
+\end{DoxySeeAlso}
+\hypertarget{classNumerical__Method_a916bdb33da9738c2d387b46a37b89ddc}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!grid\-\_\-size@{grid\-\_\-size}}
+\index{grid\-\_\-size@{grid\-\_\-size}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{grid\-\_\-size}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ Numerical\-\_\-\-Method\-::grid\-\_\-size}}\label{classNumerical__Method_a916bdb33da9738c2d387b46a37b89ddc}
+Array, dass entsprecht der Rasterdimension die totale Größe der jeweiligen Richtung des Rasters enthält. \hypertarget{classNumerical__Method_a711b3c69b3bd338fd8c2ee5c4396ba7b}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!order@{order}}
+\index{order@{order}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{order}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::order}}\label{classNumerical__Method_a711b3c69b3bd338fd8c2ee5c4396ba7b}
+Ordnung des Verfahrens. \hypertarget{classNumerical__Method_a3d5c5f4b1c31e8b12569cc7bef0710ef}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!pos\-\_\-x\-\_\-max@{pos\-\_\-x\-\_\-max}}
+\index{pos\-\_\-x\-\_\-max@{pos\-\_\-x\-\_\-max}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{pos\-\_\-x\-\_\-max}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::pos\-\_\-x\-\_\-max}}\label{classNumerical__Method_a3d5c5f4b1c31e8b12569cc7bef0710ef}
+Rechte Grenze des Rasters \hypertarget{classNumerical__Method_a225e6d56e3b3fac30631bc97d65250da}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!pos\-\_\-x\-\_\-min@{pos\-\_\-x\-\_\-min}}
+\index{pos\-\_\-x\-\_\-min@{pos\-\_\-x\-\_\-min}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{pos\-\_\-x\-\_\-min}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::pos\-\_\-x\-\_\-min}}\label{classNumerical__Method_a225e6d56e3b3fac30631bc97d65250da}
+Linke Grenze des Rasters (Koordinate) \hypertarget{classNumerical__Method_acb20f8b0ee0e8ef5e18f8c02037bc4cb}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!pos\-\_\-y\-\_\-max@{pos\-\_\-y\-\_\-max}}
+\index{pos\-\_\-y\-\_\-max@{pos\-\_\-y\-\_\-max}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{pos\-\_\-y\-\_\-max}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::pos\-\_\-y\-\_\-max}}\label{classNumerical__Method_acb20f8b0ee0e8ef5e18f8c02037bc4cb}
+Untere Grenze des Rasters \hypertarget{classNumerical__Method_a4d01637ef8b385ce84838349e944077a}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!pos\-\_\-y\-\_\-min@{pos\-\_\-y\-\_\-min}}
+\index{pos\-\_\-y\-\_\-min@{pos\-\_\-y\-\_\-min}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{pos\-\_\-y\-\_\-min}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::pos\-\_\-y\-\_\-min}}\label{classNumerical__Method_a4d01637ef8b385ce84838349e944077a}
+Obere Grenze des Rasters \hypertarget{classNumerical__Method_ace474723e7f6407dea6b099a0f5d82f6}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!solver@{solver}}
+\index{solver@{solver}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{solver}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Solver}$\ast$ Numerical\-\_\-\-Method\-::solver}}\label{classNumerical__Method_ace474723e7f6407dea6b099a0f5d82f6}
+Pointer auf das Objekt des jeweiligen numerischen Lösers für die P\-D\-G. \begin{DoxySeeAlso}{See Also}
+\hyperlink{classSolver}{Solver} 
+\end{DoxySeeAlso}
+\hypertarget{classNumerical__Method_a4292dc8b238e8377cf35df477628f45f}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!solver\-\_\-name@{solver\-\_\-name}}
+\index{solver\-\_\-name@{solver\-\_\-name}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{solver\-\_\-name}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string Numerical\-\_\-\-Method\-::solver\-\_\-name}}\label{classNumerical__Method_a4292dc8b238e8377cf35df477628f45f}
+Name der Methode. Benötigt zur Trennung der Outfiles der jeweiligen Löser \hypertarget{classNumerical__Method_a21a906effd1727e5c82b884712ef8ef4}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!step\-\_\-limit@{step\-\_\-limit}}
+\index{step\-\_\-limit@{step\-\_\-limit}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{step\-\_\-limit}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::step\-\_\-limit}}\label{classNumerical__Method_a21a906effd1727e5c82b884712ef8ef4}
+Maximale Anzahl an Schritten der numerischen Methode (falls es einen Fehler gibt oder andere Umstände). \hypertarget{classNumerical__Method_acc1d72ff59613cb41b3fb4b4bd47f176}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!step\-\_\-output@{step\-\_\-output}}
+\index{step\-\_\-output@{step\-\_\-output}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{step\-\_\-output}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::step\-\_\-output}}\label{classNumerical__Method_acc1d72ff59613cb41b3fb4b4bd47f176}
+Mit Output für jeden Berechnungsschritt. \hypertarget{classNumerical__Method_ad61abc8035cbd22e32903af1282cb610}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!steps@{steps}}
+\index{steps@{steps}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{steps}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::steps}}\label{classNumerical__Method_ad61abc8035cbd22e32903af1282cb610}
+Anzahl an Schritten die gemacht wurden. \hypertarget{classNumerical__Method_a2edf6c77c3d30d1250e0410de12f5cc5}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!time\-\_\-limit@{time\-\_\-limit}}
+\index{time\-\_\-limit@{time\-\_\-limit}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{time\-\_\-limit}]{\setlength{\rightskip}{0pt plus 5cm}double Numerical\-\_\-\-Method\-::time\-\_\-limit}}\label{classNumerical__Method_a2edf6c77c3d30d1250e0410de12f5cc5}
+Grenze für dt \hypertarget{classNumerical__Method_a1a565e278873462880e6abb92660c3cb}{\index{Numerical\-\_\-\-Method@{Numerical\-\_\-\-Method}!with\-\_\-splitting@{with\-\_\-splitting}}
+\index{with\-\_\-splitting@{with\-\_\-splitting}!Numerical_Method@{Numerical\-\_\-\-Method}}
+\subsubsection[{with\-\_\-splitting}]{\setlength{\rightskip}{0pt plus 5cm}int Numerical\-\_\-\-Method\-::with\-\_\-splitting}}\label{classNumerical__Method_a1a565e278873462880e6abb92660c3cb}
+Ab 2\-D, Integrationsschema splitting oder unsplitting 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+numerical\-\_\-method.\-h\item 
+numerical\-\_\-method.\-cpp\end{DoxyCompactItemize}

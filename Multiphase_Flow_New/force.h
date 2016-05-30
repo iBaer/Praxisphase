@@ -1,7 +1,7 @@
 #ifndef FORCE_H
 #define FORCE_H
 
-#include "numerische_methode.h"
+#include "numerical_method.h"
 #include "solver.h"
 /*!
 * @class FORCE
@@ -27,7 +27,7 @@ class Force : public Solver
         * Berechnung des FORCE Flusses.
         * @return 4 Dimensionaler Vektor. Zusammenstellung: Gleichung, x-Position, y-Position , dimension
         */
-        double* calc_method_flux(double dt,int dir);
+        void calc_method_flux(double dt,int dir);
 
   	  //int size_total[0];
   	  //int size_total[1];

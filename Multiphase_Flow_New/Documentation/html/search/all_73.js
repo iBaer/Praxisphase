@@ -1,12 +1,14 @@
 var searchData=
 [
-  ['set_5fzelle_5fd',['set_Zelle_d',['../classRaster.html#a8f526fa84e3593c504d4fa9a9e19b2da',1,'Raster::set_Zelle_d(double in, int x)'],['../classRaster.html#a13de1d5c259fc17dd42b2f33d5461ac2',1,'Raster::set_Zelle_d(double in, int x, int y)']]],
-  ['set_5fzelle_5fp',['set_Zelle_p',['../classRaster.html#af1263a6f61dde08c5173a55fe832ea69',1,'Raster::set_Zelle_p(double in, int x)'],['../classRaster.html#a15f4c665d91aa2441f6da1274b7ebb88',1,'Raster::set_Zelle_p(double in, int x, int y)']]],
-  ['set_5fzelle_5fux',['set_Zelle_ux',['../classRaster.html#acec8554a0d41e393fb98026a165129e6',1,'Raster::set_Zelle_ux(double in, int x)'],['../classRaster.html#a8fed08552b9ce3539fb8912cc4e9048f',1,'Raster::set_Zelle_ux(double in, int x, int y)']]],
-  ['set_5fzelle_5fuxr',['set_Zelle_uxr',['../classRaster.html#a2b6085833aa2c13cb33f4313808f6504',1,'Raster::set_Zelle_uxr(double in, int x)'],['../classRaster.html#a493fd13cf5bfc008ea29728293cf7373',1,'Raster::set_Zelle_uxr(double in, int x, int y)']]],
-  ['set_5fzelle_5fuy',['set_Zelle_uy',['../classRaster.html#a6000e3eecad5f12660dea30337b53411',1,'Raster::set_Zelle_uy(double in, int x)'],['../classRaster.html#ae8c69cf6cd00117f896601270d348416',1,'Raster::set_Zelle_uy(double in, int x, int y)']]],
-  ['set_5fzelle_5fuyr',['set_Zelle_uyr',['../classRaster.html#a95368c497947ebc73ed317c905d4abce',1,'Raster::set_Zelle_uyr(double in, int x)'],['../classRaster.html#a9aa9233a3644c3239679c39f9a3e14ed',1,'Raster::set_Zelle_uyr(double in, int x, int y)']]],
-  ['splitting',['splitting',['../classnumerische__methode.html#a70e5afff7bb50109856ce5bf2e62f072',1,'numerische_methode']]],
-  ['start_5fmethod',['start_method',['../classnumerische__methode.html#a83d6b8c73e8afc831003b8abc334e185',1,'numerische_methode']]],
-  ['steps',['steps',['../classnumerische__methode.html#a4c5bac9002b5bc6ab4c5eac30943246a',1,'numerische_methode']]]
+  ['size_5fm1',['size_m1',['../classSolver.html#ab954613f6a40bbcbcbc7c04469f36db5',1,'Solver']]],
+  ['size_5ftotal',['size_total',['../classSolver.html#accc6d00868567cda6fc234b3c1934a13',1,'Solver']]],
+  ['solve_5f1d',['solve_1d',['../classLax__Friedrich.html#aff4e2d9fd2a38de402e96ce4f0e1c1bc',1,'Lax_Friedrich']]],
+  ['solve_5f2d_5fsplit',['solve_2d_split',['../classLax__Friedrich.html#a0086e60fef8bbb1d8ba1cd5b228a90f6',1,'Lax_Friedrich']]],
+  ['solve_5f2d_5funsplit',['solve_2d_unsplit',['../classLax__Friedrich.html#ae7aff2026dbcc2a731119a5ff541b4ab',1,'Lax_Friedrich']]],
+  ['solver',['Solver',['../classSolver.html',1,'Solver'],['../classSolver.html#a0075747c547c2da8911f2c95bdadaed4',1,'Solver::Solver()'],['../classNumerical__Method.html#ace474723e7f6407dea6b099a0f5d82f6',1,'Numerical_Method::solver()']]],
+  ['solver_5fname',['solver_name',['../classNumerical__Method.html#a4292dc8b238e8377cf35df477628f45f',1,'Numerical_Method']]],
+  ['start_5fmethod',['start_method',['../classNumerical__Method.html#a181d5218fdf2aeaa738c94613ff0921c',1,'Numerical_Method']]],
+  ['step_5flimit',['step_limit',['../classNumerical__Method.html#a21a906effd1727e5c82b884712ef8ef4',1,'Numerical_Method']]],
+  ['step_5foutput',['step_output',['../classNumerical__Method.html#acc1d72ff59613cb41b3fb4b4bd47f176',1,'Numerical_Method']]],
+  ['steps',['steps',['../classNumerical__Method.html#ad61abc8035cbd22e32903af1282cb610',1,'Numerical_Method']]]
 ];

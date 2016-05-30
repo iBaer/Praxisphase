@@ -95,10 +95,15 @@ Force::~Force() {
 }
 
 /**
+ *****************************************************************************************
+ *  Aktualisiert alle zelle mithilfe des berechneten Flusses.
+ *****************************************************************************************/
+
+/**
  * Berechnung des FORCE Flusses.
  * @return 4 Dimensionaler Vektor. Zusammenstellung: Gleichung, x-Position, y-Position , dimension
  */
-double* Force::calc_method_flux(double dt, int dir) {
+void Force::calc_method_flux(double dt, int dir) {
 	cout << "Berechne FORCE Fluss..." << endl;
 
 	//f_force = new double[neqs * (size_m1[0]) * (size_m1[1])];
@@ -121,9 +126,6 @@ double* Force::calc_method_flux(double dt, int dir) {
 
 	}
 	}
-
-	//return fiarray;
-	return f_force[0];
 
 }
 
@@ -396,7 +398,7 @@ void Force::solve_2d_split(double dt){
 		}
 	}
 
-	grid->bcondi();
+	grid->apply_boundary_conditions();
 
 	computation->compute_u_2d(cs, grid);
 	computation->compute_g_2d(gd, grid);

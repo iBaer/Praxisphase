@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['teiler',['teiler',['../classnumerische__methode.html#ae3738842c0b0203293161f8389454227',1,'numerische_methode']]],
-  ['teilerend',['teilerend',['../classnumerische__methode.html#af29a77417f125560c1797aed70cd7ad5',1,'numerische_methode']]],
-  ['timeou',['timeou',['../classnumerische__methode.html#af0e0a81815451c4ed37f0ad73d4c5dbe',1,'numerische_methode']]]
+  ['time_5flimit',['time_limit',['../classNumerical__Method.html#a2edf6c77c3d30d1250e0410de12f5cc5',1,'Numerical_Method']]]
 ];

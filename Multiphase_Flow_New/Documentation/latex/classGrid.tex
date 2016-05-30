@@ -1,0 +1,215 @@
+\hypertarget{classGrid}{\section{Grid Class Reference}
+\label{classGrid}\index{Grid@{Grid}}
+}
+
+
+{\ttfamily \#include $<$grid.\-h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classGrid_adf92756bdccf95fc9e3fedac017cc7d0}{Grid} (\hyperlink{classConstants}{Constants} $\ast$\hyperlink{classGrid_a9e529cbb3ec0b42c8b232be05923a030}{constants}, std\-::string save\-\_\-in, int \hyperlink{classGrid_af55897b809ffd9733f6723c8a23d89a5}{choice})
+\item 
+\hyperlink{classGrid_a01fb58c88ad3ac4a6c2a1eba5742dc7a}{Grid} (int x)
+\item 
+\hyperlink{classGrid_a338e0b1ffbad1cf5fdf960d7511b4857}{Grid} (int x, int y)
+\item 
+\hyperlink{classGrid_a3661d0a7f998caaaf8627d7a67072116}{$\sim$\-Grid} ()
+\item 
+void \hyperlink{classGrid_a1c67c94bc8e4a5dec66934b11129ff63}{init\-\_\-1d\-\_\-rarefaction} ()
+\item 
+void \hyperlink{classGrid_a491f89e29ba29b1034d4972df9679352}{init\-\_\-1d\-\_\-shockwave} ()
+\item 
+void \hyperlink{classGrid_a76f8642b671a34b93c195f7266b6e0d4}{init\-\_\-2d\-\_\-rarefaction\-\_\-0} ()
+\item 
+void \hyperlink{classGrid_a30aa151fda2f732bb542c02a5de26eee}{init\-\_\-2d\-\_\-rarefaction\-\_\-90} ()
+\item 
+void \hyperlink{classGrid_aff04070089defd8f9100eaff9e6c6fc2}{init\-\_\-2d\-\_\-rarefaction\-\_\-60} ()
+\item 
+void \hyperlink{classGrid_a3957a41dc0ced492623c46644ca41b4f}{init\-\_\-2d\-\_\-rarefaction\-\_\-45} ()
+\item 
+void \hyperlink{classGrid_a497011f31b5116f6f691fe2e51c4674d}{init\-\_\-2d\-\_\-shockwave\-\_\-bubble} ()
+\item 
+void \hyperlink{classGrid_ad2ea723ca3cf2642b3741716fc7c08a7}{init\-\_\-2d\-\_\-load\-\_\-file} (std\-::string save\-\_\-in)
+\item 
+void \hyperlink{classGrid_a471f6095ce574138fccaff0cad567825}{apply\-\_\-boundary\-\_\-conditions} ()
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{classGrid_af55897b809ffd9733f6723c8a23d89a5}{choice}
+\item 
+\hyperlink{classConstants}{Constants} $\ast$ \hyperlink{classGrid_a9e529cbb3ec0b42c8b232be05923a030}{constants}
+\item 
+double $\ast$$\ast$ \hyperlink{classGrid_aedb9b7d5ce1139730dc73a2f9e0e6edc}{cellsgrid}
+\item 
+int \hyperlink{classGrid_a6970f8edab2f84c576fc335f6d023f95}{dimension}
+\item 
+int $\ast$ \hyperlink{classGrid_a7b4eea4e828ebda3ebdfe78b2f9a14d2}{grid\-\_\-size}
+\item 
+int $\ast$ \hyperlink{classGrid_adbf3823ea45f6e5ae9210d44fbc7e79a}{grid\-\_\-size\-\_\-total}
+\item 
+int $\ast$ \hyperlink{classGrid_a68bd279fd3b1cee412e436b1f3848225}{boundary\-\_\-conditions}
+\item 
+int \hyperlink{classGrid_a599c5aadae9322d115d974cb395a83bf}{orderofgrid}
+\item 
+int \hyperlink{classGrid_a2f725f73b6290e8c8527a6566ef07895}{cellsgrid\-\_\-size}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Diese Klasse bietet ein Raster aus Zellen. Zellen werden in einem 1-\/\-Dimensionalen Array abgespeichert, welches dann auch noch falls nötig 2-\/\-Dimensional oder 3-\/\-Dimensional interpretiert wird. 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classGrid_adf92756bdccf95fc9e3fedac017cc7d0}{\index{Grid@{Grid}!Grid@{Grid}}
+\index{Grid@{Grid}!Grid@{Grid}}
+\subsubsection[{Grid}]{\setlength{\rightskip}{0pt plus 5cm}Grid\-::\-Grid (
+\begin{DoxyParamCaption}
+\item[{{\bf Constants} $\ast$}]{constants, }
+\item[{std\-::string}]{save\-\_\-in, }
+\item[{int}]{choice}
+\end{DoxyParamCaption}
+)}}\label{classGrid_adf92756bdccf95fc9e3fedac017cc7d0}
+Konstruktor des Rasters. 
+\begin{DoxyParams}{Parameters}
+{\em constants} & Pointer auf das Objekt, welches die \hyperlink{classKonstanten}{Konstanten} enthält. \\
+\hline
+{\em save\-\_\-in} & Pfad zur Datei mit dem Speicherstand. \\
+\hline
+{\em choice} & Gibt die zu verwendende Initialisierungsmethode an \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGrid_a01fb58c88ad3ac4a6c2a1eba5742dc7a}{\index{Grid@{Grid}!Grid@{Grid}}
+\index{Grid@{Grid}!Grid@{Grid}}
+\subsubsection[{Grid}]{\setlength{\rightskip}{0pt plus 5cm}Grid\-::\-Grid (
+\begin{DoxyParamCaption}
+\item[{int}]{x}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a01fb58c88ad3ac4a6c2a1eba5742dc7a}
+Konstruktor für ein leeres eindimensionales Raster. \hypertarget{classGrid_a338e0b1ffbad1cf5fdf960d7511b4857}{\index{Grid@{Grid}!Grid@{Grid}}
+\index{Grid@{Grid}!Grid@{Grid}}
+\subsubsection[{Grid}]{\setlength{\rightskip}{0pt plus 5cm}Grid\-::\-Grid (
+\begin{DoxyParamCaption}
+\item[{int}]{x, }
+\item[{int}]{y}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a338e0b1ffbad1cf5fdf960d7511b4857}
+Konstruktor für ein leeres zweidimensionales Raster. \hypertarget{classGrid_a3661d0a7f998caaaf8627d7a67072116}{\index{Grid@{Grid}!$\sim$\-Grid@{$\sim$\-Grid}}
+\index{$\sim$\-Grid@{$\sim$\-Grid}!Grid@{Grid}}
+\subsubsection[{$\sim$\-Grid}]{\setlength{\rightskip}{0pt plus 5cm}Grid\-::$\sim$\-Grid (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a3661d0a7f998caaaf8627d7a67072116}
+Destruktor des Rasters. Gibt alokierten Speicher wieder frei.
+
+Destruktor 
+
+\subsection{Member Function Documentation}
+\hypertarget{classGrid_a471f6095ce574138fccaff0cad567825}{\index{Grid@{Grid}!apply\-\_\-boundary\-\_\-conditions@{apply\-\_\-boundary\-\_\-conditions}}
+\index{apply\-\_\-boundary\-\_\-conditions@{apply\-\_\-boundary\-\_\-conditions}!Grid@{Grid}}
+\subsubsection[{apply\-\_\-boundary\-\_\-conditions}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::apply\-\_\-boundary\-\_\-conditions (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a471f6095ce574138fccaff0cad567825}
+Wendet Randbedingungen an. 
+\begin{DoxyParams}{Parameters}
+{\em konstanten} & \hyperlink{classKonstanten}{Konstanten} wo festgelegt ist welche Randbedingungen angewendet werden.\\
+\hline
+\end{DoxyParams}
+Anwenden der Randbedingungen \hypertarget{classGrid_a1c67c94bc8e4a5dec66934b11129ff63}{\index{Grid@{Grid}!init\-\_\-1d\-\_\-rarefaction@{init\-\_\-1d\-\_\-rarefaction}}
+\index{init\-\_\-1d\-\_\-rarefaction@{init\-\_\-1d\-\_\-rarefaction}!Grid@{Grid}}
+\subsubsection[{init\-\_\-1d\-\_\-rarefaction}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-1d\-\_\-rarefaction (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a1c67c94bc8e4a5dec66934b11129ff63}
+Initialisierungsmethode für eine Verdünnungswelle auf einem 1\-D-\/\-Raster \hypertarget{classGrid_a491f89e29ba29b1034d4972df9679352}{\index{Grid@{Grid}!init\-\_\-1d\-\_\-shockwave@{init\-\_\-1d\-\_\-shockwave}}
+\index{init\-\_\-1d\-\_\-shockwave@{init\-\_\-1d\-\_\-shockwave}!Grid@{Grid}}
+\subsubsection[{init\-\_\-1d\-\_\-shockwave}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-1d\-\_\-shockwave (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a491f89e29ba29b1034d4972df9679352}
+Initialisierungsmethode für eine Schockwelle auf einem 1\-D-\/\-Raster \hypertarget{classGrid_ad2ea723ca3cf2642b3741716fc7c08a7}{\index{Grid@{Grid}!init\-\_\-2d\-\_\-load\-\_\-file@{init\-\_\-2d\-\_\-load\-\_\-file}}
+\index{init\-\_\-2d\-\_\-load\-\_\-file@{init\-\_\-2d\-\_\-load\-\_\-file}!Grid@{Grid}}
+\subsubsection[{init\-\_\-2d\-\_\-load\-\_\-file}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-2d\-\_\-load\-\_\-file (
+\begin{DoxyParamCaption}
+\item[{std\-::string}]{save\-\_\-in}
+\end{DoxyParamCaption}
+)}}\label{classGrid_ad2ea723ca3cf2642b3741716fc7c08a7}
+Initialisierungsmethode mit einem Speicherstand auf einem 2\-D-\/\-Raster \hypertarget{classGrid_a76f8642b671a34b93c195f7266b6e0d4}{\index{Grid@{Grid}!init\-\_\-2d\-\_\-rarefaction\-\_\-0@{init\-\_\-2d\-\_\-rarefaction\-\_\-0}}
+\index{init\-\_\-2d\-\_\-rarefaction\-\_\-0@{init\-\_\-2d\-\_\-rarefaction\-\_\-0}!Grid@{Grid}}
+\subsubsection[{init\-\_\-2d\-\_\-rarefaction\-\_\-0}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-2d\-\_\-rarefaction\-\_\-0 (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a76f8642b671a34b93c195f7266b6e0d4}
+Initialisierungsmethode für eine Verdünnungswelle in X-\/\-Richtung auf einem 2\-D-\/\-Raster \hypertarget{classGrid_a3957a41dc0ced492623c46644ca41b4f}{\index{Grid@{Grid}!init\-\_\-2d\-\_\-rarefaction\-\_\-45@{init\-\_\-2d\-\_\-rarefaction\-\_\-45}}
+\index{init\-\_\-2d\-\_\-rarefaction\-\_\-45@{init\-\_\-2d\-\_\-rarefaction\-\_\-45}!Grid@{Grid}}
+\subsubsection[{init\-\_\-2d\-\_\-rarefaction\-\_\-45}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-2d\-\_\-rarefaction\-\_\-45 (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a3957a41dc0ced492623c46644ca41b4f}
+Initialisierungsmethode für eine Verdünnungswelle in einem 45 Grad Winkel auf einem 2\-D-\/\-Raster \hypertarget{classGrid_aff04070089defd8f9100eaff9e6c6fc2}{\index{Grid@{Grid}!init\-\_\-2d\-\_\-rarefaction\-\_\-60@{init\-\_\-2d\-\_\-rarefaction\-\_\-60}}
+\index{init\-\_\-2d\-\_\-rarefaction\-\_\-60@{init\-\_\-2d\-\_\-rarefaction\-\_\-60}!Grid@{Grid}}
+\subsubsection[{init\-\_\-2d\-\_\-rarefaction\-\_\-60}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-2d\-\_\-rarefaction\-\_\-60 (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_aff04070089defd8f9100eaff9e6c6fc2}
+Initialisierungsmethode für eine Verdünnungswelle in einem 60 Grad Winkel auf einem 2\-D-\/\-Raster \hypertarget{classGrid_a30aa151fda2f732bb542c02a5de26eee}{\index{Grid@{Grid}!init\-\_\-2d\-\_\-rarefaction\-\_\-90@{init\-\_\-2d\-\_\-rarefaction\-\_\-90}}
+\index{init\-\_\-2d\-\_\-rarefaction\-\_\-90@{init\-\_\-2d\-\_\-rarefaction\-\_\-90}!Grid@{Grid}}
+\subsubsection[{init\-\_\-2d\-\_\-rarefaction\-\_\-90}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-2d\-\_\-rarefaction\-\_\-90 (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a30aa151fda2f732bb542c02a5de26eee}
+Initialisierungsmethode für eine Verdünnungswelle in Y-\/\-Richtung auf einem 2\-D-\/\-Raster \hypertarget{classGrid_a497011f31b5116f6f691fe2e51c4674d}{\index{Grid@{Grid}!init\-\_\-2d\-\_\-shockwave\-\_\-bubble@{init\-\_\-2d\-\_\-shockwave\-\_\-bubble}}
+\index{init\-\_\-2d\-\_\-shockwave\-\_\-bubble@{init\-\_\-2d\-\_\-shockwave\-\_\-bubble}!Grid@{Grid}}
+\subsubsection[{init\-\_\-2d\-\_\-shockwave\-\_\-bubble}]{\setlength{\rightskip}{0pt plus 5cm}void Grid\-::init\-\_\-2d\-\_\-shockwave\-\_\-bubble (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGrid_a497011f31b5116f6f691fe2e51c4674d}
+Initialisierungsmethode für eine Schockwelle-\/auf-\/\-Blase-\/\-Simulation auf einem 2\-D-\/\-Raster 
+
+\subsection{Member Data Documentation}
+\hypertarget{classGrid_a68bd279fd3b1cee412e436b1f3848225}{\index{Grid@{Grid}!boundary\-\_\-conditions@{boundary\-\_\-conditions}}
+\index{boundary\-\_\-conditions@{boundary\-\_\-conditions}!Grid@{Grid}}
+\subsubsection[{boundary\-\_\-conditions}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ Grid\-::boundary\-\_\-conditions}}\label{classGrid_a68bd279fd3b1cee412e436b1f3848225}
+Dynamisch angelegtes Array je nach Dimension, dass die Art der Boundary Condition speichert \mbox{[}0\mbox{]} kleinster X-\/\-Wert, \mbox{[}1\mbox{]} größter X-\/\-Wert, \mbox{[}2\mbox{]} kleinster Y-\/\-Wert, ... \hypertarget{classGrid_aedb9b7d5ce1139730dc73a2f9e0e6edc}{\index{Grid@{Grid}!cellsgrid@{cellsgrid}}
+\index{cellsgrid@{cellsgrid}!Grid@{Grid}}
+\subsubsection[{cellsgrid}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$$\ast$ Grid\-::cellsgrid}}\label{classGrid_aedb9b7d5ce1139730dc73a2f9e0e6edc}
+Zellen werden in einem 2-\/dimensionalen Array abgespeichert. Die erste Dimension entspricht der Position und wird dann je nach Dimension des Rasters interpretiert. Die zweite Dimension entspricht den Zellwerten in der Reihenfolge\-: d, p, ux, uxr, uy, ... \hypertarget{classGrid_a2f725f73b6290e8c8527a6566ef07895}{\index{Grid@{Grid}!cellsgrid\-\_\-size@{cellsgrid\-\_\-size}}
+\index{cellsgrid\-\_\-size@{cellsgrid\-\_\-size}!Grid@{Grid}}
+\subsubsection[{cellsgrid\-\_\-size}]{\setlength{\rightskip}{0pt plus 5cm}int Grid\-::cellsgrid\-\_\-size}}\label{classGrid_a2f725f73b6290e8c8527a6566ef07895}
+Anzahl der Zellen \hypertarget{classGrid_af55897b809ffd9733f6723c8a23d89a5}{\index{Grid@{Grid}!choice@{choice}}
+\index{choice@{choice}!Grid@{Grid}}
+\subsubsection[{choice}]{\setlength{\rightskip}{0pt plus 5cm}int Grid\-::choice}}\label{classGrid_af55897b809ffd9733f6723c8a23d89a5}
+Wahl der Initialisierungsmethode des Rasters. \hypertarget{classGrid_a9e529cbb3ec0b42c8b232be05923a030}{\index{Grid@{Grid}!constants@{constants}}
+\index{constants@{constants}!Grid@{Grid}}
+\subsubsection[{constants}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Constants}$\ast$ Grid\-::constants}}\label{classGrid_a9e529cbb3ec0b42c8b232be05923a030}
+Pointer auf ein Objekt mit allen \hyperlink{classKonstanten}{Konstanten}, welche für die Berechnungen benötigt werden \begin{DoxySeeAlso}{See Also}
+\hyperlink{classConstants}{Constants} 
+\end{DoxySeeAlso}
+\hypertarget{classGrid_a6970f8edab2f84c576fc335f6d023f95}{\index{Grid@{Grid}!dimension@{dimension}}
+\index{dimension@{dimension}!Grid@{Grid}}
+\subsubsection[{dimension}]{\setlength{\rightskip}{0pt plus 5cm}int Grid\-::dimension}}\label{classGrid_a6970f8edab2f84c576fc335f6d023f95}
+Dimension des Rasters (Maximal 3). \hypertarget{classGrid_a7b4eea4e828ebda3ebdfe78b2f9a14d2}{\index{Grid@{Grid}!grid\-\_\-size@{grid\-\_\-size}}
+\index{grid\-\_\-size@{grid\-\_\-size}!Grid@{Grid}}
+\subsubsection[{grid\-\_\-size}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ Grid\-::grid\-\_\-size}}\label{classGrid_a7b4eea4e828ebda3ebdfe78b2f9a14d2}
+Anzahl der Zellen ohne Grenze \mbox{[}0\mbox{]} height / \mbox{[}1\mbox{]} width / \mbox{[}2\mbox{]} depth \hypertarget{classGrid_adbf3823ea45f6e5ae9210d44fbc7e79a}{\index{Grid@{Grid}!grid\-\_\-size\-\_\-total@{grid\-\_\-size\-\_\-total}}
+\index{grid\-\_\-size\-\_\-total@{grid\-\_\-size\-\_\-total}!Grid@{Grid}}
+\subsubsection[{grid\-\_\-size\-\_\-total}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ Grid\-::grid\-\_\-size\-\_\-total}}\label{classGrid_adbf3823ea45f6e5ae9210d44fbc7e79a}
+Anzahl der Zellenränder (+ 1) mit Grenze (ordnung $\ast$ 2) \mbox{[}0\mbox{]} Breite \mbox{[}1\mbox{]} Weite \mbox{[}2\mbox{]} Tiefe \hypertarget{classGrid_a599c5aadae9322d115d974cb395a83bf}{\index{Grid@{Grid}!orderofgrid@{orderofgrid}}
+\index{orderofgrid@{orderofgrid}!Grid@{Grid}}
+\subsubsection[{orderofgrid}]{\setlength{\rightskip}{0pt plus 5cm}int Grid\-::orderofgrid}}\label{classGrid_a599c5aadae9322d115d974cb395a83bf}
+Ordnung des Rasters Gibt an wie viele Nachbarwerte (pro Seite) miteinbezogen werden sollen 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+grid.\-h\item 
+grid.\-cpp\end{DoxyCompactItemize}

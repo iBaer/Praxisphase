@@ -30,71 +30,71 @@ Constants::Constants() {
 					calceigv = value;
 					cout << "Wert von calceigv ist " << value << endl;
 				}
-				if (name == "variante")
+				else if (name == "variante")
 					variante = value;
-				if (name == "teiler")
+				else if (name == "teiler")
 					teiler = value;
-				if (name == "teilerend")
+				else if (name == "teilerend")
 					teilerend = value;
-				if (name == "timeou")
+				else if (name == "timeou")
 					timeou = value;
-				if (name == "cfl")
+				else if (name == "cfl")
 					cfl = value;
-				if (name == "maxnt")
+				else if (name == "maxnt")
 					maxnt = value;
-				if (name == "dimension")
+				else if (name == "dimension")
 					dimension = value;
-				if (name == "ordnung")
+				else if (name == "ordnung")
 					order = value;
-				if (name == "radius")
+				else if (name == "radius")
 					radius = value;
-				if (name == "CELLSX")
+				else if (name == "CELLSX")
 					grid_size_x = value;
-				if (name == "CELLSY")
+				else if (name == "CELLSY")
 					grid_size_y = value;
-				if (name == "g")
+				else if (name == "g")
 					gamma = value;
-				if (name == "mol")
+				else if (name == "mol")
 					pos_x_min = value;
-				if (name == "mor")
+				else if (name == "mor")
 					pos_x_max = value;
-				if (name == "mul")
+				else if (name == "mul")
 					pos_y_min = value;
-				if (name == "mur")
+				else if (name == "mur")
 					pos_y_max = value;
-				if (name == "upbc")
+				else if (name == "upbc")
 					bc_y_max = value;
-				if (name == "downbc")
+				else if (name == "downbc")
 					bc_y_min = value;
-				if (name == "leftbc")
+				else if (name == "leftbc")
 					bc_x_min = value;
-				if (name == "rightbc")
+				else if (name == "rightbc")
 					bc_x_max = value;
-				if (name == "cref")
+				else if (name == "cref")
 					cref = value;
-				if (name == "done")
-					done = value;
-				if (name == "ccl")
+				else if (name == "done")
+					rho_one = value;
+				else if (name == "ccl")
 					ccl = value;
-				if (name == "rhol")
+				else if (name == "rhol")
 					rhol = value;
-				if (name == "vl")
+				else if (name == "vl")
 					vl = value;
-				if (name == "vrl")
+				else if (name == "vrl")
 					vrl = value;
-				if (name == "vyl")
+				else if (name == "vyl")
 					vyl = value;
-				if (name == "vyrl")
+				else if (name == "vyrl")
 					vyrl = value;
-				if (name == "rhor")
+				else if (name == "rhor")
 					rhor = value;
-				if (name == "vr")
+				else if (name == "vr")
 					vr = value;
-				if (name == "vrr")
+				else if (name == "vrr")
 					vrr = value;
-				if (name == "vyr")
+				else if (name == "vyr")
 					vyr = value;
-				if (name == "vyrr")
+				else if (name == "vyrr")
 					vyrr = value;
 
 				//const_name.push_back(name);
@@ -106,7 +106,7 @@ Constants::Constants() {
 		}
 	}
 
-    double alfll = 1.0 - rhol/done + ccl *(rhol/done);
+    double alfll = 1.0 - rhol/rho_one + ccl *(rhol/rho_one);
     double dll = ccl * (rhol/alfll);
     double pll = cref*pow(dll,gamma);
 

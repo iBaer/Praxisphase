@@ -86,8 +86,9 @@ Grid::Grid(int x, int y) {
 /**
  *****************************************************************************************
  * Konstruktor des Rasters.
- * @param const_in Pfad zur Datei, welche die initialisierungs Parameter enthält.
- * @param function_in Pfad zur Datei, in der die Initierungsfunktion steht.
+ * @param constants Pfad zur Datei, welche die Initialisierungs-Parameter enthält.
+ * @param save_in Pfad zur Datei mit dem Speicherstand.
+ * @param choice Gibt die zu verwendende Initialisierungsmethode an
  *****************************************************************************************/
 Grid::Grid(Constants *constants, string save_in, int choice) {
 	this->constants = constants;
@@ -152,7 +153,7 @@ Grid::Grid(Constants *constants, string save_in, int choice) {
 		//0 = Riemann-Problem; 1 = 1D Schockwelle;
 		switch (choice) {
 		case (0): {
-			init_1d_rarefraction();
+			init_1d_rarefaction();
 			break;
 		}
 		case (1): {
@@ -167,15 +168,15 @@ Grid::Grid(Constants *constants, string save_in, int choice) {
 		//3 = Schockwelle-auf-Blase-Simulation; 4 = Konfiguration laden
 		switch (choice) {
 		case (0): {
-			init_2d_rarefraction_0();
+			init_2d_rarefaction_0();
 			break;
 		}
 		case (1): {
-			init_2d_rarefraction_60();
+			init_2d_rarefaction_60();
 			break;
 		}
 		case (2): {
-			init_2d_rarefraction_45();
+			init_2d_rarefaction_45();
 			break;
 		}
 		case (3): {
@@ -210,9 +211,9 @@ Grid::~Grid() {
 
 /**
  *****************************************************************************************
- * boundary condition
+ * Anwenden der Randbedingungen
  *****************************************************************************************/
-void Grid::bcondi() {
+void Grid::apply_boundary_conditions() {
 
 	// TODO: ACHTUNG, FUER 2. ORDNUNG (und höher) NOCHMAL ALLE GRENZEN KONTROLLIEREN
 
@@ -334,10 +335,10 @@ void Grid::bcondi() {
 
 /**
  *****************************************************************************************
- * Gitter Initialisierungsmethoden
+ * Initialisierungsmethode für eine Verdünnungswelle auf einem 1D-Raster
  *****************************************************************************************/
 
-void Grid::init_1d_rarefraction() {
+void Grid::init_1d_rarefaction() {
 	double xpos = 0.0;
 	double mor = constants->pos_x_max;
 	double mol = constants->pos_x_min;
@@ -363,6 +364,10 @@ void Grid::init_1d_rarefraction() {
 	return;
 }
 
+/**
+ *****************************************************************************************
+ * Initialisierungsmethode für eine Schockwelle auf einem 1D-Raster
+ *****************************************************************************************/
 void Grid::init_1d_shockwave() {
 	double xpos = 0.0;
 	double mor = constants->pos_x_max;
@@ -383,7 +388,11 @@ void Grid::init_1d_shockwave() {
 	return;
 }
 
-void Grid::init_2d_rarefraction_0() {
+/**
+ *****************************************************************************************
+ * Initialisierungsmethode für eine Verdünnungswelle in X-Richtung auf einem 2D-Raster
+ *****************************************************************************************/
+void Grid::init_2d_rarefaction_0() {
 	double mor = constants->pos_x_max;
 	double mol = constants->pos_x_min;
 	/*double mur = konstanten->mur; //2D
@@ -434,7 +443,11 @@ void Grid::init_2d_rarefraction_0() {
 	return;
 }
 
-void Grid::init_2d_rarefraction_90() {
+/**
+ *****************************************************************************************
+ * Initialisierungsmethode für eine Verdünnungswelle in Y-Richtung auf einem 2D-Raster
+ *****************************************************************************************/
+void Grid::init_2d_rarefaction_90() {
 	//double mor = constants->mor;
 	//double mol = constants->mol;
 	double mur = constants->pos_y_max; //2D
@@ -484,7 +497,11 @@ void Grid::init_2d_rarefraction_90() {
 	return;
 }
 
-void Grid::init_2d_rarefraction_60() {
+/**
+ *****************************************************************************************
+ * Initialisierungsmethode für eine Verdünnungswelle in einem 60 Grad Winkel auf einem 2D-Raster
+ *****************************************************************************************/
+void Grid::init_2d_rarefaction_60() {
 	double mor = constants->pos_x_max;
 	double mol = constants->pos_x_min;
 	double mur = constants->pos_y_max; //2D
@@ -537,7 +554,11 @@ void Grid::init_2d_rarefraction_60() {
 	return;
 }
 
-void Grid::init_2d_rarefraction_45() {
+/**
+ *****************************************************************************************
+ * Initialisierungsmethode für eine Verdünnungswelle in einem 45 Grad Winkel auf einem 2D-Raster
+ *****************************************************************************************/
+void Grid::init_2d_rarefaction_45() {
 	double mor = constants->pos_x_max;
 	double mol = constants->pos_x_min;
 	double mur = constants->pos_y_max; //2D
@@ -589,6 +610,10 @@ void Grid::init_2d_rarefraction_45() {
 	return;
 }
 
+/**
+ *****************************************************************************************
+ * Initialisierungsmethode für eine Schockwelle-auf-Blase-Simulation auf einem 2D-Raster
+ *****************************************************************************************/
 void Grid::init_2d_shockwave_bubble() {
 	double mor = constants->pos_x_max;
 	double mol = constants->pos_x_min;
@@ -640,6 +665,10 @@ void Grid::init_2d_shockwave_bubble() {
 	return;
 }
 
+/**
+ *****************************************************************************************
+ * Initialisierungsmethode mit einem Speicherstand auf einem 2D-Raster
+ *****************************************************************************************/
 void Grid::init_2d_load_file(std::string save_in) {
 
 	//TODO: Savefile Auswahl

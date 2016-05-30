@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 
-#include "exprtk.hpp"
 #include "constants.h"
 #include "grid.h"
 
@@ -107,7 +106,7 @@ class Computation
 	double cref;
 	double done;
 	double ccl;
-	double gc;
+	double gamma;
 
 	double ccl12;
 	double ccl12h;

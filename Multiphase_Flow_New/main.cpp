@@ -6,6 +6,12 @@
 
 using namespace std;
 
+/**
+ *****************************************************************************************
+ * Main Methode, sämtliche Entscheidungen werden hier getroffen.
+ * Die einzelnen Konstruktoren/Methoden kümmern sich um den Rest.
+ *******************************************1**********************************************/
+
 int main()
 {
 	Solver* solver;
@@ -81,7 +87,7 @@ int main()
     	cout << "No valid method selected"<<endl<<"Closing Simulator"<<endl;
     	return 0;
     }
-    numerische_methode num_meth(solver,&constants,&computation, &grid);
+    Numerical_Method num_meth(solver,&constants,&computation, &grid);
 
     /*** Wahl der Splitting Methode ***/
 	if (constants.dimension >= 2) {
@@ -94,14 +100,14 @@ int main()
 	}
     /**********************************/
 
-    /*** Wahl ob Output pro Schritt ***/
+    /*** Wahl ob Outputfile pro Schritt erzeugt werden soll ***/
 	cout << "Stepwise Output?"<<endl;
 	cout << "[0] No"<< endl;
 	cout << "[1] Yes"<< endl;
 	cout << "Choice: ";
 	cin >> num_meth.step_output;
 	cout << endl;
-    /**********************************/
+    /**********************************************************/
 
     num_meth.start_method();
 

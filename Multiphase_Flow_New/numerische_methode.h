@@ -177,10 +177,9 @@ public:
 			double done, double dtwo, double ccl, double g, double ct,
 			double cref);
 
-	//void cfl_1d_eigenvalues(int n, double &time);
-	//void cfl_1d_approx(int n, double &time);
-	//void cfl_2d_eigenvalues(int n, double &time);
-	//void cfl_1d_eigenvalues(int n, double &time);
+	void cfl_1d_eigenvalues(int n, double &time);
+	void cfl_1d_approx(int n, double &time);
+	void cfl_2d_eigenvalues(int n, double &time);
 	//void cfl_1d_eigenvalues(int n, double &time);
 
 };

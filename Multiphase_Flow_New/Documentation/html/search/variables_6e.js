@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['name',['name',['../classnumerische__methode.html#a08429f7cae828958ced4b62db2cf1021',1,'numerische_methode']]],
-  ['neqs',['neqs',['../classGleichungssystem.html#adaefa4c9c8f13d106d50193d5c187677',1,'Gleichungssystem']]]
+  ['neqs',['neqs',['../classComputation.html#a927cc1ebb3cadf7a465eb8cd1144beed',1,'Computation::neqs()'],['../classLax__Friedrich.html#a54f821dda8e829ce85adc3afc77dce49',1,'Lax_Friedrich::neqs()']]]
 ];

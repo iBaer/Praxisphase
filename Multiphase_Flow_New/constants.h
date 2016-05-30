@@ -59,7 +59,7 @@ class Constants
 	int bc_x_min;
 	int bc_x_max;
 	double cref;
-	double done;
+	double rho_one;
 	double ccl;
 	double rhol;
 	double vl;

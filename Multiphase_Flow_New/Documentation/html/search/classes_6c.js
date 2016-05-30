@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['laxfriedrichmethod',['LaxFriedrichMethod',['../classLaxFriedrichMethod.html',1,'']]]
+  ['lax_5ffriedrich',['Lax_Friedrich',['../classLax__Friedrich.html',1,'']]]
 ];

@@ -4,8 +4,11 @@ using namespace std;
 
 /**
  *****************************************************************************************
- * Konstruktor von der Klasse LaxFriedrichMethod.
- * Ruft einfach den Konstrukter von der geerbten Klasse auf.
+* Konstruktor von der Klasse Lax_Friedrich.
+* Ruft den Konstruktor der Superklasse Solver auf.
+* @param constants Pointer auf das Objekt, welches die Konstanten enthält.
+* @param computation Pointer auf das Objekt, das für die Berechnungen benötigt wird.
+* @param grid Pointer auf Raster-Objekt.
  *****************************************************************************************/
 Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Grid *grid) :
 		Solver("Lax-Friedrich", constants, computation, grid) {
@@ -41,10 +44,12 @@ Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Gri
 		f_lax[i] = new double[neqs * (size_m1[0]) * (size_m1[1])];
 	}
 
-
-
 }
 
+/**
+ *****************************************************************************************
+* Destruktor
+ *****************************************************************************************/
 Lax_Friedrich::~Lax_Friedrich() {
 	delete[] uall;
 	delete[] fall;
@@ -66,17 +71,13 @@ Lax_Friedrich::~Lax_Friedrich() {
 
 /**
  *****************************************************************************************
- * Berechnung des Lax-Friedrich Flusses.
- * @return Das zurückgelieferte Objekt ist ein Vektor mit 4 Dimensionen
- *         (Formel,grid x-Koordinate,grid y-Koordinate, Flussrichtung)
- *
- * Zur Zeit wird hier noch viel zu viel berechnet, wenn der Fluss nur in eine Richtung
- * benötigt wird!!
- * Weiterhin müssen die Laufvariablen neu sortiert werden !!
+* Implementierung der virtuellen Methode zur Berechnung des Flußes.
+* Wählt lediglich das gewünschte Schema aus und delegiert die Berechnung weiter.
+* @param dt Delta t.
+* @param dir Unsplitting = 0, Splitting = 1.
  *****************************************************************************************/
-double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
+void Lax_Friedrich::calc_method_flux(double dt, int dir) {
 	cout << "Lax-Friedrich Fluss berechnen..." << endl;
-
 
 	switch (dimension) {
 	// Eine Dimension
@@ -99,9 +100,14 @@ double* Lax_Friedrich::calc_method_flux(double dt, int dir) {
 	}
 	}
 
-	return f_lax[0];
 }
 
+/**
+ *****************************************************************************************
+* Untermethode, die die Berechnung des Lax-Friedrich-Flusses
+* und das Updaten der Zellen für eine Dimension durchführt.
+* @param dt Delta t.
+ *****************************************************************************************/
 void Lax_Friedrich::solve_1d(double dt){
 	int order = grid->orderofgrid;
 	double dtodx = dt / dx;
@@ -142,6 +148,12 @@ void Lax_Friedrich::solve_1d(double dt){
 	}
 }
 
+/**
+ *****************************************************************************************
+* Untermethode, die die Berechnung des Lax-Friedrich-Flusses
+* und das Updaten der Zellen für zwei Dimension durchführt.
+* @param dt Delta t.
+ *****************************************************************************************/
 void Lax_Friedrich::solve_2d_unsplit(double dt){
 	int order = grid->orderofgrid;
 	double dtodx = dt / dx;
@@ -224,6 +236,12 @@ void Lax_Friedrich::solve_2d_unsplit(double dt){
 	}
 }
 
+/**
+ *****************************************************************************************
+* Untermethode, die die Berechnung des Lax-Friedrich-Flusses
+* und das Updaten der Zellen für zwei Dimensionen mit dem konventionellen Splitting-Schema durchführt.
+* @param dt Delta t.
+ *****************************************************************************************/
 void Lax_Friedrich::solve_2d_split(double dt){
 	int order = grid->orderofgrid;
 		double dtodx = dt / dx;
@@ -287,7 +305,7 @@ void Lax_Friedrich::solve_2d_split(double dt){
 			}
 		}
 
-		grid->bcondi();
+		grid->apply_boundary_conditions();
 
 		// ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
 		// ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['ordnung',['ordnung',['../classnumerische__methode.html#ab95e5de8e6d9d0a63e4110dea60825e8',1,'numerische_methode']]]
+  ['order',['order',['../classNumerical__Method.html#a711b3c69b3bd338fd8c2ee5c4396ba7b',1,'Numerical_Method']]],
+  ['orderofgrid',['orderofgrid',['../classGrid.html#a599c5aadae9322d115d974cb395a83bf',1,'Grid']]]
 ];
