@@ -27,7 +27,7 @@ Constants::Constants() {
 						line.substr(line.find(" ") + 1,
 								line.size() - line.find(" ") - 1).c_str());
 				if (name == "calceigv") {
-					calceigv = value;
+					cfl_with_eig = value;
 					cout << "Wert von calceigv ist " << value << endl;
 				}
 				else if (name == "variante")
@@ -77,25 +77,25 @@ Constants::Constants() {
 				else if (name == "ccl")
 					ccl = value;
 				else if (name == "rhol")
-					rhol = value;
+					rho_left = value;
 				else if (name == "vl")
-					vl = value;
+					v_left = value;
 				else if (name == "vrl")
-					vrl = value;
+					v_r_left = value;
 				else if (name == "vyl")
-					vyl = value;
+					v_y_left = value;
 				else if (name == "vyrl")
-					vyrl = value;
+					v_r_y_left = value;
 				else if (name == "rhor")
-					rhor = value;
+					rho_right = value;
 				else if (name == "vr")
-					vr = value;
+					v_right = value;
 				else if (name == "vrr")
-					vrr = value;
+					v_r_right = value;
 				else if (name == "vyr")
-					vyr = value;
+					v_y_right = value;
 				else if (name == "vyrr")
-					vyrr = value;
+					v_r_y_right = value;
 
 				//const_name.push_back(name);
 				//const_value.push_back(value);
@@ -106,11 +106,11 @@ Constants::Constants() {
 		}
 	}
 
-    double alfll = 1.0 - rhol/rho_one + ccl *(rhol/rho_one);
-    double dll = ccl * (rhol/alfll);
+    double alfll = 1.0 - rho_left/rho_one + ccl *(rho_left/rho_one);
+    double dll = ccl * (rho_left/alfll);
     double pll = cref*pow(dll,gamma);
 
-    ct = pll/pow(rhol,gamma);
+    ct = pll/pow(rho_left,gamma);
 
 }
 

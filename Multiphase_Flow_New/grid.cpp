@@ -24,7 +24,7 @@ using namespace std;
  * Konstruktor für ein leeres eindimensionales Raster.
  *****************************************************************************************/
 Grid::Grid(int x) {
-	/*** currently unused ***/
+	/*** TODO: currently unused ***/
 	this->constants = 0;
 	this->choice = 0;
 	orderofgrid = 0;
@@ -207,6 +207,7 @@ Grid::~Grid() {
 	delete[] cellsgrid;
 	delete[] grid_size_total;
 	delete[] grid_size;
+	delete[] boundary_conditions;
 }
 
 /**
@@ -219,6 +220,7 @@ void Grid::apply_boundary_conditions() {
 
 	switch (dimension) {
 	case (1): {
+		// BC links
 		if (boundary_conditions[0] == 0) {
 			cellsgrid[0][0] = cellsgrid[orderofgrid][0];
 			cellsgrid[0][2] = cellsgrid[orderofgrid][2];
@@ -232,6 +234,7 @@ void Grid::apply_boundary_conditions() {
 		int index_dst = grid_size_total[0] - orderofgrid;
 		int index_src = index_dst - 1;
 
+		// BC Rechts
 		if (boundary_conditions[1] == 0) {
 			cellsgrid[index_dst][0] = cellsgrid[index_src][0];
 			cellsgrid[index_dst][2] = cellsgrid[index_src][2];
@@ -340,25 +343,25 @@ void Grid::apply_boundary_conditions() {
 
 void Grid::init_1d_rarefaction() {
 	double xpos = 0.0;
-	double mor = constants->pos_x_max;
-	double mol = constants->pos_x_min;
-	double rhol = constants->rhol;
-	double vl = constants->vl;
-	double vrl = constants->vrl;
-	double rhor = constants->rhor;
-	double vr = constants->vr;
-	double vrr = constants->vrr;
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
+	double rho_left = constants->rho_left;
+	double v_left = constants->v_left;
+	double v_r_left = constants->v_r_left;
+	double rho_right = constants->rho_right;
+	double v_right = constants->v_right;
+	double v_r_right = constants->v_r_right;
 
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
-		xpos = mol + (mor - mol) * ((double) (n - orderofgrid) / grid_size[0]);
+		xpos = pos_x_min + (pos_x_max - pos_x_min) * ((double) (n - orderofgrid) / grid_size[0]);
 		if (xpos <= 0.0) {
-			cellsgrid[n][0] = rhol;
-			cellsgrid[n][2] = vl;
-			cellsgrid[n][3] = vrl;
+			cellsgrid[n][0] = rho_left;
+			cellsgrid[n][2] = v_left;
+			cellsgrid[n][3] = v_r_left;
 		} else {
-			cellsgrid[n][0] = rhor;
-			cellsgrid[n][2] = vr;
-			cellsgrid[n][3] = vrr;
+			cellsgrid[n][0] = rho_right;
+			cellsgrid[n][2] = v_right;
+			cellsgrid[n][3] = v_r_right;
 		}
 	}
 	return;
@@ -370,11 +373,11 @@ void Grid::init_1d_rarefaction() {
  *****************************************************************************************/
 void Grid::init_1d_shockwave() {
 	double xpos = 0.0;
-	double mor = constants->pos_x_max;
-	double mol = constants->pos_x_min;
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
 
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
-		xpos = mol + (mor - mol) * ((double) (n - orderofgrid) / grid_size[0]);
+		xpos = pos_x_min + (pos_x_max - pos_x_min) * ((double) (n - orderofgrid) / grid_size[0]);
 		if (xpos == 0.0) {
 			cellsgrid[n][0] = 1323;
 			cellsgrid[n][2] = 100000;
@@ -393,49 +396,49 @@ void Grid::init_1d_shockwave() {
  * Initialisierungsmethode für eine Verdünnungswelle in X-Richtung auf einem 2D-Raster
  *****************************************************************************************/
 void Grid::init_2d_rarefaction_0() {
-	double mor = constants->pos_x_max;
-	double mol = constants->pos_x_min;
-	/*double mur = konstanten->mur; //2D
-	 double mul = konstanten->mul; //2D*/
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
+	/*double pos_y_max = konstanten->pos_y_max; //2D
+	 double pos_y_min = konstanten->pos_y_min; //2D*/
 
 	double xpos = 0.0;
 	//double ypos = 0.0;  //2D
 
-	double rhol = constants->rhol;
-	double vl = constants->vl;
-	double vrl = constants->vrl;
-	double vyl = constants->vyl;
-	double vyrl = constants->vyrl;
-	double rhor = constants->rhor;
-	double vr = constants->vr;
-	double vrr = constants->vrr;
-	double vyr = constants->vyr;
-	double vyrr = constants->vyrr;
+	double rho_left = constants->rho_left;
+	double v_left = constants->v_left;
+	double v_r_left = constants->v_r_left;
+	double vyl = constants->v_y_left;
+	double v_r_y_left = constants->v_r_y_left;
+	double rho_right = constants->rho_right;
+	double v_right = constants->v_right;
+	double v_r_right = constants->v_r_right;
+	double vyr = constants->v_y_right;
+	double v_r_y_right = constants->v_r_y_right;
 
 	cout << "Gerade parallel zur y-Achse" << endl;
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
 		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
-			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
-			/*ypos = mul
-			 + (mur - mul)
+			xpos = pos_x_min + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			/*ypos = pos_y_min
+			 + (pos_y_max - pos_y_min)
 			 * (((double) m - orderofgrid)
 			 / (double) grid_size[1]);*/
 
 			int index = n + m * grid_size_total[0];
 
 			if (xpos <= 0.0) {
-				cellsgrid[index][0] = rhol;
-				cellsgrid[index][2] = vl;
-				cellsgrid[index][3] = vrl;
+				cellsgrid[index][0] = rho_left;
+				cellsgrid[index][2] = v_left;
+				cellsgrid[index][3] = v_r_left;
 				cellsgrid[index][4] = vyl;
-				cellsgrid[index][5] = vyrl;
+				cellsgrid[index][5] = v_r_y_left;
 
 			} else {
-				cellsgrid[index][0] = rhor;
-				cellsgrid[index][2] = vr;
-				cellsgrid[index][3] = vrr;
+				cellsgrid[index][0] = rho_right;
+				cellsgrid[index][2] = v_right;
+				cellsgrid[index][3] = v_r_right;
 				cellsgrid[index][4] = vyr;
-				cellsgrid[index][5] = vyrr;
+				cellsgrid[index][5] = v_r_y_right;
 
 			}
 		}
@@ -448,48 +451,48 @@ void Grid::init_2d_rarefaction_0() {
  * Initialisierungsmethode für eine Verdünnungswelle in Y-Richtung auf einem 2D-Raster
  *****************************************************************************************/
 void Grid::init_2d_rarefaction_90() {
-	//double mor = constants->mor;
-	//double mol = constants->mol;
-	double mur = constants->pos_y_max; //2D
-	double mul = constants->pos_y_min; //2D
+	//double pos_x_max = constants->pos_x_max;
+	//double pos_x_min = constants->pos_x_min;
+	double pos_y_max = constants->pos_y_max; //2D
+	double pos_y_min = constants->pos_y_min; //2D
 
 	//double xpos = 0.0;
 	double ypos = 0.0;  //2D
 
-	double rhol = constants->rhol;
-	double vl = constants->vl;
-	double vrl = constants->vrl;
-	double vyl = constants->vyl;
-	double vyrl = constants->vyrl;
-	double rhor = constants->rhor;
-	double vr = constants->vr;
-	double vrr = constants->vrr;
-	double vyr = constants->vyr;
-	double vyrr = constants->vyrr;
+	double rho_left = constants->rho_left;
+	double v_left = constants->v_left;
+	double v_r_left = constants->v_r_left;
+	double vyl = constants->v_y_left;
+	double v_r_y_left = constants->v_r_y_left;
+	double rho_right = constants->rho_right;
+	double v_right = constants->v_right;
+	double v_r_right = constants->v_r_right;
+	double vyr = constants->v_y_right;
+	double v_r_y_right = constants->v_r_y_right;
 
 	cout << "Gerade parallel zur y-Achse" << endl;
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
 		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
-			/*xpos = mol
-			 + (mor - mol)
+			/*xpos = pos_x_min
+			 + (pos_x_max - pos_x_min)
 			 * (((double) n - orderofgrid)
 			 / (double) grid_size[0]);*/
-			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+			ypos = pos_y_min + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
 
 			int index = n + m * grid_size_total[1];
 			if (ypos <= 0.0) {
-				cellsgrid[index][0] = rhol;
-				cellsgrid[index][2] = vl;
-				cellsgrid[index][3] = vrl;
+				cellsgrid[index][0] = rho_left;
+				cellsgrid[index][2] = v_left;
+				cellsgrid[index][3] = v_r_left;
 				cellsgrid[index][4] = vyl;
-				cellsgrid[index][5] = vyrl;
+				cellsgrid[index][5] = v_r_y_left;
 
 			} else {
-				cellsgrid[index][0] = rhor;
-				cellsgrid[index][2] = vr;
-				cellsgrid[index][3] = vrr;
+				cellsgrid[index][0] = rho_right;
+				cellsgrid[index][2] = v_right;
+				cellsgrid[index][3] = v_r_right;
 				cellsgrid[index][4] = vyr;
-				cellsgrid[index][5] = vyrr;
+				cellsgrid[index][5] = v_r_y_right;
 
 			}
 		}
@@ -502,52 +505,52 @@ void Grid::init_2d_rarefaction_90() {
  * Initialisierungsmethode für eine Verdünnungswelle in einem 60 Grad Winkel auf einem 2D-Raster
  *****************************************************************************************/
 void Grid::init_2d_rarefaction_60() {
-	double mor = constants->pos_x_max;
-	double mol = constants->pos_x_min;
-	double mur = constants->pos_y_max; //2D
-	double mul = constants->pos_y_min; //2D
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
+	double pos_y_max = constants->pos_y_max; //2D
+	double pos_y_min = constants->pos_y_min; //2D
 
-	double dx = (mor - mol) / (double) grid_size[0];
+	double dx = (pos_x_max - pos_x_min) / (double) grid_size[0];
 
 	double xpos = 0.0;
 	double ypos = 0.0;  //2D
 
-	double rhol = constants->rhol;
-	double vl = constants->vl;
-	double vrl = constants->vrl;
-	double vyrl = constants->vyrl;
-	double rhor = constants->rhor;
-	double vr = constants->vr;
-	double vrr = constants->vrr;
-	double vyrr = constants->vyrr;
+	double rho_left = constants->rho_left;
+	double v_left = constants->v_left;
+	double v_r_left = constants->v_r_left;
+	double v_r_y_left = constants->v_r_y_left;
+	double rho_right = constants->rho_right;
+	double v_right = constants->v_right;
+	double v_r_right = constants->v_r_right;
+	double v_r_y_right = constants->v_r_y_right;
 
 	cout << "Gerade mit der Gleichung ypos=" << WINKEL_60F << " als Grenze " << endl;
 
 	double alpha = ALPHA_60 * M_PI / 180.0;
-	double vxl_winkel = -fabs(vl) * sin(alpha);
-	double vyl_winkel = fabs(vl) * cos(alpha);
-	double vxr_winkel = fabs(vr) * sin(alpha);
-	double vyr_winkel = -fabs(vr) * cos(alpha);
+	double vxl_winkel = -fabs(v_left) * sin(alpha);
+	double vyl_winkel = fabs(v_left) * cos(alpha);
+	double vxr_winkel = fabs(v_right) * sin(alpha);
+	double vyr_winkel = -fabs(v_right) * cos(alpha);
 
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
 		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
-			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
-			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+			xpos = pos_x_min + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = pos_y_min + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
 
 			int index = n + m * grid_size_total[0];
 
 			if (ypos >= WINKEL_60(xpos, dx)) {
-				cellsgrid[index][0] = rhol;
+				cellsgrid[index][0] = rho_left;
 				cellsgrid[index][2] = vxl_winkel;
-				cellsgrid[index][3] = vrl;
+				cellsgrid[index][3] = v_r_left;
 				cellsgrid[index][4] = vyl_winkel;
-				cellsgrid[index][5] = vyrl;
+				cellsgrid[index][5] = v_r_y_left;
 			} else {
-				cellsgrid[index][0] = rhor;
+				cellsgrid[index][0] = rho_right;
 				cellsgrid[index][2] = vxr_winkel;
-				cellsgrid[index][3] = vrr;
+				cellsgrid[index][3] = v_r_right;
 				cellsgrid[index][4] = vyr_winkel;
-				cellsgrid[index][5] = vyrr;
+				cellsgrid[index][5] = v_r_y_right;
 			}
 		}
 	}
@@ -559,51 +562,51 @@ void Grid::init_2d_rarefaction_60() {
  * Initialisierungsmethode für eine Verdünnungswelle in einem 45 Grad Winkel auf einem 2D-Raster
  *****************************************************************************************/
 void Grid::init_2d_rarefaction_45() {
-	double mor = constants->pos_x_max;
-	double mol = constants->pos_x_min;
-	double mur = constants->pos_y_max; //2D
-	double mul = constants->pos_y_min; //2D
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
+	double pos_y_max = constants->pos_y_max; //2D
+	double pos_y_min = constants->pos_y_min; //2D
 
-	double dx = (mor - mol) / (double) grid_size[0];
+	double dx = (pos_x_max - pos_x_min) / (double) grid_size[0];
 
 	double xpos = 0.0;
 	double ypos = 0.0;  //2D
 
-	double rhol = constants->rhol;
-	double vl = constants->vl;
-	double vrl = constants->vrl;
-	double vyrl = constants->vyrl;
-	double rhor = constants->rhor;
-	double vr = constants->vr;
-	double vrr = constants->vrr;
-	double vyrr = constants->vyrr;
+	double rho_left = constants->rho_left;
+	double v_left = constants->v_left;
+	double v_r_left = constants->v_r_left;
+	double v_r_y_left = constants->v_r_y_left;
+	double rho_right = constants->rho_right;
+	double v_right = constants->v_right;
+	double v_r_right = constants->v_r_right;
+	double v_r_y_right = constants->v_r_y_right;
 
 	cout << "Gerade mit der Gleichung ypos=" << WINKEL_45F << " als Grenze " << endl;
 
 	double alpha = ALPHA_45 * M_PI / 180.0;
-	double vxl_winkel = -fabs(vl) * sin(alpha);
-	double vyl_winkel = fabs(vl) * cos(alpha);
-	double vxr_winkel = fabs(vr) * sin(alpha);
-	double vyr_winkel = -fabs(vr) * cos(alpha);
+	double vxl_winkel = -fabs(v_left) * sin(alpha);
+	double vyl_winkel = fabs(v_left) * cos(alpha);
+	double vxr_winkel = fabs(v_right) * sin(alpha);
+	double vyr_winkel = -fabs(v_right) * cos(alpha);
 
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
 		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
-			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
-			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+			xpos = pos_x_min + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = pos_y_min + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
 
 			int index = n + m * grid_size_total[0];
 			if (ypos >= WINKEL_45(xpos, dx)) {
-				cellsgrid[index][0] = rhol;
+				cellsgrid[index][0] = rho_left;
 				cellsgrid[index][2] = vxl_winkel;
-				cellsgrid[index][3] = vrl;
+				cellsgrid[index][3] = v_r_left;
 				cellsgrid[index][4] = vyl_winkel;
-				cellsgrid[index][5] = vyrl;
+				cellsgrid[index][5] = v_r_y_left;
 			} else {
-				cellsgrid[index][0] = rhor;
+				cellsgrid[index][0] = rho_right;
 				cellsgrid[index][2] = vxr_winkel;
-				cellsgrid[index][3] = vrr;
+				cellsgrid[index][3] = v_r_right;
 				cellsgrid[index][4] = vyr_winkel;
-				cellsgrid[index][5] = vyrr;
+				cellsgrid[index][5] = v_r_y_right;
 			}
 		}
 	}
@@ -615,12 +618,12 @@ void Grid::init_2d_rarefaction_45() {
  * Initialisierungsmethode für eine Schockwelle-auf-Blase-Simulation auf einem 2D-Raster
  *****************************************************************************************/
 void Grid::init_2d_shockwave_bubble() {
-	double mor = constants->pos_x_max;
-	double mol = constants->pos_x_min;
-	double mur = constants->pos_y_max; //2D
-	double mul = constants->pos_y_min; //2D
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
+	double pos_y_max = constants->pos_y_max; //2D
+	double pos_y_min = constants->pos_y_min; //2D
 
-	double dx = (mor - mol) / (double) grid_size[0];
+	double dx = (pos_x_max - pos_x_min) / (double) grid_size[0];
 
 	double xpos = 0.0;
 	double ypos = 0.0;  //2D
@@ -631,8 +634,8 @@ void Grid::init_2d_shockwave_bubble() {
 
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
 		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
-			xpos = mol + (mor - mol) * (((double) n - orderofgrid) / (double) grid_size[0]);
-			ypos = mul + (mur - mul) * (((double) m - orderofgrid) / (double) grid_size[1]);
+			xpos = pos_x_min + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = pos_y_min + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
 
 			int index = n + m * grid_size_total[0];
 
@@ -651,10 +654,10 @@ void Grid::init_2d_shockwave_bubble() {
 		}
 	}
 
-	//int shockwave_pos = mor + 1.8/(mor - mol);
-	//int shockwave_zell = 1.8/(mor - mol)*cells[0];
-	int shockwave_zell = 0.5 * (mor - mol) / (mor - mol) * grid_size[0];
-	double shockwave_pos = mol + shockwave_zell * dx;
+	//int shockwave_pos = pos_x_max + 1.8/(pos_x_max - pos_x_min);
+	//int shockwave_zell = 1.8/(pos_x_max - pos_x_min)*cells[0];
+	int shockwave_zell = 0.5 * (pos_x_max - pos_x_min) / (pos_x_max - pos_x_min) * grid_size[0];
+	double shockwave_pos = pos_x_min + shockwave_zell * dx;
 	cout << "Schockwelle bei " << shockwave_pos << ", x-Zelle " << shockwave_zell << endl;
 	for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
 		int index = shockwave_zell + m * grid_size_total[0];

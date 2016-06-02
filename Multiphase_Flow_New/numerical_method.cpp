@@ -40,7 +40,7 @@ Numerical_Method::Numerical_Method(Solver* solver, Constants* constants, Computa
 	time_limit = constants->timeou;
 	steps = 0;
 	step_limit = constants->maxnt;
-	divider_end = constants->teilerend;
+	divider_last = constants->teilerend;
 	divider = constants->teiler;
 	cfl_option = (int) constants->variante;
 
@@ -55,7 +55,7 @@ Numerical_Method::Numerical_Method(Solver* solver, Constants* constants, Computa
 	ct = constants->ct;
 
 	with_splitting = 1;
-	step_output = 0;
+	output_per_step = 0;
 	/*if (dimension == 2) {
 	 std::cout << "Wahl!" << endl << " 1: unsplitting, 2: splitting:";
 	 std::cin >> with_splitting;
@@ -79,7 +79,7 @@ void Numerical_Method::start_method() {
 	double time = 0.0, timetol = 0.000001, timedif = 1.0;
 
 	// Falls kein Schleifendurchgang gemacht wird
-	if (step_output == 1)
+	if (output_per_step == 1)
 		write();
 
 	for (int n = 1; n <= step_limit && timedif > timetol; n++) {
@@ -88,7 +88,7 @@ void Numerical_Method::start_method() {
 		// set boundary conditions
 
 		grid_main->apply_boundary_conditions();
-		if (step_output == 1)
+		if (output_per_step == 1)
 			write();
 
 		// compute time step
@@ -123,8 +123,8 @@ double Numerical_Method::cfl_condition(int n, double time) {
 	switch (dimension) {
 	case (1): {
 		//1D
-		if ((int) constants->calceigv == 1)
-		//1 = true, smax wird über Eigenwerte bestimmt
+		if ((int) constants->cfl_with_eig == 1)
+		//1 = true, v_max wird über Eigenwerte bestimmt
 		{
 			cfl_1d_eigenvalues(n, time);
 		}
@@ -140,14 +140,14 @@ double Numerical_Method::cfl_condition(int n, double time) {
 		//2 Dimensionen
 
 		// 0 heisst, 1-d analytische Loseung verwenden,
-		// 1 heisst, smax wird über Eigenwerte bestimmt
+		// 1 heisst, v_max wird über Eigenwerte bestimmt
 
-		if ((int) constants->calceigv == 0) {
+		if ((int) constants->cfl_with_eig == 0) {
 			cfl_2d_approx(n, time);
 		}
 
 		// 0 heisst, 1-d analytische Loseung verwenden,
-		// 1 heisst, smax wird über Eigenwerte bestimmt
+		// 1 heisst, v_max wird über Eigenwerte bestimmt
 		else {
 			cfl_2d_eigenvalues(n, time);
 		}
@@ -170,11 +170,11 @@ void Numerical_Method::write() {
 
 	if (dimension == 1) {
 		added = to_string(grid_size[0]) + "_" + solver_name + "_" + to_string(dimension) + "d_" + to_string(cfl_option) + ".variant_" + "div" + to_string(divider)
-				+ "till" + to_string((int) divider_end) + "_" + to_string(steps) + "Steps";
+				+ "till" + to_string((int) divider_last) + "_" + to_string(steps) + "Steps";
 
 	} else {
 		added = to_string(grid_size[0]) + "x" + to_string(grid_size[1]) + "_" + solver_name + "_" + to_string(dimension) + "d_split" + to_string(with_splitting)
-				+ "_IC" + to_string(grid_main->choice) + "_div" + to_string(int(1. / divider)) + "till" + to_string((int) divider_end) + "_" + to_string(steps)
+				+ "_IC" + to_string(grid_main->choice) + "_div" + to_string(int(1. / divider)) + "till" + to_string((int) divider_last) + "_" + to_string(steps)
 				+ "Steps";
 	}
 
@@ -326,11 +326,13 @@ void Numerical_Method::write() {
  *****************************************************************************************/
 
 //TODO: Parameter kürzen
+//TODO: Matrix hängt von neqs², ist hier aber fix
 void Numerical_Method::matrix_1d(double * values, int n, double * u, double p, double dtwo, int variante) {
 	double cref = constants->cref;
 	double ccl = constants->ccl;
-	double done = constants->rho_one;
+	double rho_one = constants->rho_one;
 
+	// Index für u[index] um 1 niedriger als in den Gleichungen
 	switch (variante) {
 	case (1):
 		values[0] = 0;
@@ -339,7 +341,7 @@ void Numerical_Method::matrix_1d(double * values, int n, double * u, double p, d
 		values[3] = -(u[1] * u[1]) / (u[0] * u[0]) + ccl * (1 - ccl) * u[2] * u[2] + gamma * ct * pow(u[0], gamma - 1.0);
 		values[4] = (2 * u[1]) / u[0];
 		values[5] = u[0] * ccl * (1.0 - ccl) * 2.0 * u[2];
-		values[6] = -u[1] / (u[0] * u[0]) * u[2] + pow(cref / ct, 1.0 / gamma) * gamma * ct * pow(u[0], gamma - 2.0) - (gamma * ct * pow(u[0], gamma - 1.0)) / done;
+		values[6] = -u[1] / (u[0] * u[0]) * u[2] + pow(cref / ct, 1.0 / gamma) * gamma * ct * pow(u[0], gamma - 2.0) - (gamma * ct * pow(u[0], gamma - 1.0)) / rho_one;
 		values[7] = u[2] / u[0];
 		values[8] = (u[1] / u[0]) + (1.0 - 2.0 * ccl) * u[2];
 		break;
@@ -348,11 +350,11 @@ void Numerical_Method::matrix_1d(double * values, int n, double * u, double p, d
 		values[1] = 1;
 		values[2] = 0;
 		values[3] = -(u[1] * u[1]) / (u[0] * u[0]) + ccl * (1 - ccl) * u[2] * u[2]
-				+ cref * gamma * pow(done, gamma - 1.0) * (ccl * done * done) / pow(done + (ccl - 1.0) * u[0], 2.0);
+				+ cref * gamma * pow(rho_one, gamma - 1.0) * (ccl * rho_one * rho_one) / pow(rho_one + (ccl - 1.0) * u[0], 2.0);
 		values[4] = (2 * u[1]) / u[0];
 		values[5] = u[0] * ccl * (1.0 - ccl) * 2.0 * u[2];
 		values[6] = -u[1] / (u[0] * u[0]) * u[2]
-				+ cref * (gamma * pow(dtwo, gamma - 2.0) - (gamma * pow(dtwo, gamma - 1.0)) / done) * (ccl * done * done) / pow(done + (ccl - 1.0) * u[0], 2.0);
+				+ cref * (gamma * pow(dtwo, gamma - 2.0) - (gamma * pow(dtwo, gamma - 1.0)) / rho_one) * (ccl * rho_one * rho_one) / pow(rho_one + (ccl - 1.0) * u[0], 2.0);
 		values[7] = u[2] / u[0];
 		values[8] = (u[1] / u[0]) + (1.0 - 2.0 * ccl) * u[2];
 		break;
@@ -363,7 +365,7 @@ void Numerical_Method::matrix_1d(double * values, int n, double * u, double p, d
 		values[3] = -(u[1] * u[1]) / (u[0] * u[0]) + ccl * (1 - ccl) * u[2] * u[2] + gamma * ct * pow(u[0], gamma - 1.0);
 		values[4] = (2.0 * u[1]) / u[0];
 		values[5] = u[0] * ccl * (1.0 - ccl) * 2.0 * u[2];
-		values[6] = -u[1] / (u[0] * u[0]) * u[2] + (1.0 / ccl) * ((1.0 / u[0]) - (1.0 / done)) * ct * gamma * pow(u[0], gamma - 1.0);
+		values[6] = -u[1] / (u[0] * u[0]) * u[2] + (1.0 / ccl) * ((1.0 / u[0]) - (1.0 / rho_one)) * ct * gamma * pow(u[0], gamma - 1.0);
 		values[7] = u[2] / u[0];
 		values[8] = (u[1] / u[0]) + (1.0 - 2.0 * ccl) * u[2];
 	}
@@ -378,7 +380,7 @@ void Numerical_Method::matrix_2d(double * values_x, double * values_y, int n, do
 
 	double cref = constants->cref;
 	double ccl = constants->ccl;
-	double done = constants->rho_one;
+	double rho_one = constants->rho_one;
 
 	values_x[0] = 0;
 	values_x[1] = 1;
@@ -395,7 +397,7 @@ void Numerical_Method::matrix_2d(double * values_x, double * values_y, int n, do
 	values_x[12] = u[1] / u[0];
 	values_x[13] = ccl * (1 - ccl) * u[0] * u[4];
 	values_x[14] = ccl * (1 - ccl) * u[0] * u[3];
-	values_x[15] = -(u[1] * u[3]) / (u[0] * u[0]) + pow(cref / ct, 1.0 / gamma) * gamma * ct * pow(u[0], gamma - 2.0) - (gamma * ct * pow(u[0], gamma - 1.0)) / (done);
+	values_x[15] = -(u[1] * u[3]) / (u[0] * u[0]) + pow(cref / ct, 1.0 / gamma) * gamma * ct * pow(u[0], gamma - 2.0) - (gamma * ct * pow(u[0], gamma - 1.0)) / (rho_one);
 	values_x[16] = u[3] / u[0];
 	values_x[17] = 0;
 	values_x[18] = u[1] / u[0] + (1 - 2 * ccl) * u[3];
@@ -426,7 +428,7 @@ void Numerical_Method::matrix_2d(double * values_x, double * values_y, int n, do
 	values_y[17] = u[3] / u[0];
 	values_y[18] = u[2] / u[0] + (1 - 2 * ccl) * u[4];
 	values_y[19] = u[1] / u[0] + (1 - 2 * ccl) * u[3];
-	values_y[20] = -(u[2] * u[4]) / (u[0] * u[0]) + pow(cref / ct, 1.0 / gamma) * gamma * ct * pow(u[0], gamma - 2.0) - (gamma * ct * pow(u[0], gamma - 1.0)) / (done);
+	values_y[20] = -(u[2] * u[4]) / (u[0] * u[0]) + pow(cref / ct, 1.0 / gamma) * gamma * ct * pow(u[0], gamma - 2.0) - (gamma * ct * pow(u[0], gamma - 1.0)) / (rho_one);
 	values_y[21] = 0;
 	values_y[22] = u[4] / u[0];
 	values_y[23] = 0;
@@ -443,28 +445,16 @@ void Numerical_Method::matrix_2d(double * values_x, double * values_y, int n, do
 void Numerical_Method::cfl_1d_eigenvalues(int n, double &time) {
 	double cref = constants->cref;
 	double cfl = constants->cfl;
-	double gi = 1.0 / gamma;
+	double gamma_inv = 1.0 / gamma;
 
-	double* max_u = new double[dimension];
-	double* max_ur = new double[dimension];
-
-	max_u[0] = 0.0, max_ur[0] = 0.0, max_u[1] = 0.0, max_ur[1] = 0.0;
 	double p = 0.0, dtwo = 0.0;
 
-	//TODO: max_u, max_u_step
-	double smax = 0.0;
+	//ehemals smax für "maximum wave speed"
+	double v_max = 0.0;
 
-	int n_eqns;  // number of equations, up in a first line in "formeln....in"
-
-	//TODO: Nicht von Dimensionen abhängig
-	if (dimension == 1)
-		n_eqns = 3;
-	else
-		n_eqns = 5;
+	int n_eqns = computation->neqs;
 
 	double* u_eqns = new double[n_eqns];
-
-	string line;
 
 	double values[9];
 	LaVectorDouble real(3);
@@ -481,7 +471,7 @@ void Numerical_Method::cfl_1d_eigenvalues(int n, double &time) {
 			p = ct * pow(grid_main->cellsgrid[x][0], gamma);
 
 			grid_main->cellsgrid[x][1] = p;
-			dtwo = pow((p / cref), gi);
+			dtwo = pow((p / cref), gamma_inv);
 			break;
 			/*case(2):
 			 dtwo = ccl/((1/raster->cellsgrid[x][0])-((1-ccl)/done));
@@ -508,17 +498,16 @@ void Numerical_Method::cfl_1d_eigenvalues(int n, double &time) {
 
 		//Schritt 4: Höchsten Eigenwert suchen
 		for (int n = 0; n < 3; n++) {
-			if (smax < fabs(real(n)))
-				smax = fabs(real(n));
+			if (v_max < fabs(real(n)))
+				v_max = fabs(real(n));
 		}
 	}
 
-	printf("using eig, computed in all cells: %10.4e\n", smax);
+	printf("using eig, computed in all cells: %10.4e\n", v_max);
 
-	dt = cfl * dx / smax;
+	dt = cfl * dx / v_max;
 
-	//TODO: else if, unteres if prior?
-	if (n <= divider_end)
+	if (n <= divider_last)
 		dt = dt * divider;
 
 	if ((time + dt) > time_limit)
@@ -540,67 +529,63 @@ void Numerical_Method::cfl_1d_approx(int n, double &time) {
 	double cref = constants->cref;
 	double cfl = constants->cfl;
 	double ccl = constants->ccl;
-	double done = constants->rho_one;
-	double gi = 1.0 / gamma;
+	double rho_one = constants->rho_one;
+	double gamma_inv = 1.0 / gamma;
 
-	double* max_u = new double[dimension];
-	double* max_ur = new double[dimension];
-
-	max_u[0] = 0.0, max_ur[0] = 0.0, max_u[1] = 0.0, max_ur[1] = 0.0;
-	double d = 0.0, p = 0.0, uxr = 0.0, ux = 0.0, dtwo = 0.0;
+	double rho = 0.0, p = 0.0, uxr = 0.0, ux = 0.0, rho_two = 0.0;
 
 	//TODO: max_u, max_u_step
-	double smax = 0.0, maxs = 0.0;
-
-	string line;
+	double v_max = 0.0, v_max_step = 0.0;
 
 	//dt über Näherung berechnen
 	for (int i = 0; i < grid_main->grid_size_total[0]; i++) {
 
-		d = grid_main->cellsgrid[i][0];
+		rho = grid_main->cellsgrid[i][0];
 		uxr = grid_main->cellsgrid[i][3];
 		ux = grid_main->cellsgrid[i][2];
 
 		switch (cfl_option) {
 		case (1): {
-			p = ct * pow(d, gamma);
+			p = ct * pow(rho, gamma);
 			grid_main->cellsgrid[i][1] = p;
 
-			dtwo = pow((p / cref), gi);
+			rho_two = pow((p / cref), gamma_inv);
 			break;
 		}
 		case (2): {
-			dtwo = ccl / ((1 / d) - ((1 - ccl) / done));
-			p = cref * pow(dtwo, gamma);
+			rho_two = ccl / ((1 / rho) - ((1 - ccl) / rho_one));
+			p = cref * pow(rho_two, gamma);
 			grid_main->cellsgrid[i][1] = p;
 
 			break;
 		}
 		case (3): {
-			dtwo = ccl / ((1 / d) - ((1 - ccl) / done));
-			p = ct * pow(d, gamma);
+			rho_two = ccl / ((1 / rho) - ((1 - ccl) / rho_one));
+			p = ct * pow(rho, gamma);
 			grid_main->cellsgrid[i][1] = p;
 
 			break;
 		}
 		}
 
-		maxs = fabs(ux) + AM_1d(gamma, p, d) + XS_1d(d, dtwo, done, ccl, uxr);
+		//ehemals maxs
+		v_max_step = fabs(ux) + AM_1d(gamma, p, rho) + XS_1d(rho, rho_two, rho_one, ccl, uxr);
 
-		if (maxs > smax)
-			smax = maxs;
+		if (v_max_step > v_max)
+			v_max = v_max_step;
 	}
-	printf("using lambda exact %10.4e\n", smax);
+	printf("using lambda exact %10.4e\n", v_max);
 
-	dt = cfl * dx / smax;
+	dt = cfl * dx / v_max;
 
-	if (n <= divider_end)
+	if (n <= divider_last)
 		dt = dt * divider;
 
 	if ((time + dt) > time_limit)
 		dt = time_limit - time;
 	time = time + dt;
 	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
+
 }
 
 /**
@@ -613,28 +598,18 @@ void Numerical_Method::cfl_1d_approx(int n, double &time) {
 void Numerical_Method::cfl_2d_eigenvalues(int n, double &time) {
 	double cref = constants->cref;
 	double cfl = constants->cfl;
-	double gi = 1.0 / gamma;
+	double gamma_inv = 1.0 / gamma;
 
-	double max_d = 0.0;
-	double* max_u = new double[dimension];
-	double* max_ur = new double[dimension];
+	double rho = 0.0;
+	double u_x = 0.0, ur_x = 0.0, u_y = 0.0, ur_y = 0.0;
 
-	max_u[0] = 0.0, max_ur[0] = 0.0, max_u[1] = 0.0, max_ur[1] = 0.0;
-	double p = 0.0, dtwo = 0.0;
+	double p = 0.0, rho_two = 0.0;
 
-	double smax1 = 0, smax2 = 0;
+	double v_max1 = 0, v_max2 = 0;
 
-	int n_eqns;  // number of equations, up in a first line in "formeln....in"
-
-	//TODO: Nicht von Dimensionen abhängig
-	if (dimension == 1)
-		n_eqns = 3;
-	else
-		n_eqns = 5;
+	int n_eqns = computation->neqs;
 
 	double* u_eqns = new double[n_eqns];
-
-	string line;
 
 	//ueber Eigenwerte
 
@@ -648,26 +623,26 @@ void Numerical_Method::cfl_2d_eigenvalues(int n, double &time) {
 	for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
 		for (int y = 0; y < grid_main->grid_size_total[1]; y++) {
 
-			max_d = grid_main->cellsgrid[x][0];
-			max_u[0] = grid_main->cellsgrid[x][2];
-			max_u[1] = grid_main->cellsgrid[x][4];
-			max_ur[0] = grid_main->cellsgrid[x][3];
-			max_ur[1] = grid_main->cellsgrid[x][5];
+			rho = grid_main->cellsgrid[x][0];
+			u_x = grid_main->cellsgrid[x][2];
+			u_y = grid_main->cellsgrid[x][4];
+			ur_x = grid_main->cellsgrid[x][3];
+			ur_y = grid_main->cellsgrid[x][5];
 
 			p = ct * pow(grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][0], gamma);
 			grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][1] = p;
-			dtwo = pow((p / cref), gi);
+			rho_two = pow((p / cref), gamma_inv);
 
-			max_u[0] = max_u[0] * max_d;
-			max_u[1] = max_u[1] * max_d;
+			u_x = u_x * rho;
+			u_y = u_y * rho;
 
 			//Schritt 2: Einsetzen
-			u_eqns[0] = max_d;
-			u_eqns[1] = max_u[0];
-			u_eqns[2] = max_u[1];
-			u_eqns[3] = max_ur[0];
-			u_eqns[4] = max_ur[1];
-			matrix_2d(values1, values2, n_eqns_squared, u_eqns, p, dtwo);
+			u_eqns[0] = rho;
+			u_eqns[1] = u_x;
+			u_eqns[2] = u_y;
+			u_eqns[3] = ur_x;
+			u_eqns[4] = ur_y;
+			matrix_2d(values1, values2, n_eqns_squared, u_eqns, p, rho_two);
 
 			//Schritt 3: Berechnen der Eigenwerte
 			LaGenMatDouble A(values1, n_eqns, n_eqns, true);
@@ -684,28 +659,28 @@ void Numerical_Method::cfl_2d_eigenvalues(int n, double &time) {
 
 			//Schritt 4: Höchsten Eigenwert suchen
 			for (int n = 0; n < n_eqns; n++) {
-				if (smax1 < fabs(real(n)))
-					smax1 = fabs(real(n));
-				if (smax2 < fabs(real_b(n)))
-					smax2 = fabs(real_b(n));
+				if (v_max1 < fabs(real(n)))
+					v_max1 = fabs(real(n));
+				if (v_max2 < fabs(real_b(n)))
+					v_max2 = fabs(real_b(n));
 			}
 		}
 	}
 
 	/*****/
 	if (with_splitting == 1) {
-		dt = cfl / (smax1 / dx + smax2 / dy);
+		dt = cfl / (v_max1 / dx + v_max2 / dy);
 	} else {
-		dt = cfl / max(smax1 / dx, smax2 / dy);
+		dt = cfl / max(v_max1 / dx, v_max2 / dy);
 	}
 
-	if (n <= divider_end)
+	if (n <= divider_last)
 		dt = dt * divider;
 
 	if ((time + dt) > time_limit)
 		dt = time_limit - time;
 	time = time + dt;
-	cout << "Größte Eigenwerte: " << smax1 << " und " << smax2 << endl;
+	cout << "Größte Eigenwerte: " << v_max1 << " und " << v_max2 << endl;
 	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
 
 	delete[] u_eqns;
@@ -722,52 +697,47 @@ void Numerical_Method::cfl_2d_approx(int n, double &time) {
 	double cref = constants->cref;
 	double cfl = constants->cfl;
 	double ccl = constants->ccl;
-	double done = constants->rho_one;
-	double gi = 1.0 / gamma;
+	double rho_one = constants->rho_one;
+	double gamma_inv = 1.0 / gamma;
 
-	double* max_u = new double[dimension];
-	double* max_ur = new double[dimension];
-
-	max_u[0] = 0.0, max_ur[0] = 0.0, max_u[1] = 0.0, max_ur[1] = 0.0;
-	double d = 0.0, p = 0.0, uxr = 0.0, ux = 0.0, uy = 0.0, uyr = 0.0, dtwo = 0.0;
+	double rho = 0.0, p = 0.0, uxr = 0.0, ux = 0.0, uy = 0.0, uyr = 0.0, rho_two = 0.0;
 
 	//TODO: max_u, max_u_step
-	double smax = 0.0, maxs = 0.0;
-
-	string line;
+	double v_max = 0.0, v_max_step = 0.0;
 
 	//über Näherung
 	for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
 		for (int y = 0; y < grid_main->grid_size_total[1]; y++) {
 
 			int index = x + y * grid_main->grid_size_total[0];
-			d = grid_main->cellsgrid[index][0];
+			rho = grid_main->cellsgrid[index][0];
 			uxr = grid_main->cellsgrid[index][3];
 			ux = grid_main->cellsgrid[index][2];
 			uy = grid_main->cellsgrid[index][4];
 			uyr = grid_main->cellsgrid[index][5];
-			p = ct * pow(d, gamma);
+			p = ct * pow(rho, gamma);
 			grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][1] = p;
-			dtwo = pow((p / cref), gi);
+			rho_two = pow((p / cref), gamma_inv);
 
-			maxs = fabs(ux) + fabs(uy) + AM_2d(gamma, p, d) + XS_2d(d, dtwo, done, ccl, uxr, uxy);
+			v_max_step = fabs(ux) + fabs(uy) + AM_2d(gamma, p, rho) + XS_2d(rho, rho_two, rho_one, ccl, uxr, uxy);
 
-			if (maxs > smax) {
-				smax = maxs;
+			if (v_max_step > v_max) {
+				v_max = v_max_step;
 			}
 		}
 	}
 
-	cout << "Größte geratene Eigenwerte: " << smax << endl;
+	cout << "Größte geratene Eigenwerte: " << v_max << endl;
 
-	dt = cfl * min(dx, dy) / smax;
+	dt = cfl * min(dx, dy) / v_max;
 
-	if (n <= divider_end)
+	if (n <= divider_last)
 		dt = dt * divider;
 
 	if ((time + dt) > time_limit)
 		dt = time_limit - time;
 	time = time + dt;
 	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
+
 
 }

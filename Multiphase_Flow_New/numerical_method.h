@@ -78,7 +78,7 @@ public:
 	/**
 	 * Mit Output für jeden Berechnungsschritt.
 	 */
-	int step_output;
+	int output_per_step;
 
 	/**
 	 * Maximale Anzahl an Schritten der numerischen Methode
@@ -109,7 +109,7 @@ public:
 	/**
 	 * Ende der Multiplikation der Zeitschritte mit divider
 	 */
-	double divider_end;
+	double divider_last;
 
 	/**
 	 * Delta y für die 2. Dimension

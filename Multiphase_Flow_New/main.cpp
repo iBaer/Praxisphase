@@ -105,7 +105,7 @@ int main()
 	cout << "[0] No"<< endl;
 	cout << "[1] Yes"<< endl;
 	cout << "Choice: ";
-	cin >> num_meth.step_output;
+	cin >> num_meth.output_per_step;
 	cout << endl;
     /**********************************************************/
 

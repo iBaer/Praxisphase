@@ -37,7 +37,7 @@ class Constants
         //std::vector<double> const_value;
 
     std::string input_const;
-	int calceigv;
+	int cfl_with_eig;
 	int   variante;
 	double teiler;
 	int teilerend;
@@ -61,16 +61,16 @@ class Constants
 	double cref;
 	double rho_one;
 	double ccl;
-	double rhol;
-	double vl;
-	double vrl;
-	double vyl;
-	double vyrl;
-	double rhor;
-	double vr;
-	double vrr;
-	double vyr;
-	double vyrr;
+	double rho_left;
+	double v_left;
+	double v_r_left;
+	double v_y_left;
+	double v_r_y_left;
+	double rho_right;
+	double v_right;
+	double v_r_right;
+	double v_y_right;
+	double v_r_y_right;
     /**
     * K in den Formeln.
     */
