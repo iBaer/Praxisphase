@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "force.h"
 #include "lax_friedrich.h"
+#include "lax_wendroff.h"
 
 
 using namespace std;
@@ -83,6 +84,10 @@ int main()
     {
     	solver = new Force(&constants,&computation, &grid);
     }
+    else if (flux_method == 2)
+    {
+    	solver = new Lax_Wendroff(&constants,&computation, &grid);
+    }
     else{
     	cout << "No valid method selected"<<endl<<"Closing Simulator"<<endl;
     	return 0;
@@ -108,6 +113,8 @@ int main()
 	cin >> num_meth.output_per_step;
 	cout << endl;
     /**********************************************************/
+
+	//solver->parent_method = num_meth;
 
     num_meth.start_method();
 

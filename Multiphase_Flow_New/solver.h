@@ -8,6 +8,7 @@
 
 #include "computation.h"
 #include "constants.h"
+#include "time_step_calculation.h"
 
 using namespace std;
 
@@ -36,7 +37,7 @@ public:
 	 * Abstrakte Methode zur berechnung des Flusses der jeweiligen numerischen Methode.
 	 * @return Matrix der Flüsse (1D)
 	 */
-	virtual void calc_method_flux(double dt, int dir) = 0;
+	virtual void calc_method_flux(double dt, int split_method) = 0;
 
 	/**
 	 * Konstanten Objekt welches für die berechnungen benötigt wird.
@@ -77,6 +78,9 @@ public:
 	 * Größe des Rasters für die Flussberechnung
 	 */
 	int *size_m1;
+
+	Time_Step_Calculation* time_calculation;
+
 };
 
 #endif /* SOLVER_H_ */

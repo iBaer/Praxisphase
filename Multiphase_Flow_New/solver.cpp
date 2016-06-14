@@ -22,6 +22,8 @@ Solver::Solver(string solver_name, Constants* constants, Computation *computatio
     if (dimension ==2){
         dy = (constants->pos_y_max - constants->pos_y_min)/(double)grid->grid_size[1];
     }
+
+    time_calculation = NULL;
 }
 
 Solver::~Solver(){

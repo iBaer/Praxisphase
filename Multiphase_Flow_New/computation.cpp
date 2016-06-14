@@ -106,6 +106,15 @@ void Computation::compute_u_2d(double *** u, Grid * grid) {
 			u[2][x][y] = COMP_U_4;
 			u[3][x][y] = COMP_U_3;
 			u[4][x][y] = COMP_U_5;
+
+			for (int i = 0;i<3;i++){
+				if(grid->cellsgrid[pos][i]==0){
+					//cout <<"U-"<<i<<" out x "<<x<<" | y "<<y<<endl;
+				}
+				if(isnan(u[i][x][y])){
+					cout<<"comp u["<<i<<","<<x<<","<<y<<"] = "<< d<<","<<ux<<","<<uxr<<","<<uy<<","<<uyr<<endl;
+				}
+			}
 		}
 	}
 }
@@ -132,11 +141,24 @@ void Computation::compute_f_2d(double *** f, Grid * grid) {
 			uyr = grid->cellsgrid[pos][5];
 			p = grid->cellsgrid[pos][1];
 
+			/*if(pos == 0 + 0 * grid->grid_size_total[0] || pos == 1 + 1 * grid->grid_size_total[0] || pos == 2 + 2 * grid->grid_size_total[0]){
+				cout <<"F d"<<d<<" | ux "<<ux<<endl;
+			}*/
+
 			f[0][x][y] = COMP_F_1;
 			f[1][x][y] = COMP_F_2;
 			f[2][x][y] = COMP_F_4;
 			f[3][x][y] = COMP_F_3;
 			f[4][x][y] = COMP_F_5;
+
+			for (int i = 0;i<3;i++){
+				if(grid->cellsgrid[pos][i]==0){
+					//cout <<"F-"<<i<<" out x "<<x<<" | y "<<y<<endl;
+				}
+				if(isnan(f[i][x][y])){
+					cout<<"comp f["<<i<<","<<x<<","<<y<<"] = "<< d<<","<<p<<","<<ux<<","<<uxr<<","<<uy<<","<<uyr<<endl;
+				}
+			}
 		}
 	}
 }
@@ -168,6 +190,16 @@ void Computation::compute_g_2d(double *** g, Grid * grid) {
 			g[2][x][y] = COMP_G_4;
 			g[3][x][y] = COMP_G_3;
 			g[4][x][y] = COMP_G_5;
+
+			for (int i = 0;i<3;i++){
+				if(grid->cellsgrid[pos][i]==0){
+					//cout <<"G-"<<i<<" out x "<<x<<" | y "<<y<<endl;
+				}
+				if(isnan(g[i][x][y])){
+					cout<<"comp g["<<i<<","<<x<<","<<y<<"] = "<< d<<","<<p<<","<<ux<<","<<uxr<<","<<uy<<","<<uyr<<endl;
+				}
+			}
+
 		}
 	}
 }

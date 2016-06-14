@@ -221,6 +221,7 @@ void Force::solve_2d_unsplit(double dt){
 		}
 	}
 
+
 	//Richtmyer Fluss berechnen
 	Grid* u_rie_f = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
 	Grid* u_rie_g = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
@@ -246,8 +247,13 @@ void Force::solve_2d_unsplit(double dt){
 			u_rie_g->cellsgrid[pos][3] = 0.5 * (cs[3][x][y] + cs[3][x][y + 1]) + (dt / 2 * dy) * (gd[3][x][y] - gd[3][x][y + 1]);
 			u_rie_g->cellsgrid[pos][5] = 0.5 * (cs[4][x][y] + cs[4][x][y + 1]) + (dt / 2 * dy) * (gd[4][x][y] - gd[4][x][y + 1]);
 			u_rie_g->cellsgrid[pos][1] = constants->ct * pow(u_rie_g->cellsgrid[pos][0], constants->gamma);
+
+			/*cout << "d x "<< u_rie_g->cellsgrid[pos][0] << " | y "<< u_rie_g->cellsgrid[pos][0] <<endl;
+			cout << "ux x "<< u_rie_g->cellsgrid[pos][2] << " | y "<< u_rie_g->cellsgrid[pos][2] <<endl;
+			cout << "ux cs "<< cs[1][x + 1][y + 1] + cs[1][x][y + 1] << " | fd "<< fd[1][x][y + 1] - fd[1][x + 1][y + 1] <<endl;*/
 		}
 	}
+
 
 	//Richtmyer Fluss berechnen
 	computation->compute_f_2d(f_rie, u_rie_f);

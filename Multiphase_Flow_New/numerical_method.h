@@ -172,6 +172,8 @@ public:
 	 */
 	Solver* solver;
 
+	Time_Step_Calculation* time_calculation;
+
 	/**
 	 * CFL Bedingung anwenden und neue Zeit berechnen.
 	 * @param n aktueller Zeitschritt.
@@ -186,7 +188,7 @@ public:
 	 * @param n aktueller Zeitschritt.
 	 * @param time aktuelle Zeit.
 	 */
-	void cfl_1d_eigenvalues(int n, double &time);
+	double cfl_1d_eigenvalues(int n);
 
 	/**
 	 * Unterfunktion der Methode cfl_condition().
@@ -197,12 +199,24 @@ public:
 	void cfl_1d_approx(int n, double &time);
 
 	/**
+	 * Berechnet die CFL Bedingung in 1D
+	 * @param v_max größer Eigenwert oder Approximation.
+	 */
+	void cfl_1d(int n, double &time, double v_max);
+
+	/**
+	 * Berechnet die CFL Bedingung in 2D
+	 * @param v_max größer Eigenwerte oder Approximation.
+	 */
+	void cfl_2d(int n, double &time, double* v_max);
+
+	/**
 	 * Unterfunktion der Methode cfl_condition().
 	 * Berechnung der CFL Bedingung in 2D mit Eigenwerten.
 	 * @param n aktueller Zeitschritt.
 	 * @param time aktuelle Zeit.
 	 */
-	void cfl_2d_eigenvalues(int n, double &time);
+	double* cfl_2d_eigenvalues(int n);
 
 	/**
 	 * Unterfunktion der Methode cfl_condition().

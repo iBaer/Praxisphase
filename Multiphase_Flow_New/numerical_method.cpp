@@ -11,6 +11,8 @@
 #include "constants.h"
 #include "numerical_method.h"
 
+#include "time_step_calculation.h"
+
 using namespace std;
 
 /**
@@ -29,6 +31,8 @@ Numerical_Method::Numerical_Method(Solver* solver, Constants* constants, Computa
 	solver_name = solver->name;
 	this->solver = solver;
 	order = 1;
+	time_calculation = new Time_Step_Calculation(computation->neqs,grid_main);
+	solver->time_calculation=time_calculation;
 
 	dimension = constants->dimension;
 	grid_size = new int[dimension];
@@ -55,7 +59,9 @@ Numerical_Method::Numerical_Method(Solver* solver, Constants* constants, Computa
 	ct = constants->ct;
 
 	with_splitting = 1;
+
 	output_per_step = 0;
+
 	/*if (dimension == 2) {
 	 std::cout << "Wahl!" << endl << " 1: unsplitting, 2: splitting:";
 	 std::cin >> with_splitting;
@@ -77,6 +83,7 @@ Numerical_Method::~Numerical_Method() {
  *****************************************************************************************/
 void Numerical_Method::start_method() {
 	double time = 0.0, timetol = 0.000001, timedif = 1.0;
+	time_calculation->with_splitting = with_splitting;
 
 	// Falls kein Schleifendurchgang gemacht wird
 	if (output_per_step == 1)
@@ -92,7 +99,11 @@ void Numerical_Method::start_method() {
 			write();
 
 		// compute time step
-		time = cfl_condition(n, time);
+		time_calculation->n = n;
+		time_calculation->time = time;
+
+		dt = time_calculation->cfl_condition();
+		cout << "Current time " << time << endl;
 
 		// update
 		if (dimension == 1)
@@ -103,6 +114,9 @@ void Numerical_Method::start_method() {
 
 		else if (with_splitting == 2)
 			solver->calc_method_flux(dt, 1);
+
+		if(time != time_calculation->time)
+			time = time_calculation->time;
 
 		timedif = fabs(time - time_limit);
 		steps = n;
@@ -126,7 +140,7 @@ double Numerical_Method::cfl_condition(int n, double time) {
 		if ((int) constants->cfl_with_eig == 1)
 		//1 = true, v_max wird über Eigenwerte bestimmt
 		{
-			cfl_1d_eigenvalues(n, time);
+			cfl_1d(n,time, cfl_1d_eigenvalues(n));
 		}
 
 		else {
@@ -149,7 +163,8 @@ double Numerical_Method::cfl_condition(int n, double time) {
 		// 0 heisst, 1-d analytische Loseung verwenden,
 		// 1 heisst, v_max wird über Eigenwerte bestimmt
 		else {
-			cfl_2d_eigenvalues(n, time);
+			//Eigenvalues* eig = new Eigenvalues(computation->neqs,grid_main);
+			cfl_2d(n,time, time_calculation->cfl_2d_eigenvalues());
 		}
 
 		break;
@@ -442,9 +457,58 @@ void Numerical_Method::matrix_2d(double * values_x, double * values_y, int n, do
  * @param n aktueller Zeitschritt.
  * @param time aktuelle Zeit.
  *****************************************************************************************/
-void Numerical_Method::cfl_1d_eigenvalues(int n, double &time) {
-	double cref = constants->cref;
+void Numerical_Method::cfl_1d(int n, double &time, double v_max) {
 	double cfl = constants->cfl;
+
+
+	dt = cfl * dx / v_max;
+
+	if (n <= divider_last)
+		dt = dt * divider;
+
+	if ((time + dt) > time_limit)
+		dt = time_limit - time;
+	time = time + dt;
+	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
+}
+
+/**
+ *****************************************************************************************
+ * Unterfunktion der Methode cfl_condition().
+ * Berechnung der CFL Bedingung in 1D mit Eigenwerten.
+ * @param n aktueller Zeitschritt.
+ * @param time aktuelle Zeit.
+ *****************************************************************************************/
+void Numerical_Method::cfl_2d(int n, double &time, double* v_max) {
+	double cfl = constants->cfl;
+
+
+	if (with_splitting == 1) {
+		dt = cfl / (v_max[0] / dx + v_max[1] / dy);
+	} else {
+		dt = cfl / max(v_max[0] / dx, v_max[1] / dy);
+	}
+
+	if (n <= divider_last)
+		dt = dt * divider;
+
+	if ((time + dt) > time_limit)
+		dt = time_limit - time;
+	time = time + dt;
+	cout << "Größte Eigenwerte: " << v_max[0] << " und " << v_max[1] << endl;
+	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
+}
+
+/**
+ *****************************************************************************************
+ * Unterfunktion der Methode cfl_condition().
+ * Berechnung der CFL Bedingung in 1D mit Eigenwerten.
+ * @param n aktueller Zeitschritt.
+ * @param time aktuelle Zeit.
+ *****************************************************************************************/
+double Numerical_Method::cfl_1d_eigenvalues(int n) {
+	double cref = constants->cref;
+	//double cfl = constants->cfl;
 	double gamma_inv = 1.0 / gamma;
 
 	double p = 0.0, dtwo = 0.0;
@@ -504,7 +568,7 @@ void Numerical_Method::cfl_1d_eigenvalues(int n, double &time) {
 	}
 
 	printf("using eig, computed in all cells: %10.4e\n", v_max);
-
+/*
 	dt = cfl * dx / v_max;
 
 	if (n <= divider_last)
@@ -514,8 +578,10 @@ void Numerical_Method::cfl_1d_eigenvalues(int n, double &time) {
 		dt = time_limit - time;
 	time = time + dt;
 	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
-
+*/
 	delete[] u_eqns;
+
+	return v_max;
 }
 
 /**
@@ -595,9 +661,9 @@ void Numerical_Method::cfl_1d_approx(int n, double &time) {
  * @param n aktueller Zeitschritt.
  * @param time aktuelle Zeit.
  *****************************************************************************************/
-void Numerical_Method::cfl_2d_eigenvalues(int n, double &time) {
+double* Numerical_Method::cfl_2d_eigenvalues(int n) {
 	double cref = constants->cref;
-	double cfl = constants->cfl;
+	//double cfl = constants->cfl;
 	double gamma_inv = 1.0 / gamma;
 
 	double rho = 0.0;
@@ -605,7 +671,8 @@ void Numerical_Method::cfl_2d_eigenvalues(int n, double &time) {
 
 	double p = 0.0, rho_two = 0.0;
 
-	double v_max1 = 0, v_max2 = 0;
+	double* v_max = new double[2];
+	v_max[0] = 0, v_max[1] = 0;
 
 	int n_eqns = computation->neqs;
 
@@ -659,19 +726,19 @@ void Numerical_Method::cfl_2d_eigenvalues(int n, double &time) {
 
 			//Schritt 4: Höchsten Eigenwert suchen
 			for (int n = 0; n < n_eqns; n++) {
-				if (v_max1 < fabs(real(n)))
-					v_max1 = fabs(real(n));
-				if (v_max2 < fabs(real_b(n)))
-					v_max2 = fabs(real_b(n));
+				if (v_max[0] < fabs(real(n)))
+					v_max[0] = fabs(real(n));
+				if (v_max[1] < fabs(real_b(n)))
+					v_max[1] = fabs(real_b(n));
 			}
 		}
 	}
 
 	/*****/
-	if (with_splitting == 1) {
-		dt = cfl / (v_max1 / dx + v_max2 / dy);
+	/*if (with_splitting == 1) {
+		dt = cfl / (v_max[0] / dx + v_max[1] / dy);
 	} else {
-		dt = cfl / max(v_max1 / dx, v_max2 / dy);
+		dt = cfl / max(v_max[0] / dx, v_max[1] / dy);
 	}
 
 	if (n <= divider_last)
@@ -680,10 +747,12 @@ void Numerical_Method::cfl_2d_eigenvalues(int n, double &time) {
 	if ((time + dt) > time_limit)
 		dt = time_limit - time;
 	time = time + dt;
-	cout << "Größte Eigenwerte: " << v_max1 << " und " << v_max2 << endl;
+	cout << "Größte Eigenwerte: " << v_max[0] << " und " << v_max[1] << endl;
 	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
-
+*/
 	delete[] u_eqns;
+
+	return v_max;
 }
 
 /**

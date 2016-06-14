@@ -29,8 +29,9 @@ grid.o: grid.h constants.h
 computation.o: computation.h constants.h
 solver.o: solver.h computation.h constants.h
 lax_friedrich.o: lax_friedrich.h constants.h solver.h
+lax_wendroff.o: lax_wendroff.h constants.h solver.h
 force.o: force.h computation.h constants.h solver.h
-main.o: lax_friedrich.h force.h numerical_method.h
+main.o: lax_friedrich.h force.h lax_wendroff.h numerical_method.h
 numerical_method.o: numerical_method.h constants.h grid.h constants.h computation.h solver.h
 
 

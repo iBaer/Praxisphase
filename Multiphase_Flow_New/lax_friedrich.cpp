@@ -1,4 +1,5 @@
 #include "lax_friedrich.h"
+#include <stdlib.h> // exit
 
 using namespace std;
 
@@ -44,6 +45,13 @@ Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Gri
 		f_lax[i] = new double[neqs * (size_m1[0]) * (size_m1[1])];
 	}
 
+	if(dimension==2){
+		split_grid = new Grid*[2];
+		split_grid[0] = new Grid(size_total[0] * size_total[1]);
+		split_grid[1] = new Grid(size_total[0] * size_total[1]);
+
+	}
+
 }
 
 /**
@@ -76,7 +84,7 @@ Lax_Friedrich::~Lax_Friedrich() {
  * @param dt Delta t.
  * @param dir Unsplitting = 0, Splitting = 1.
  *****************************************************************************************/
-void Lax_Friedrich::calc_method_flux(double dt, int dir) {
+void Lax_Friedrich::calc_method_flux(double dt, int split_method) {
 	cout << "Lax-Friedrich Fluss berechnen..." << endl;
 
 	switch (dimension) {
@@ -89,13 +97,20 @@ void Lax_Friedrich::calc_method_flux(double dt, int dir) {
 		// Zwei Dimensionen
 	case (2): {
 
-		if (dir == 0) {
+		if (split_method == 0) {
 			solve_2d_unsplit(dt);
 			break;
 		}
 
+		else if (split_method == 1) {
+			solve_2d_split_xtoy(dt,0,0);
+		}
+		else if (split_method == 2) {
+			solve_2d_split_ytox(dt,0);
+		}
 		else {
-			solve_2d_split(dt);
+			solve_2d_split_xtoy(dt,1,0);
+			solve_2d_split_ytox(dt,1);
 		}
 	}
 	}
@@ -183,7 +198,7 @@ void Lax_Friedrich::solve_2d_unsplit(double dt) {
 
 				f_lax[0][index] =
 						0.5 * (f[k][x][y] + f[k][x + 1][y])
-						+ 0.5 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]);	//	0.25~
+						+ 0.5 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]);	//	0.25~ -> sonst 60 Grad unsplitting falsch
 
 				f_lax[1][index] =
 						0.5 * (g[k][x][y] + g[k][x][y + 1])
@@ -244,7 +259,169 @@ void Lax_Friedrich::solve_2d_unsplit(double dt) {
  * und das Updaten der Zellen für zwei Dimensionen mit dem konventionellen Splitting-Schema durchführt.
  * @param dt Delta t.
  *****************************************************************************************/
-void Lax_Friedrich::solve_2d_split(double dt) {
+void Lax_Friedrich::solve_2d_split_xtoy(double dt, int with_average, int rerun) {
+	int order = grid->orderofgrid;
+	double dtodx = dt / dx;
+	double dtody = dt / dy;
+	double d, ux, uy, uxd, uyd, uxr, uyr;
+	int width_m1 = grid->grid_size_total[0] - 1;
+	int height_m1 = grid->grid_size_total[1] - 1;
+	int pos;
+	Grid* set_grid;
+
+	// X-Richtung
+	cout << "update x mit dtodx=" << dtodx << endl;
+
+	// Falls xtoy und ytox gemittelt werden sollen, Werte in einem seperaten Grid setzen um anschließend ins Hauptgrid "zu mitteln"
+	if(with_average==1){
+		set_grid = split_grid[0];
+	}
+	else {
+		set_grid = grid;
+	}
+
+	//Berechne U, F
+	computation->compute_u_2d(cs, grid);
+	computation->compute_f_2d(f, grid);
+
+	// Berechne Lax-Friedrich Flüsse
+	// Faktor 0.25 nach Formel für unsplitting,
+	// Faktor 0.5 für die Reproduktion der 1-d Ergebnisse und splitting
+
+	for (int k = 0; k < neqs; k++) {
+		for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+				f_lax[0][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] =
+						0.5 * (f[k][x][y] + f[k][x + 1][y])
+						+ 0.25 * (dx / dt) * (cs[k][x][y] - cs[k][x + 1][y]); // 0.25~
+			}
+		}
+	}
+
+	int index_x1 = 0, index_x2 = 0, index_x_end = (height_m1) * (width_m1);
+
+	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+		for (int y = order; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+			pos = x + y * grid->grid_size_total[0];
+			d = grid->cellsgrid[pos][0];
+			ux = grid->cellsgrid[pos][2];
+			uy = grid->cellsgrid[pos][4];
+			uxr = grid->cellsgrid[pos][3];
+			uyr = grid->cellsgrid[pos][5];
+
+			uxd = ux * d;
+			uyd = uy * d;
+
+			index_x1 = y + (height_m1) * (x - 1);
+			index_x2 = y + (height_m1) * (x);
+
+			d = d + dtodx * (f_lax[0][index_x1 + index_x_end * (0)] - f_lax[0][index_x2 + index_x_end * (0)]);
+			uxd = uxd + dtodx * (f_lax[0][index_x1 + index_x_end * (1)] - f_lax[0][index_x2 + index_x_end * (1)]);
+			uyd = uyd + dtodx * (f_lax[0][index_x1 + index_x_end * (2)] - f_lax[0][index_x2 + index_x_end * (2)]);
+			uxr = uxr + dtodx * (f_lax[0][index_x1 + index_x_end * (3)] - f_lax[0][index_x2 + index_x_end * (3)]);
+			uyr = uyr + dtodx * (f_lax[0][index_x1 + index_x_end * (4)] - f_lax[0][index_x2 + index_x_end * (4)]);
+
+			set_grid->cellsgrid[pos][0] = d;
+			set_grid->cellsgrid[pos][2] = uxd / d;
+			set_grid->cellsgrid[pos][4] = uyd / d;
+			set_grid->cellsgrid[pos][3] = uxr;
+			set_grid->cellsgrid[pos][5] = uyr;
+		}
+	}
+
+	grid->apply_boundary_conditions();
+
+	// ACHTUNG: HIER SOLLTE UEBERPRUEFT WERDEN, OB DER
+	// ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
+	// DEN NEUEN WERTEN, SONST KANN EINEM DAS SYSTEM DIVERGIEREN!
+
+
+	//TODO: Neues Delta T und Eigenwerte überprüfen
+	//Neues Delta T darf nicht kleiner sein, als vorher
+
+	if (rerun == 0) {
+		time_calculation->cfl_condition();
+		int dt_comp = time_calculation->compare_dt();
+
+		if (dt_comp == -1) {
+			dt = time_calculation->halve_dt();
+
+			cout << "New delta t is smaller than before!" << endl;
+			cout << "Restarting update with dt/2!" << endl;
+
+			solve_2d_split_xtoy(dt, with_average,1);
+
+			cout << "Finished recalculation!"<<endl;
+			return;
+
+		} else {
+			// go on
+		}
+	}
+
+	// Y-Richtung
+	cout << "update y mit dtody=" << dtody << endl;
+
+
+	//Berechne U und G
+	computation->compute_u_2d(cs, grid);
+	computation->compute_g_2d(g, grid);
+
+	// Berechne Lax-Friedrich Flüsse
+	// Faktor 0.25 nach Formel für unsplitting,
+	// Faktor 0.5 für die Reproduktion der 1-d Ergebnisse und splitting
+	//int index = 0;
+
+	for (int k = 0; k < neqs; k++) {
+		for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
+			for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
+
+				f_lax[1][y + (size_m1[1]) * x + (size_m1[1]) * (size_m1[0]) * k] =
+						0.5 * (g[k][x][y] + g[k][x][y + 1])
+						+ 0.25 * (dy / dt) * (cs[k][x][y] - cs[k][x][y + 1]); // 0.25~
+			}
+		}
+	}
+	int index_y1 = 0, index_y2 = 0, index_y_end = (height_m1) * (width_m1);
+
+	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
+		for (int y = order; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
+			pos = x + y * grid->grid_size_total[0];
+			d = grid->cellsgrid[pos][0];
+			ux = grid->cellsgrid[pos][2];
+			uy = grid->cellsgrid[pos][4];
+			uxr = grid->cellsgrid[pos][3];
+			uyr = grid->cellsgrid[pos][5];
+
+			uxd = ux * d;
+			uyd = uy * d;
+
+			index_y1 = (y - 1) + (height_m1) * (x);
+			index_y2 = (y) + (height_m1) * (x);
+
+			d = d + dtody * (f_lax[1][index_y1 + index_y_end * (0)] - f_lax[1][index_y2 + index_y_end * (0)]);
+			uxd = uxd + dtody * (f_lax[1][index_y1 + index_y_end * (1)] - f_lax[1][index_y2 + index_y_end * (1)]);
+			uyd = uyd + dtody * (f_lax[1][index_y1 + index_y_end * (2)] - f_lax[1][index_y2 + index_y_end * (2)]);
+			uxr = uxr + dtody * (f_lax[1][index_y1 + index_y_end * (3)] - f_lax[1][index_y2 + index_y_end * (3)]);
+			uyr = uyr + dtody * (f_lax[1][index_y1 + index_y_end * (4)] - f_lax[1][index_y2 + index_y_end * (4)]);
+
+			set_grid->cellsgrid[pos][0] = d;
+			set_grid->cellsgrid[pos][2] = uxd / d;
+			set_grid->cellsgrid[pos][4] = uyd / d;
+			set_grid->cellsgrid[pos][3] = uxr;
+			set_grid->cellsgrid[pos][5] = uyr;
+
+		}
+	}
+}
+
+/**
+ *****************************************************************************************
+ * Untermethode, die die Berechnung des Lax-Friedrich-Flusses
+ * und das Updaten der Zellen für zwei Dimensionen mit dem konventionellen Splitting-Schema durchführt.
+ * @param dt Delta t.
+ *****************************************************************************************/
+void Lax_Friedrich::solve_2d_split_ytox(double dt, int with_average) {
 	int order = grid->orderofgrid;
 	double dtodx = dt / dx;
 	double dtody = dt / dy;
@@ -253,7 +430,11 @@ void Lax_Friedrich::solve_2d_split(double dt) {
 	int height_m1 = grid->grid_size_total[1] - 1;
 	int pos;
 
-	//Berechne U, F und G
+	// X-Richtung
+	cout << "update x mit dtodx=" << dtodx << endl;
+
+
+	//Berechne U, F
 	computation->compute_u_2d(cs, grid);
 	computation->compute_f_2d(f, grid);
 
@@ -271,8 +452,6 @@ void Lax_Friedrich::solve_2d_split(double dt) {
 		}
 	}
 
-	cout << "update x mit dtodx=" << dtodx << endl;
-
 	int index_x1 = 0, index_x2 = 0, index_x_end = (height_m1) * (width_m1);
 
 	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
@@ -286,8 +465,6 @@ void Lax_Friedrich::solve_2d_split(double dt) {
 
 			uxd = ux * d;
 			uyd = uy * d;
-
-			// Form: index_x1 + index_x2 * (XPOS) + index_end * (VARIABLE (D=0,UXD=1, ...))
 
 			index_x1 = y + (height_m1) * (x - 1);
 			index_x2 = y + (height_m1) * (x);
@@ -312,7 +489,12 @@ void Lax_Friedrich::solve_2d_split(double dt) {
 	// ZEITSCHRITT NICHT ZU GROSS IST FUER DIE 2 RICHTUNG MIT
 	// DEN NEUEN WERTEN, SONST KANN EINEM DAS SYSTEM DIVERGIEREN!
 
-	//Berechne U, F und G
+
+	// Y-Richtung
+	cout << "update y mit dtody=" << dtody << endl;
+
+
+	//Berechne U und G
 	computation->compute_u_2d(cs, grid);
 	computation->compute_g_2d(g, grid);
 
@@ -331,9 +513,6 @@ void Lax_Friedrich::solve_2d_split(double dt) {
 			}
 		}
 	}
-
-	cout << "update y mit dtody=" << dtody << endl;
-
 	int index_y1 = 0, index_y2 = 0, index_y_end = (height_m1) * (width_m1);
 
 	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {

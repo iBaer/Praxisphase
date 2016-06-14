@@ -48,7 +48,9 @@ class Lax_Friedrich : public Solver
         * und das Updaten der Zellen für zwei Dimensionen mit dem konventionellen Splitting-Schema durchführt.
         * @param dt Delta t.
         */
-        void solve_2d_split(double dt);
+        void solve_2d_split_xtoy(double dt, int with_average, int rerun);
+        void solve_2d_split_ytox(double dt, int with_average);
+
 
     protected:
         /**
@@ -58,7 +60,7 @@ class Lax_Friedrich : public Solver
         * @param dir Unsplitting = 0, Splitting = 1.
         */
         //TODO: aus "dir" -> "splitting"
-        void calc_method_flux(double dt,int dir);
+        void calc_method_flux(double dt,int split_method);
 
         //int size_total[0];
         //int size_total[1];
@@ -112,6 +114,8 @@ class Lax_Friedrich : public Solver
         * [0] = Dimension, [1] = Zellen-Position, immer abstrahiert auf eine Dimension, bis zu 3D Richtung und Anzahl der Gleichungen
         */
     	double** f_lax;
+
+    	Grid ** split_grid;
 
 };
 

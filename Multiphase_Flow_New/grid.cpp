@@ -629,7 +629,7 @@ void Grid::init_2d_shockwave_bubble() {
 	double ypos = 0.0;  //2D
 
 	double radius = constants->radius;
-
+	//radius = -1;
 	cout << "Kreis mit Radius " << radius << " und Gleichung " << KREIS_F << endl;
 
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
