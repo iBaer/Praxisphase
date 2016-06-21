@@ -16,7 +16,8 @@ public:
 	Time_Step_Calculation(int neqs, Grid * grid);
 	virtual ~Time_Step_Calculation();
 	Constants* constants;
-	Grid* grid_main;
+	Grid* grid;
+
 	int n_eqns;
 	double gamma;
 	double ct;
@@ -82,12 +83,15 @@ public:
 	 * @param time aktuelle Zeit.
 	 * @return neue Zeit.
 	 */
-	double cfl_condition();
+	double cfl_condition(Grid * grid);
 
-	double halve_dt();
+	double halve_dt(double dt);
+
+	double set_new_time(double dt);
 
 	int compare_dt();
 
+	void reset_step();
 
 	/**
 	 * Unterfunktion der Methode cfl_condition().

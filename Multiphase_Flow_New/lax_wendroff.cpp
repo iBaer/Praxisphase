@@ -100,7 +100,7 @@ Lax_Wendroff::~Lax_Wendroff() {
  * @param dt Delta t.
  * @param dir Unsplitting = 0, Splitting = 1.
  *****************************************************************************************/
-void Lax_Wendroff::calc_method_flux(double dt, int split_method) {
+void Lax_Wendroff::calc_method_flux(double dt) {
 	cout << "Lax-Wendroff Fluss berechnen..." << endl;
 
 	switch (dimension) {
@@ -202,9 +202,9 @@ void Lax_Wendroff::solve_2d_unsplit(double dt) {
 	computation->compute_f_2d(fd, grid);
 	computation->compute_g_2d(gd, grid);
 
-	Grid* u_lax_xhalf= new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
-	Grid* u_lax_yhalf = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
-	Grid* u_lax_allhalf = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
+	Grid* u_lax_xhalf= new Grid(grid->grid_size_total[0], grid->grid_size_total[1], constants);
+	Grid* u_lax_yhalf = new Grid(grid->grid_size_total[0], grid->grid_size_total[1], constants);
+	Grid* u_lax_allhalf = new Grid(grid->grid_size_total[0], grid->grid_size_total[1], constants);
 
 
 	int pos = 0;
@@ -291,8 +291,8 @@ void Lax_Wendroff::solve_2d_unsplit(double dt) {
 
 	}*/
 
-	cout <<"x half: "<< u_lax_xhalf->cellsgrid[0][0] << " vs "<< u_lax_xhalf->cellsgrid[1][0]<<endl;
-	cout <<"y half: "<<  u_lax_yhalf->cellsgrid[0][0] << " vs "<< u_lax_yhalf->cellsgrid[1][0]<<endl;
+	//cout <<"x half: "<< u_lax_xhalf->cellsgrid[0][0] << " vs "<< u_lax_xhalf->cellsgrid[1][0]<<endl;
+	//cout <<"y half: "<<  u_lax_yhalf->cellsgrid[0][0] << " vs "<< u_lax_yhalf->cellsgrid[1][0]<<endl;
 
 	computation->compute_f_2d(fd, u_lax_yhalf);
 	computation->compute_g_2d(gd, u_lax_xhalf);
@@ -391,13 +391,13 @@ void Lax_Wendroff::solve_2d_unsplit(double dt) {
 		u_lax_allhalf->cellsgrid[pos][i] = u_lax_allhalf->cellsgrid[pos - 1][i];
 	}*/
 
-	cout <<"all half: "<<  u_lax_allhalf->cellsgrid[0][0] << " vs "<< u_lax_allhalf->cellsgrid[1][0]<<endl;
+	//cout <<"all half: "<<  u_lax_allhalf->cellsgrid[0][0] << " vs "<< u_lax_allhalf->cellsgrid[1][0]<<endl;
 
 	computation->compute_f_2d(fd, u_lax_allhalf);
 	computation->compute_g_2d(gd, u_lax_allhalf);
 
-	cout <<"f: "<<  fd[0][0][0] << " vs "<< fd[0][1][1]<<endl;
-	cout <<"g: "<<  gd[0][0][0] << " vs "<< gd[0][1][1]<<endl;
+	//cout <<"f: "<<  fd[0][0][0] << " vs "<< fd[0][1][1]<<endl;
+	//cout <<"g: "<<  gd[0][0][0] << " vs "<< gd[0][1][1]<<endl;
 
 	//Lax-Wendroff Update Schritt
 	cout << "Lax-Wendroff update with dtodx=" << dtodx << " and dtody=" << dtody << endl;
@@ -414,16 +414,16 @@ void Lax_Wendroff::solve_2d_unsplit(double dt) {
 			uxd = ux * d;
 			uyd = uy * d;
 
-			if (pos==grid->grid_size_total[0] - grid->orderofgrid+1*grid->grid_size_total[0] || pos==grid->grid_size_total[0] - grid->orderofgrid*2+2*grid->grid_size_total[0]){
+			/*if (pos==grid->grid_size_total[0] - grid->orderofgrid+1*grid->grid_size_total[0] || pos==grid->grid_size_total[0] - grid->orderofgrid*2+2*grid->grid_size_total[0]){
 				cout <<"d pre: "<< d<<endl;
 				cout <<"d f pre: "<< fd[0][x - 1][y] - fd[0][x][y] + fd[0][x - 1][y - 1] - fd[0][x][y - 1]<< "|"<<fd[0][x - 1][y]<< "|"<<-fd[0][x][y]<< "|"<<fd[0][x - 1][y - 1]<< "|"<<-fd[0][x][y - 1]<<endl;
 				cout <<"d g pre: "<< gd[0][x][y - 1] - gd[0][x][y] + gd[0][x - 1][y - 1] - gd[0][x - 1][y]<<endl;
-			}
+			}*/
 
 			d = d     + 0.5 * dtodx * (fd[0][x - 1][y] - fd[0][x][y] + fd[0][x - 1][y - 1] - fd[0][x][y - 1])
 					  + 0.5 * dtody * (gd[0][x][y - 1] - gd[0][x][y] + gd[0][x - 1][y - 1] - gd[0][x - 1][y]);
-			if (pos==1+grid->grid_size_total[0])
-							cout <<"d post: "<< d<<endl;
+			/*if (pos==1+grid->grid_size_total[0])
+							cout <<"d post: "<< d<<endl;*/
 			uxd = uxd + 0.5 * dtodx * (fd[1][x - 1][y] - fd[1][x][y] + fd[1][x - 1][y - 1] - fd[1][x][y - 1])
 					  + 0.5 * dtody * (gd[1][x][y - 1] - gd[1][x][y] + gd[1][x - 1][y - 1] - gd[1][x - 1][y]);
 

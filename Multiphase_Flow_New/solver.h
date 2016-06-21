@@ -37,7 +37,7 @@ public:
 	 * Abstrakte Methode zur berechnung des Flusses der jeweiligen numerischen Methode.
 	 * @return Matrix der Flüsse (1D)
 	 */
-	virtual void calc_method_flux(double dt, int split_method) = 0;
+	virtual void calc_method_flux(double dt) = 0;
 
 	/**
 	 * Konstanten Objekt welches für die berechnungen benötigt wird.
@@ -78,6 +78,8 @@ public:
 	 * Größe des Rasters für die Flussberechnung
 	 */
 	int *size_m1;
+
+	int split_method;
 
 	Time_Step_Calculation* time_calculation;
 

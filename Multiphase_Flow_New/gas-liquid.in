@@ -2,19 +2,19 @@ calceigv 1           // 1 für jacobimatrix, 0 analytisch
 variante 1           // für verschiedene EOS, nicht implementert
 teiler 0.2           // um wieviel dt zuerst geteilt wird
 teilerend 5          // für wieviel Schritte dt geteilt wird
-timeou 0.7         // maximaler Zeit
+timeou 0.007           // maximaler Zeit
 cfl 0.9              // cfl-Zahl
-maxnt 1000              // maximale Anzahl der Schritte
+maxnt 5           // maximale Anzahl der Schritte
 dimension 2          // Dimension
 ordnung 1            // Ordnung des Algorithmus im Raum (nur 1 implementiert)
 radius 3.0           // Radius der Blase
-CELLSX 50            // Zellzahl in x-Richtung
-CELLSY 100            // Zellzahl in y-Richtung (muss für den 1-d Fall = 1 sein)
+CELLSX 20            // Zellzahl in x-Richtung
+CELLSY 40           // Zellzahl in y-Richtung (muss für den 1-d Fall = 1 sein)
 g 1.4                // Konstante in der Simulation in der EOS
-mol -40.0            // x-Wert der linken unteren Ecke 
-mor 10.0             // x-Wert der rechten unteren Ecke 
-mul -60.0            // y-Wert der linken unteren Ecke 
-mur 40.0             // y-Wert der linken oberen Ecke 
+mol -8.0            // x-Wert der linken unteren Ecke 
+mor 2.0             // x-Wert der rechten unteren Ecke 
+mul -12.0            // y-Wert der linken unteren Ecke 
+mur 8.0             // y-Wert der linken oberen Ecke 
 upbc 0               // Randbedingunen oben
 downbc 0             // Randbedingunen unten
 leftbc 0             // Randbedingunen links

@@ -55,12 +55,10 @@ Grid::Grid(int x) {
  *****************************************************************************************
  * Konstruktor für ein leeres zweidimensionales Raster.
  *****************************************************************************************/
-Grid::Grid(int x, int y) {
+Grid::Grid(int x, int y, Constants *constants) {
 	/*** currently unused ***/
-	this->constants = 0;
+	this->constants = constants;
 	this->choice = 0;
-	orderofgrid = 0;
-	boundary_conditions = 0;
 	/************************/
 
 	dimension = 2;
@@ -81,6 +79,21 @@ Grid::Grid(int x, int y) {
 			cellsgrid[i][j] = 0;
 		}
 	}
+
+	boundary_conditions = new int[dimension*2];
+
+	boundary_conditions[0] = constants->bc_x_min;
+	boundary_conditions[1] = constants->bc_x_max;
+	if(dimension>=2){
+		boundary_conditions[2] = constants->bc_y_min;
+		boundary_conditions[3] = constants->bc_y_max;
+		if(dimension>=3){
+			boundary_conditions[4] = 0; //TODO: constants->bc_z_min;
+			boundary_conditions[5] = 0; //constants->bc_z_max;
+		}
+	}
+
+	orderofgrid = (int) constants->order;
 }
 
 /**
@@ -634,6 +647,68 @@ void Grid::init_2d_shockwave_bubble() {
 
 	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
 		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			xpos = (double)-2/3 * (pos_x_max - pos_x_min) + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = (double)-2/3 * (pos_y_max - pos_y_min) + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
+
+			int index = n + m * grid_size_total[0];
+
+			if (radius >= KREIS(xpos, ypos)) {
+				cellsgrid[index][0] = 8;
+
+			} else {
+				cellsgrid[index][0] = 10;
+
+			}
+
+			cellsgrid[index][2] = 0;
+			cellsgrid[index][3] = 0;
+			cellsgrid[index][4] = 0;
+			cellsgrid[index][5] = 0;
+		}
+	}
+
+	//int shockwave_pos = pos_x_max + 1.8/(pos_x_max - pos_x_min);
+	//int shockwave_zell = 1.8/(pos_x_max - pos_x_min)*cells[0];
+	//int shockwave_cell = 0.5 * (pos_x_max - pos_x_min) / (pos_x_max - pos_x_min) * grid_size[0];
+	int shockwave_center = (double)1/3 * grid_size[0];
+	int shockwave_left = shockwave_center - (double)1/20 * grid_size[0];
+	int shockwave_right = shockwave_center + (double)1/20 * grid_size[0];
+
+	cout << "l: " << shockwave_left << " c: " << shockwave_center << " r: " << shockwave_right << endl;
+
+	int index = 0;
+	for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+		for (int l = shockwave_left; l < shockwave_right; l++){
+			index = l + m * grid_size_total[0];
+			cellsgrid[index][0] = 20;
+			cellsgrid[index][2] = 10000;
+		}
+
+	}
+
+	double shockwave_pos = pos_x_min + shockwave_center * dx; // Nur Ausgabe
+	cout << "Shockwave centered at " << shockwave_pos << " with cell  " << shockwave_center << endl;
+	return;
+}
+
+
+/*void Grid::init_2d_shockwave_bubble() {
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
+	double pos_y_max = constants->pos_y_max; //2D
+	double pos_y_min = constants->pos_y_min; //2D
+
+	double dx = (pos_x_max - pos_x_min) / (double) grid_size[0];
+
+	double xpos = 0.0;
+	double ypos = 0.0;  //2D
+
+	double radius = constants->radius;
+	//radius = -1;
+	cout << "Kreis mit Radius " << radius << " und Gleichung " << KREIS_F << endl;
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
 			xpos = pos_x_min + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
 			ypos = pos_y_min + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
 
@@ -656,17 +731,18 @@ void Grid::init_2d_shockwave_bubble() {
 
 	//int shockwave_pos = pos_x_max + 1.8/(pos_x_max - pos_x_min);
 	//int shockwave_zell = 1.8/(pos_x_max - pos_x_min)*cells[0];
-	int shockwave_zell = 0.5 * (pos_x_max - pos_x_min) / (pos_x_max - pos_x_min) * grid_size[0];
-	double shockwave_pos = pos_x_min + shockwave_zell * dx;
-	cout << "Schockwelle bei " << shockwave_pos << ", x-Zelle " << shockwave_zell << endl;
+	int shockwave_cell = 0.5 * (pos_x_max - pos_x_min) / (pos_x_max - pos_x_min) * grid_size[0];
+	double shockwave_pos = pos_x_min + shockwave_cell * dx;
+	cout << "Schockwelle bei " << shockwave_pos << ", x-Zelle " << shockwave_cell << endl;
+
 	for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
-		int index = shockwave_zell + m * grid_size_total[0];
+		int index = shockwave_cell + m * grid_size_total[0];
 		cellsgrid[index][0] = 20;
-		cellsgrid[index][2] = 10;
+		cellsgrid[index][2] = 10000;
 
 	}
 	return;
-}
+}*/
 
 /**
  *****************************************************************************************

@@ -11,13 +11,15 @@
 #include "time_step_calculation.h"
 #include "cfl_1d.h"
 #include "cfl_2d.h"
+#include <iomanip>
 
 using namespace std;
 
 Time_Step_Calculation::Time_Step_Calculation(int neqs, Grid * grid) {
 	// TODO Auto-generated constructor stub
 	this->constants = &Constants::instance();
-	this->grid_main = grid;
+	this->grid = grid;
+
 	this->n_eqns = neqs;
 	gamma = constants->gamma;
 	ct = constants->ct;
@@ -52,7 +54,8 @@ Time_Step_Calculation::Time_Step_Calculation(int neqs, Grid * grid) {
 }
 
 Time_Step_Calculation::~Time_Step_Calculation() {
-	// TODO Auto-generated destructor stub
+	delete[] v_max_new;
+	delete[] v_max_old;
 }
 
 /**
@@ -62,7 +65,9 @@ Time_Step_Calculation::~Time_Step_Calculation() {
  * @param time aktuelle Zeit.
  * @return neue Zeit.
  *****************************************************************************************/
-double Time_Step_Calculation::cfl_condition() {
+double Time_Step_Calculation::cfl_condition(Grid * grid) {
+
+	this->grid = grid;
 
 	switch (dimension) {
 	case (1): {
@@ -136,7 +141,7 @@ void Time_Step_Calculation::cfl_2d(double* v_max) {
 	double cfl = constants->cfl;
 
 	if (compare_step == 0) {
-		time_old = time;
+		//time_old = time;
 	}
 	else{
 
@@ -155,16 +160,16 @@ void Time_Step_Calculation::cfl_2d(double* v_max) {
 	if ((time + dt) > time_limit)
 		dt = time_limit - time;
 
-	if(with_splitting==2){
+	if(with_splitting>=2){
 		if(compare_step==0){
-			time = time + dt;
+			//time = time + dt;
 		}
 	}
 	else{
-		time = time + dt;
+		//time = time + dt;
 	}
 
-	if (with_splitting == 2) {
+	if (with_splitting >= 1) { // 2
 
 		if (compare_step == 0) {
 			v_max_old[0] = v_max[0];
@@ -179,42 +184,48 @@ void Time_Step_Calculation::cfl_2d(double* v_max) {
 	}
 	cout << "Größte Eigenwerte: " << v_max[0] << " und " << v_max[1] << endl;
 	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
+
+	delete[] v_max;
 }
 
-double Time_Step_Calculation::halve_dt() {
-
-	dt = dt_old / 2;
-	time = time_old + dt;
+double Time_Step_Calculation::halve_dt(double dt) {
+	cout << "=== HALVED DT ==="<<endl;
+	dt = dt * 0.5	;
 
 	return dt;
+}
+
+double Time_Step_Calculation::set_new_time(double dt) {
+	time = time + dt;
+
+	return time;
 }
 
 int Time_Step_Calculation::compare_dt() {
 
 	double dt_comp = dt - dt_old;
 	cout << "Delta ts" << endl;
-	cout << "dt:  " << dt << endl;
-	cout << "dto: " << dt_old << endl;
+	cout << "dt:  " << dt << " | dtold: " << dt_old << endl;
 	cout << "dtc: " << dt_comp << endl;
-
-// mit Epsilon
-//if (dt_comp-0.00001>=0 ){
-
-	if (v_max_new[0] >= v_max_old[0]) {
-		// do something
-		cout << "New Eigenvalue 1 is bigger" << endl;
-	} else if (v_max_new[1] >= v_max_old[1]) {
-		// do something
-		cout << "New Eigenvalue 2 is bigger" << endl;
-	}
 
 
 	if (dt < dt_old) {
 		return -1;
-	} else {
+	}
+	else {
 		//dt <= dt_new;
 		return 0;
 	}
+}
+
+void Time_Step_Calculation::reset_step() {
+
+		//time = time_old;
+		dt = dt_old;
+		v_max_new[0] = v_max_old[0];
+		v_max_new[1] = v_max_old[1];
+
+		compare_step = 1;
 }
 
 /**
@@ -244,15 +255,15 @@ double Time_Step_Calculation::cfl_1d_eigenvalues() {
 	LaGenMatDouble vr(3, 3);
 
 	//Schritt 1: Maxima finden
-	for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
+	for (int x = 0; x < grid->grid_size_total[0]; x++) {
 
 		// ACHTUNG, NUR VARIANTE 1 IST IN DEN GLEICHUNGEN IMPLEMENTIERT!
 		switch (cfl_option) {
 		case (1):
 
-			p = ct * pow(grid_main->cellsgrid[x][0], gamma);
+			p = ct * pow(grid->cellsgrid[x][0], gamma);
 
-			grid_main->cellsgrid[x][1] = p;
+			grid->cellsgrid[x][1] = p;
 			dtwo = pow((p / cref), gamma_inv);
 			break;
 			/*case(2):
@@ -267,9 +278,9 @@ double Time_Step_Calculation::cfl_1d_eigenvalues() {
 			 break;*/
 		}
 
-		u_eqns[0] = grid_main->cellsgrid[x][0];
-		u_eqns[1] = grid_main->cellsgrid[x][2] * u_eqns[0];
-		u_eqns[2] = grid_main->cellsgrid[x][3];
+		u_eqns[0] = grid->cellsgrid[x][0];
+		u_eqns[1] = grid->cellsgrid[x][2] * u_eqns[0];
+		u_eqns[2] = grid->cellsgrid[x][3];
 
 		//Schritt 2: Einsetzen in die Jacobi-Matrix
 		matrix_1d(values, u_eqns, p, dtwo, cfl_option);
@@ -322,16 +333,16 @@ void Time_Step_Calculation::cfl_1d_approx() {
 	double v_max = 0.0, v_max_step = 0.0;
 
 	//dt über Näherung berechnen
-	for (int i = 0; i < grid_main->grid_size_total[0]; i++) {
+	for (int i = 0; i < grid->grid_size_total[0]; i++) {
 
-		rho = grid_main->cellsgrid[i][0];
-		uxr = grid_main->cellsgrid[i][3];
-		ux = grid_main->cellsgrid[i][2];
+		rho = grid->cellsgrid[i][0];
+		uxr = grid->cellsgrid[i][3];
+		ux = grid->cellsgrid[i][2];
 
 		switch (cfl_option) {
 		case (1): {
 			p = ct * pow(rho, gamma);
-			grid_main->cellsgrid[i][1] = p;
+			grid->cellsgrid[i][1] = p;
 
 			rho_two = pow((p / cref), gamma_inv);
 			break;
@@ -339,14 +350,14 @@ void Time_Step_Calculation::cfl_1d_approx() {
 		case (2): {
 			rho_two = ccl / ((1 / rho) - ((1 - ccl) / rho_one));
 			p = cref * pow(rho_two, gamma);
-			grid_main->cellsgrid[i][1] = p;
+			grid->cellsgrid[i][1] = p;
 
 			break;
 		}
 		case (3): {
 			rho_two = ccl / ((1 / rho) - ((1 - ccl) / rho_one));
 			p = ct * pow(rho, gamma);
-			grid_main->cellsgrid[i][1] = p;
+			grid->cellsgrid[i][1] = p;
 
 			break;
 		}
@@ -404,17 +415,17 @@ double* Time_Step_Calculation::cfl_2d_eigenvalues() {
 	/**** Eventuell als Unteraufruf, um dt überprüfen zu können bei Splitting ****/
 
 	//Schritt 1: Daten holen
-	for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
-		for (int y = 0; y < grid_main->grid_size_total[1]; y++) {
+	for (int x = 0; x < grid->grid_size_total[0]; x++) {
+		for (int y = 0; y < grid->grid_size_total[1]; y++) {
 
-			rho = grid_main->cellsgrid[x][0];
-			u_x = grid_main->cellsgrid[x][2];
-			u_y = grid_main->cellsgrid[x][4];
-			ur_x = grid_main->cellsgrid[x][3];
-			ur_y = grid_main->cellsgrid[x][5];
+			rho = grid->cellsgrid[x + y * grid->grid_size_total[0]][0];
+			u_x = grid->cellsgrid[x + y * grid->grid_size_total[0]][2];
+			u_y = grid->cellsgrid[x + y * grid->grid_size_total[0]][4];
+			ur_x = grid->cellsgrid[x + y * grid->grid_size_total[0]][3];
+			ur_y = grid->cellsgrid[x + y * grid->grid_size_total[0]][5];
 
-			p = ct * pow(grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][0],gamma);
-			grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][1] = p;
+			p = ct * pow(grid->cellsgrid[x + y * grid->grid_size_total[0]][0],gamma);
+			grid->cellsgrid[x + y * grid->grid_size_total[0]][1] = p;
 			rho_two = pow((p / cref), gamma_inv);
 
 			u_x = u_x * rho;
@@ -426,6 +437,7 @@ double* Time_Step_Calculation::cfl_2d_eigenvalues() {
 			u_eqns[2] = u_y;
 			u_eqns[3] = ur_x;
 			u_eqns[4] = ur_y;
+
 			matrix_2d(values1, values2, u_eqns, p, rho_two);
 
 			//Schritt 3: Berechnen der Eigenwerte
@@ -450,23 +462,6 @@ double* Time_Step_Calculation::cfl_2d_eigenvalues() {
 			}
 		}
 	}
-
-	/*****/
-	/*if (with_splitting == 1) {
-		dt = cfl / (v_max[0] / dx + v_max[1] / dy);
-	} else {
-		dt = cfl / max(v_max[0] / dx, v_max[1] / dy);
-	}
-
-	if (n <= divider_last)
-		dt = dt * divider;
-
-	if ((time + dt) > time_limit)
-		dt = time_limit - time;
-	time = time + dt;
-	cout << "Größte Eigenwerte: " << v_max[0] << " und " << v_max[1] << endl;
-	cout << "Neues delta t ist: \t" << dt << " Zeit insgesamt: \t" << time << endl;
-*/
 
 	delete[] u_eqns;
 
@@ -493,17 +488,17 @@ void Time_Step_Calculation::cfl_2d_approx() {
 	double v_max = 0.0, v_max_step = 0.0;
 
 	//über Näherung
-	for (int x = 0; x < grid_main->grid_size_total[0]; x++) {
-		for (int y = 0; y < grid_main->grid_size_total[1]; y++) {
+	for (int x = 0; x < grid->grid_size_total[0]; x++) {
+		for (int y = 0; y < grid->grid_size_total[1]; y++) {
 
-			int index = x + y * grid_main->grid_size_total[0];
-			rho = grid_main->cellsgrid[index][0];
-			uxr = grid_main->cellsgrid[index][3];
-			ux = grid_main->cellsgrid[index][2];
-			uy = grid_main->cellsgrid[index][4];
-			uyr = grid_main->cellsgrid[index][5];
+			int index = x + y * grid->grid_size_total[0];
+			rho = grid->cellsgrid[index][0];
+			uxr = grid->cellsgrid[index][3];
+			ux = grid->cellsgrid[index][2];
+			uy = grid->cellsgrid[index][4];
+			uyr = grid->cellsgrid[index][5];
 			p = ct * pow(rho, gamma);
-			grid_main->cellsgrid[x + y * grid_main->grid_size_total[0]][1] = p;
+			grid->cellsgrid[x + y * grid->grid_size_total[0]][1] = p;
 			rho_two = pow((p / cref), gamma_inv);
 
 			v_max_step = fabs(ux) + fabs(uy) + AM_2d(gamma, p, rho) + XS_2d(rho, rho_two, rho_one, ccl, uxr, uxy);

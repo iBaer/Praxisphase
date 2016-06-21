@@ -1,0 +1,34 @@
+calceigv 1           // 1 für jacobimatrix, 0 analytisch
+variante 1           // für verschiedene EOS, nicht implementert
+teiler 0.2           // um wieviel dt zuerst geteilt wird
+teilerend 5          // für wieviel Schritte dt geteilt wird
+timeou 0.7           // maximaler Zeit
+cfl 0.9              // cfl-Zahl
+maxnt 1000           // maximale Anzahl der Schritte
+dimension 2          // Dimension
+ordnung 1            // Ordnung des Algorithmus im Raum (nur 1 implementiert)
+radius 3.0           // Radius der Blase
+CELLSX 50            // Zellzahl in x-Richtung
+CELLSY 100           // Zellzahl in y-Richtung (muss für den 1-d Fall = 1 sein)
+g 1.4                // Konstante in der Simulation in der EOS
+mol -40.0            // x-Wert der linken unteren Ecke 
+mor 10.0             // x-Wert der rechten unteren Ecke 
+mul -60.0            // y-Wert der linken unteren Ecke 
+mur 40.0             // y-Wert der linken oberen Ecke 
+upbc 0               // Randbedingunen oben
+downbc 0             // Randbedingunen unten
+leftbc 0             // Randbedingunen links
+rightbc 0            // Randbedingunen rechts
+cref 100000.0        // Konstante in der Simulation in der EOS
+done 1000.0          // Dichte der Phase 1
+ccl 0.2              // Konstante in der Simulation, Massenanteil
+rhol 800.0           // Initialwert der Dichte der Phase 2, links
+vl -100.0            // X-Geschwindigkeit, x<=0
+vrl 0.0              // Relativgeschwindigkeit, x<=0
+vyl 0.0              // Y-Geschwindigkeit, x<=0
+vyrl 0.0             // Relativgeschwindigkeit, x<=0
+rhor 800.0           // Initialwert der Dichte der Phase 2, rechts
+vr 100.0             // X-Geschwindigkeit, x>0
+vrr 0.0              // Relativgeschwindigkeit, x>0
+vyr 0.0              // Y-Geschwindigkeit, x>0
+vyrr 0.0             // Relativegeschwindigkeit, x>0

@@ -30,7 +30,7 @@ public:
 	/**
 	 * Konstruktor für ein leeres zweidimensionales Raster.
 	 */
-	Grid(int x, int y);
+	Grid(int x, int y, Constants *constants);
 
 	/**
 	 * Destruktor des Rasters.

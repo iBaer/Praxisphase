@@ -51,7 +51,7 @@ class Lax_Wendroff : public Solver
         * @param dir Unsplitting = 0, Splitting = 1.
         */
         //TODO: aus "dir" -> "splitting"
-        void calc_method_flux(double dt,int split_method);
+        void calc_method_flux(double dt);
 
         //int size_total[0];
         //int size_total[1];

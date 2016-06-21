@@ -4,12 +4,12 @@ teiler 0.2           // um wieviel dt zuerst geteilt wird
 teilerend 5          // für wieviel Schritte dt geteilt wird
 timeou 0.007         // maximaler Zeit
 cfl 0.9              // cfl-Zahl
-maxnt 3              // maximale Anzahl der Schritte
+maxnt 5              // maximale Anzahl der Schritte
 dimension 1          // Dimension
 ordnung 1            // Ordnung des Algorithmus im Raum (nur 1 implementiert)
 radius 3.0           // Radius der Blase
-CELLSX 10            // Zellzahl in x-Richtung
-CELLSY 20            // Zellzahl in y-Richtung (muss für den 1-d Fall = 1 sein)
+CELLSX 20            // Zellzahl in x-Richtung
+CELLSY 40            // Zellzahl in y-Richtung (muss für den 1-d Fall = 1 sein)
 g 1.4                // Konstante in der Simulation in der EOS
 mol -8.0            // x-Wert der linken unteren Ecke 
 mor 2.0             // x-Wert der rechten unteren Ecke 

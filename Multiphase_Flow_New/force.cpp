@@ -103,7 +103,7 @@ Force::~Force() {
  * Berechnung des FORCE Flusses.
  * @return 4 Dimensionaler Vektor. Zusammenstellung: Gleichung, x-Position, y-Position , dimension
  */
-void Force::calc_method_flux(double dt, int dir) {
+void Force::calc_method_flux(double dt) {
 	cout << "Berechne FORCE Fluss..." << endl;
 
 	//f_force = new double[neqs * (size_m1[0]) * (size_m1[1])];
@@ -116,7 +116,7 @@ void Force::calc_method_flux(double dt, int dir) {
 	}
 	case (2): {
 		//2D ACHTUNG - EVENTUELL NOCH FALSCH !!!!!!!!!!!!!!!!!!!!!!!!!!
-		if (dir == 0) {
+		if (split_method == 0) {
 			solve_2d_unsplit(dt);
 		}
 		else{
@@ -223,8 +223,8 @@ void Force::solve_2d_unsplit(double dt){
 
 
 	//Richtmyer Fluss berechnen
-	Grid* u_rie_f = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
-	Grid* u_rie_g = new Grid(grid->grid_size_total[0], grid->grid_size_total[1]);
+	Grid* u_rie_f = new Grid(grid->grid_size_total[0], grid->grid_size_total[1], constants);
+	Grid* u_rie_g = new Grid(grid->grid_size_total[0], grid->grid_size_total[1], constants);
 
 	for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
 		for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
@@ -337,7 +337,7 @@ void Force::solve_2d_split(double dt){
 	}
 
 	//Richtmyer Fluss berechnen
-	Grid* u_rie_f = new Grid(size_total[0], size_total[1]);
+	Grid* u_rie_f = new Grid(size_total[0], size_total[1], constants);
 
 	for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
 		for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {
@@ -418,7 +418,7 @@ void Force::solve_2d_split(double dt){
 	}
 
 	//Richtmyer Fluss berechnen
-	Grid* u_rie_g = new Grid(size_total[0], size_total[1]);
+	Grid* u_rie_g = new Grid(size_total[0], size_total[1], constants);
 
 	for (int x = 0; x < size_total[0] - grid->orderofgrid; x++) {
 		for (int y = 0; y < size_total[1] - grid->orderofgrid; y++) {

@@ -23,6 +23,7 @@ Solver::Solver(string solver_name, Constants* constants, Computation *computatio
         dy = (constants->pos_y_max - constants->pos_y_min)/(double)grid->grid_size[1];
     }
 
+    split_method = 0;
     time_calculation = NULL;
 }
 

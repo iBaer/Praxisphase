@@ -27,7 +27,7 @@ class Force : public Solver
         * Berechnung des FORCE Flusses.
         * @return 4 Dimensionaler Vektor. Zusammenstellung: Gleichung, x-Position, y-Position , dimension
         */
-        void calc_method_flux(double dt,int dir);
+        void calc_method_flux(double dt);
 
   	  //int size_total[0];
   	  //int size_total[1];

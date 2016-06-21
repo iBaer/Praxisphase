@@ -174,73 +174,11 @@ public:
 
 	Time_Step_Calculation* time_calculation;
 
-	/**
-	 * CFL Bedingung anwenden und neue Zeit berechnen.
-	 * @param n aktueller Zeitschritt.
-	 * @param time aktuelle Zeit.
-	 * @return neue Zeit.
-	 */
-	double cfl_condition(int n, double time);
-
-	/**
-	 * Unterfunktion der Methode cfl_condition().
-	 * Berechnung der CFL Bedingung in 1D mit Eigenwerten.
-	 * @param n aktueller Zeitschritt.
-	 * @param time aktuelle Zeit.
-	 */
-	double cfl_1d_eigenvalues(int n);
-
-	/**
-	 * Unterfunktion der Methode cfl_condition().
-	 * Berechnung der CFL Bedingung in 1D über Annäherung.
-	 * @param n aktueller Zeitschritt.
-	 * @param time aktuelle Zeit.
-	 */
-	void cfl_1d_approx(int n, double &time);
-
-	/**
-	 * Berechnet die CFL Bedingung in 1D
-	 * @param v_max größer Eigenwert oder Approximation.
-	 */
-	void cfl_1d(int n, double &time, double v_max);
-
-	/**
-	 * Berechnet die CFL Bedingung in 2D
-	 * @param v_max größer Eigenwerte oder Approximation.
-	 */
-	void cfl_2d(int n, double &time, double* v_max);
-
-	/**
-	 * Unterfunktion der Methode cfl_condition().
-	 * Berechnung der CFL Bedingung in 2D mit Eigenwerten.
-	 * @param n aktueller Zeitschritt.
-	 * @param time aktuelle Zeit.
-	 */
-	double* cfl_2d_eigenvalues(int n);
-
-	/**
-	 * Unterfunktion der Methode cfl_condition().
-	 * Berechnung der CFL Bedingung in 2D über Annäherung.
-	 * @param n aktueller Zeitschritt.
-	 * @param time aktuelle Zeit.
-	 */
-	void cfl_2d_approx(int n, double &time);
 
 	/**
 	 * Schreibt Ergebnisse in Dateien für d,p und u,ur für die jeweilige Dimension
 	 */
 	void write();
-
-	/**
-	 * Bestimmt die Elemente der Jacobi-Matrix für eine Dimension
-	 */
-	void matrix_1d(double * values, int n, double * u, double p, double dtwo, int variante);
-
-	/**
-	 * Bestimmt die Elemente der Jacobi-Matrix für zwei Dimensionen
-	 */
-	void matrix_2d(double * values_x, double * values_y, int n, double * u, double p,
-			double dtwo);
 
 };
 
