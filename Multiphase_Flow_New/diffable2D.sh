@@ -12,7 +12,7 @@ if [ $fileamnt -ne 0 ]
 then
 	for file in *2d*till5*
 	do
-		diff -q $file ./DiffableResults/$file &>/dev/null
+		diff -q $file ./DiffableResults/$file 
 		temp=$?
 		if [ $temp -eq 2 ]
 		then

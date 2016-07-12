@@ -9,6 +9,8 @@ Solver::Solver(string solver_name, Constants* constants, Computation *computatio
 	this->grid = grid;
     dimension = constants->dimension;
 
+	neqs = computation->neqs;
+
     size_total = new int[dimension];
     size_m1 = new int[dimension];
 
@@ -23,6 +25,7 @@ Solver::Solver(string solver_name, Constants* constants, Computation *computatio
         dy = (constants->pos_y_max - constants->pos_y_min)/(double)grid->grid_size[1];
     }
 
+    //TODO: .... ?
     split_method = 0;
     time_calculation = NULL;
 }

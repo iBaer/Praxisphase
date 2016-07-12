@@ -62,17 +62,12 @@ class Lax_Friedrich : public Solver
         * @param dir Unsplitting = 0, Splitting = 1.
         */
         //TODO: aus "dir" -> "splitting"
-        void calc_method_flux(double dt);
+        void calc_method_flux(double dt, Grid * grid);
 
         //int size_total[0];
         //int size_total[1];
         //int size_m1[0];
         //int size_m1[1];
-
-        /**
-        * Anzahl der Gleichungen
-        */
-        int neqs;
 
         /**
         * 1D Array für den Fluss U, für schnelleren Zugriff

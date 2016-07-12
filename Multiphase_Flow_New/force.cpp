@@ -16,8 +16,6 @@ Force::Force(Constants *constants, Computation *computation, Grid *grid) :
 	size_total[1] = grid->grid_size_total[1];
 	size_m1[1] = grid->grid_size_total[1] - 1;
 
-	neqs = computation->neqs;
-
 	uall = new double[neqs * size_total[0] * size_total[1]];
 	fall = new double[neqs * size_total[0] * size_total[1]];
 	gall = new double[neqs * size_total[0] * size_total[1]];
@@ -103,11 +101,11 @@ Force::~Force() {
  * Berechnung des FORCE Flusses.
  * @return 4 Dimensionaler Vektor. Zusammenstellung: Gleichung, x-Position, y-Position , dimension
  */
-void Force::calc_method_flux(double dt) {
+void Force::calc_method_flux(double dt, Grid * grid) {
 	cout << "Berechne FORCE Fluss..." << endl;
 
 	//f_force = new double[neqs * (size_m1[0]) * (size_m1[1])];
-
+	this->grid = grid;
 
 	switch (dimension) {
 	case (1): {
@@ -126,6 +124,8 @@ void Force::calc_method_flux(double dt) {
 
 	}
 	}
+	time_calculation->set_new_time(dt);
+
 
 }
 
@@ -193,6 +193,7 @@ void Force::solve_1d(double dt){
 		uxr = uxr + dtodx * (f_force[0][index_x1 + index_x3 * (2)] - f_force[0][index_x2 + index_x3 * (2)]);
 
 		grid->cellsgrid[i][0] = d;
+		grid->cellsgrid[i][1] = constants->ct * pow(grid->cellsgrid[i][0], constants->gamma);
 		grid->cellsgrid[i][2] = uxd / d;
 		grid->cellsgrid[i][3] = uxr;
 	}
@@ -306,6 +307,7 @@ void Force::solve_2d_unsplit(double dt){
 					+ dtody * (f_force[1][index_y1 + index_y3 * (4)] - f_force[1][index_y2 + index_y3 * (4)]);
 
 			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][1] = constants->ct * pow(grid->cellsgrid[pos][0], constants->gamma);
 			grid->cellsgrid[pos][2] = uxd / d;
 			grid->cellsgrid[pos][4] = uyd / d;
 			grid->cellsgrid[pos][3] = uxr;
@@ -397,6 +399,8 @@ void Force::solve_2d_split(double dt){
 			uyr = uyr + dtodx * (f_force[0][index_x1 + index_x3 * (4)] - f_force[0][index_x2 + index_x3 * (4)]);
 
 			grid->cellsgrid[pos][0] = d;
+			//TODO: Muss hier sein?
+			//grid->cellsgrid[pos][1] = constants->ct * pow(d, constants->gamma);
 			grid->cellsgrid[pos][2] = uxd / d;
 			grid->cellsgrid[pos][4] = uyd / d;
 			grid->cellsgrid[pos][3] = uxr;
@@ -477,6 +481,7 @@ void Force::solve_2d_split(double dt){
 			uyr = uyr + dtody * (f_force[1][index_y1 + index_y3 * (4)] - f_force[1][index_y2 + index_y3 * (4)]);
 
 			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][1] = constants->ct * pow(d, constants->gamma);
 			grid->cellsgrid[pos][2] = uxd / d;
 			grid->cellsgrid[pos][4] = uyd / d;
 			grid->cellsgrid[pos][3] = uxr;

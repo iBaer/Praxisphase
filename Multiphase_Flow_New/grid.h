@@ -78,6 +78,7 @@ public:
 	 */
 	void apply_boundary_conditions();
 
+	int copy_to(Grid * grid_copy);
 	/**
 	 * Wahl der Initialisierungsmethode des Rasters.
 	 */

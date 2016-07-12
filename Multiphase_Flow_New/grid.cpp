@@ -223,6 +223,21 @@ Grid::~Grid() {
 	delete[] boundary_conditions;
 }
 
+int Grid::copy_to(Grid * grid_copy){
+	if(grid_size_total[0] != grid_copy->grid_size_total[0] && grid_size_total[1] != grid_copy->grid_size_total[1])
+		return -1;
+	int pos = 0;
+	for (int x = 0; x < grid_size_total[0]; x++) {
+			for (int y = 0; y < grid_size_total[1]; y++) {
+				pos = x + y * grid_size_total[0];
+				for(int k=0;k<6;k++){
+					grid_copy->cellsgrid[pos][k] = cellsgrid[pos][k];
+				}
+			}
+	}
+	return 0;
+}
+
 /**
  *****************************************************************************************
  * Anwenden der Randbedingungen
@@ -236,10 +251,12 @@ void Grid::apply_boundary_conditions() {
 		// BC links
 		if (boundary_conditions[0] == 0) {
 			cellsgrid[0][0] = cellsgrid[orderofgrid][0];
+			cellsgrid[0][1] = cellsgrid[orderofgrid][1];
 			cellsgrid[0][2] = cellsgrid[orderofgrid][2];
 			cellsgrid[0][3] = cellsgrid[orderofgrid][3];
 		} else {
 			cellsgrid[0][0] = cellsgrid[orderofgrid][0];
+			cellsgrid[0][1] = cellsgrid[orderofgrid][1];
 			cellsgrid[0][2] = -cellsgrid[orderofgrid][2];
 			cellsgrid[0][3] = cellsgrid[orderofgrid][3];
 		}
@@ -250,10 +267,12 @@ void Grid::apply_boundary_conditions() {
 		// BC Rechts
 		if (boundary_conditions[1] == 0) {
 			cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+			cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 			cellsgrid[index_dst][2] = cellsgrid[index_src][2];
 			cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 		} else {
 			cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+			cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 			cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
 			cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 		}
@@ -272,12 +291,14 @@ void Grid::apply_boundary_conditions() {
 
 						if (boundary_conditions[0] == 0) {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
 							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
@@ -291,12 +312,14 @@ void Grid::apply_boundary_conditions() {
 
 						if (boundary_conditions[1] == 0) {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
 							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
@@ -310,12 +333,14 @@ void Grid::apply_boundary_conditions() {
 
 						if (boundary_conditions[2] == 0) {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
 							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
@@ -328,12 +353,14 @@ void Grid::apply_boundary_conditions() {
 
 						if (boundary_conditions[3] == 0) {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = cellsgrid[index_src][4];
 							cellsgrid[index_dst][5] = cellsgrid[index_src][5];
 						} else {
 							cellsgrid[index_dst][0] = cellsgrid[index_src][0];
+							cellsgrid[index_dst][1] = cellsgrid[index_src][1];
 							cellsgrid[index_dst][2] = -cellsgrid[index_src][2];
 							cellsgrid[index_dst][3] = cellsgrid[index_src][3];
 							cellsgrid[index_dst][4] = -cellsgrid[index_src][4];
@@ -376,6 +403,9 @@ void Grid::init_1d_rarefaction() {
 			cellsgrid[n][2] = v_right;
 			cellsgrid[n][3] = v_r_right;
 		}
+
+		cellsgrid[n][1] = constants->ct * pow(cellsgrid[n][0], constants->gamma);
+
 	}
 	return;
 }
@@ -400,6 +430,8 @@ void Grid::init_1d_shockwave() {
 			cellsgrid[n][2] = 0;
 			cellsgrid[n][3] = 0;
 		}
+		cellsgrid[n][1] = constants->ct * pow(cellsgrid[n][0], constants->gamma);
+
 	}
 	return;
 }
@@ -454,6 +486,8 @@ void Grid::init_2d_rarefaction_0() {
 				cellsgrid[index][5] = v_r_y_right;
 
 			}
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
+
 		}
 	}
 	return;
@@ -508,6 +542,7 @@ void Grid::init_2d_rarefaction_90() {
 				cellsgrid[index][5] = v_r_y_right;
 
 			}
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
 		}
 	}
 	return;
@@ -565,6 +600,8 @@ void Grid::init_2d_rarefaction_60() {
 				cellsgrid[index][4] = vyr_winkel;
 				cellsgrid[index][5] = v_r_y_right;
 			}
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
+
 		}
 	}
 	return;
@@ -621,6 +658,8 @@ void Grid::init_2d_rarefaction_45() {
 				cellsgrid[index][4] = vyr_winkel;
 				cellsgrid[index][5] = v_r_y_right;
 			}
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
+
 		}
 	}
 	return;
@@ -630,6 +669,80 @@ void Grid::init_2d_rarefaction_45() {
  *****************************************************************************************
  * Initialisierungsmethode für eine Schockwelle-auf-Blase-Simulation auf einem 2D-Raster
  *****************************************************************************************/
+/*void Grid::init_2d_shockwave_bubble() {
+	double pos_x_max = constants->pos_x_max;
+	double pos_x_min = constants->pos_x_min;
+	double pos_y_max = constants->pos_y_max; //2D
+	double pos_y_min = constants->pos_y_min; //2D
+
+	double dx = (pos_x_max - pos_x_min) / (double) grid_size[0];
+
+	double xpos = 0.0;
+	double ypos = 0.0;  //2D
+
+	double radius = constants->radius;
+	//radius = -1;
+	cout << "Kreis mit Radius " << radius << " und Gleichung " << KREIS_F << endl;
+
+	for (int n = orderofgrid; n < grid_size_total[0] - orderofgrid; n++) {
+		for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+			xpos = (double)-1/3 * (pos_x_max - pos_x_min) + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = (double)-2/3 * (pos_y_max - pos_y_min) + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
+
+			int index = n + m * grid_size_total[0];
+
+			if (radius >= KREIS(xpos, ypos)) {
+				cellsgrid[index][0] = 8;
+
+			} else {
+				cellsgrid[index][0] = 10;
+
+			}
+
+			xpos = (double)-2/3 * (pos_x_max - pos_x_min) + (pos_x_max - pos_x_min) * (((double) n - orderofgrid) / (double) grid_size[0]);
+			ypos = (double)-1/3  * (pos_y_max - pos_y_min) + (pos_y_max - pos_y_min) * (((double) m - orderofgrid) / (double) grid_size[1]);
+
+			if (radius >= KREIS(xpos, ypos)) {
+				cellsgrid[index][0] = 5;
+
+			}
+
+			cellsgrid[index][2] = 0;
+			cellsgrid[index][3] = 0;
+			cellsgrid[index][4] = 0;
+			cellsgrid[index][5] = 0;
+
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
+
+		}
+	}
+
+	//int shockwave_pos = pos_x_max + 1.8/(pos_x_max - pos_x_min);
+	//int shockwave_zell = 1.8/(pos_x_max - pos_x_min)*cells[0];
+	//int shockwave_cell = 0.5 * (pos_x_max - pos_x_min) / (pos_x_max - pos_x_min) * grid_size[0];
+	int shockwave_center = (double)1/3 * grid_size[0];
+	int shockwave_left = shockwave_center - (double)1/20 * grid_size[0];
+	int shockwave_right = shockwave_center + (double)1/20 * grid_size[0];
+
+	cout << "l: " << shockwave_left << " c: " << shockwave_center << " r: " << shockwave_right << endl;
+
+	int index = 0;
+	for (int m = orderofgrid; m < grid_size_total[1] - orderofgrid; m++) {
+		for (int l = shockwave_left; l < shockwave_right; l++){
+			index = l + m * grid_size_total[0];
+			cellsgrid[index][0] = 20;
+			cellsgrid[index][2] = 10000;
+
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
+		}
+
+	}
+
+	double shockwave_pos = pos_x_min + shockwave_center * dx; // Nur Ausgabe
+	cout << "Shockwave centered at " << shockwave_pos << " with cell  " << shockwave_center << endl;
+	return;
+}*/
+
 void Grid::init_2d_shockwave_bubble() {
 	double pos_x_max = constants->pos_x_max;
 	double pos_x_min = constants->pos_x_min;
@@ -664,6 +777,9 @@ void Grid::init_2d_shockwave_bubble() {
 			cellsgrid[index][3] = 0;
 			cellsgrid[index][4] = 0;
 			cellsgrid[index][5] = 0;
+
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
+
 		}
 	}
 
@@ -682,6 +798,8 @@ void Grid::init_2d_shockwave_bubble() {
 			index = l + m * grid_size_total[0];
 			cellsgrid[index][0] = 20;
 			cellsgrid[index][2] = 10000;
+
+			cellsgrid[index][1] = constants->ct * pow(cellsgrid[index][0], constants->gamma);
 		}
 
 	}
@@ -690,7 +808,6 @@ void Grid::init_2d_shockwave_bubble() {
 	cout << "Shockwave centered at " << shockwave_pos << " with cell  " << shockwave_center << endl;
 	return;
 }
-
 
 /*void Grid::init_2d_shockwave_bubble() {
 	double pos_x_max = constants->pos_x_max;

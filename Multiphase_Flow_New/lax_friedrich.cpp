@@ -20,8 +20,6 @@ Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Gri
 	size_total[1] = grid->grid_size_total[1];
 	size_m1[1] = grid->grid_size_total[1] - 1;
 
-	neqs = computation->neqs;
-
 	uall = new double[neqs * size_total[0] * size_total[1]];
 	fall = new double[neqs * size_total[0] * size_total[1]];
 	gall = new double[neqs * size_total[0] * size_total[1]];
@@ -54,6 +52,7 @@ Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Gri
 
 	with_halved_dt = 0;
 
+	set_grid = grid;
 }
 
 /**
@@ -91,8 +90,10 @@ Lax_Friedrich::~Lax_Friedrich() {
  * @param dt Delta t.
  * @param dir Unsplitting = 0, Splitting = 1.
  *****************************************************************************************/
-void Lax_Friedrich::calc_method_flux(double dt) {
+void Lax_Friedrich::calc_method_flux(double dt, Grid * grid) {
 	cout << "Lax-Friedrich Fluss berechnen..." << endl;
+
+	this->grid = grid;
 
 	cout << "dt="<<dt<<endl;
 	//dt = time_calculation->halve_dt(dt);
@@ -109,7 +110,7 @@ void Lax_Friedrich::calc_method_flux(double dt) {
 
 		if (split_method == 0) {
 			solve_2d_unsplit(dt);
-			time_calculation->set_new_time(dt);
+			//time_calculation->set_new_time(dt);
 
 			break;
 		}
@@ -122,7 +123,7 @@ void Lax_Friedrich::calc_method_flux(double dt) {
 				dt = time_calculation->halve_dt(dt);
 				with_halved_dt=0;
 			}
-			time_calculation->set_new_time(dt);
+			//time_calculation->set_new_time(dt);
 
 		}
 		else if (split_method == 2) {
@@ -131,7 +132,7 @@ void Lax_Friedrich::calc_method_flux(double dt) {
 				dt = time_calculation->halve_dt(dt);
 				with_halved_dt=0;
 			}
-			time_calculation->set_new_time(dt);
+			//time_calculation->set_new_time(dt);
 		}
 		else {
 			//int dt_tmp;
@@ -155,13 +156,14 @@ void Lax_Friedrich::calc_method_flux(double dt) {
 					with_halved_dt = 0;
 				}
 			}
-			time_calculation->set_new_time(dt);
+			//time_calculation->set_new_time(dt);
 
 			split_mean(grid_x_y, grid_y_x);
 
 		}
 	}
 	}
+	time_calculation->set_new_time(dt);
 
 }
 
@@ -208,6 +210,7 @@ void Lax_Friedrich::solve_1d(double dt) {
 		uxr = uxr + dtodx * (f_lax[0][index_x1 + index_end * (2)] - f_lax[0][index_x2 + index_end * (2)]);
 
 		grid->cellsgrid[i][0] = d;
+		grid->cellsgrid[i][1] = constants->ct * pow(grid->cellsgrid[i][0], constants->gamma);
 		grid->cellsgrid[i][2] = uxd / d;
 		grid->cellsgrid[i][3] = uxr;
 	}
@@ -293,6 +296,7 @@ void Lax_Friedrich::solve_2d_unsplit(double dt) {
 					+ dtody * (f_lax[1][index_y1 + index_y3 * (4)] - f_lax[1][index_y2 + index_y3 * (4)]);
 
 			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][1] = constants->ct * pow(grid->cellsgrid[pos][0], constants->gamma);
 			grid->cellsgrid[pos][2] = uxd / d;
 			grid->cellsgrid[pos][4] = uyd / d;
 			grid->cellsgrid[pos][3] = uxr;
@@ -367,13 +371,9 @@ Grid* Lax_Friedrich::solve_2d_split_xtoy(double dt, int with_average, int rerun)
 	}*/
 
 	// TODO: shorten?
-	for (int x = 0; x < grid->grid_size_total[0]; x++) {
-			for (int y = 0; y < grid->grid_size_total[1]; y++) {
-				pos = x + y * grid->grid_size_total[0];
-				for(int k=0;k<6;k++){
-					set_grid->cellsgrid[pos][k] = grid->cellsgrid[pos][k];
-				}
-			}
+	if(grid->copy_to(set_grid) == -1){
+		cout << "Couldn't copy Grid";
+		exit(EXIT_FAILURE);
 	}
 
 	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
@@ -399,6 +399,7 @@ Grid* Lax_Friedrich::solve_2d_split_xtoy(double dt, int with_average, int rerun)
 			uyr = uyr + dtodx * (f_lax[0][index_x1 + index_x_end * (4)] - f_lax[0][index_x2 + index_x_end * (4)]);
 
 			set_grid->cellsgrid[pos][0] = d;
+			set_grid->cellsgrid[pos][1] = constants->ct * pow(d, constants->gamma);
 			set_grid->cellsgrid[pos][2] = uxd / d;
 			set_grid->cellsgrid[pos][4] = uyd / d;
 			set_grid->cellsgrid[pos][3] = uxr;
@@ -493,6 +494,7 @@ Grid* Lax_Friedrich::solve_2d_split_xtoy(double dt, int with_average, int rerun)
 			}
 
 			set_grid->cellsgrid[pos][0] = d;
+			set_grid->cellsgrid[pos][1] = constants->ct * pow(d, constants->gamma);
 			set_grid->cellsgrid[pos][2] = uxd / d;
 			set_grid->cellsgrid[pos][4] = uyd / d;
 			set_grid->cellsgrid[pos][3] = uxr;
@@ -543,14 +545,12 @@ Grid* Lax_Friedrich::solve_2d_split_ytox(double dt, int with_average, int rerun)
 	}
 	int index_y1 = 0, index_y2 = 0, index_y_end = (height_m1) * (width_m1);
 
-	for (int x = 0; x < grid->grid_size_total[0]; x++) {
-			for (int y = 0; y < grid->grid_size_total[1]; y++) {
-				pos = x + y * grid->grid_size_total[0];
-				for(int k=0;k<6;k++){
-					set_grid->cellsgrid[pos][k] = grid->cellsgrid[pos][k];
-				}
-			}
+	//TODO: Kürzen?
+	if(grid->copy_to(set_grid) == -1){
+		cout << "Couldn't copy Grid";
+		exit(EXIT_FAILURE);
 	}
+
 	for (int x = order; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
 		for (int y = order; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
 			pos = x + y * grid->grid_size_total[0];
@@ -574,6 +574,7 @@ Grid* Lax_Friedrich::solve_2d_split_ytox(double dt, int with_average, int rerun)
 			uyr = uyr + dtody * (f_lax[1][index_y1 + index_y_end * (4)] - f_lax[1][index_y2 + index_y_end * (4)]);
 
 			set_grid->cellsgrid[pos][0] = d;
+			set_grid->cellsgrid[pos][1] = constants->ct * pow(grid->cellsgrid[pos][0], constants->gamma);
 			set_grid->cellsgrid[pos][2] = uxd / d;
 			set_grid->cellsgrid[pos][4] = uyd / d;
 			set_grid->cellsgrid[pos][3] = uxr;
@@ -667,6 +668,7 @@ Grid* Lax_Friedrich::solve_2d_split_ytox(double dt, int with_average, int rerun)
 			}
 
 			set_grid->cellsgrid[pos][0] = d;
+			set_grid->cellsgrid[pos][1] = constants->ct * pow(grid->cellsgrid[pos][0], constants->gamma);
 			set_grid->cellsgrid[pos][2] = uxd / d;
 			set_grid->cellsgrid[pos][4] = uyd / d;
 			set_grid->cellsgrid[pos][3] = uxr;
@@ -678,9 +680,9 @@ Grid* Lax_Friedrich::solve_2d_split_ytox(double dt, int with_average, int rerun)
 }
 
 void Lax_Friedrich::split_mean(Grid* grid_one, Grid* grid_two){
-	double d_one, ux_one, uy_one, uxr_one, uyr_one;
-	double d_two, ux_two, uy_two, uxr_two, uyr_two;
-	double d, ux, uy, uxr, uyr;
+	double d_one, p_one, ux_one, uy_one, uxr_one, uyr_one;
+	double d_two, p_two, ux_two, uy_two, uxr_two, uyr_two;
+	double d, p, ux, uy, uxr, uyr;
 
 	int pos;
 	int order = grid->orderofgrid;
@@ -690,12 +692,14 @@ void Lax_Friedrich::split_mean(Grid* grid_one, Grid* grid_two){
 			pos = x + y * grid->grid_size_total[0];
 
 			d_one = grid_one->cellsgrid[pos][0];
+			p_one = grid_one->cellsgrid[pos][1];
 			ux_one = grid_one->cellsgrid[pos][2];
 			uy_one = grid_one->cellsgrid[pos][4];
 			uxr_one = grid_one->cellsgrid[pos][3];
 			uyr_one = grid_one->cellsgrid[pos][5];
 
 			d_two = grid_two->cellsgrid[pos][0];
+			p_two = grid_one->cellsgrid[pos][1];
 			ux_two = grid_two->cellsgrid[pos][2];
 			uy_two = grid_two->cellsgrid[pos][4];
 			uxr_two = grid_two->cellsgrid[pos][3];
@@ -703,12 +707,14 @@ void Lax_Friedrich::split_mean(Grid* grid_one, Grid* grid_two){
 
 
 			d = 0.5 * (d_one + d_two);
+			p = 0.5 * (p_one + p_two);
 			ux = 0.5 * (ux_one + ux_two);
 			uy = 0.5 * (uy_one + uy_two);
 			uxr = 0.5 * (uxr_one + uxr_two);
 			uyr = 0.5 * (uyr_one + uyr_two);
 
 			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][1] = p;
 			grid->cellsgrid[pos][2] = ux;
 			grid->cellsgrid[pos][4] = uy;
 			grid->cellsgrid[pos][3] = uxr;

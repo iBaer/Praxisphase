@@ -17,8 +17,6 @@ Lax_Wendroff::Lax_Wendroff(Constants *constants, Computation *computation, Grid 
 	size_total[1] = grid->grid_size_total[1];
 	size_m1[1] = grid->grid_size_total[1] - 1;
 
-	neqs = computation->neqs;
-
 	uall = new double[neqs * size_total[0] * size_total[1]];
 	fall = new double[neqs * size_total[0] * size_total[1]];
 	gall = new double[neqs * size_total[0] * size_total[1]];
@@ -100,8 +98,10 @@ Lax_Wendroff::~Lax_Wendroff() {
  * @param dt Delta t.
  * @param dir Unsplitting = 0, Splitting = 1.
  *****************************************************************************************/
-void Lax_Wendroff::calc_method_flux(double dt) {
+void Lax_Wendroff::calc_method_flux(double dt, Grid * grid) {
 	cout << "Lax-Wendroff Fluss berechnen..." << endl;
+
+	this->grid = grid;
 
 	switch (dimension) {
 	// Eine Dimension
@@ -122,6 +122,7 @@ void Lax_Wendroff::calc_method_flux(double dt) {
 		}
 	}
 	}
+	time_calculation->set_new_time(dt);
 
 }
 
@@ -179,6 +180,7 @@ void Lax_Wendroff::solve_1d(double dt){
 		uxr = uxr	- dtodx * (fd[2][i][0] - fd[2][i-1][0]);*/
 
 		grid->cellsgrid[i][0] = d;
+		grid->cellsgrid[i][1] = constants->ct * pow(grid->cellsgrid[i][0], constants->gamma);
 		grid->cellsgrid[i][2] = uxd / d;
 		grid->cellsgrid[i][3] = uxr;
 	}
@@ -437,6 +439,7 @@ void Lax_Wendroff::solve_2d_unsplit(double dt) {
 					  + 0.5 * dtody * (gd[4][x][y - 1] - gd[4][x][y] + gd[4][x - 1][y - 1] - gd[4][x - 1][y]);
 
 			grid->cellsgrid[pos][0] = d;
+			grid->cellsgrid[pos][1] = constants->ct * pow(grid->cellsgrid[pos][0], constants->gamma);
 			grid->cellsgrid[pos][2] = uxd / d;
 			grid->cellsgrid[pos][4] = uyd / d;
 			grid->cellsgrid[pos][3] = uxr;

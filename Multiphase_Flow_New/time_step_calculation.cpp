@@ -261,9 +261,10 @@ double Time_Step_Calculation::cfl_1d_eigenvalues() {
 		switch (cfl_option) {
 		case (1):
 
-			p = ct * pow(grid->cellsgrid[x][0], gamma);
+				p = grid->cellsgrid[x][1];
+			//p = ct * pow(grid->cellsgrid[x][0], gamma);
 
-			grid->cellsgrid[x][1] = p;
+			//grid->cellsgrid[x][1] = p;
 			dtwo = pow((p / cref), gamma_inv);
 			break;
 			/*case(2):
@@ -341,8 +342,9 @@ void Time_Step_Calculation::cfl_1d_approx() {
 
 		switch (cfl_option) {
 		case (1): {
-			p = ct * pow(rho, gamma);
-			grid->cellsgrid[i][1] = p;
+			p = grid->cellsgrid[i][1];
+			//p = ct * pow(rho, gamma);
+			//grid->cellsgrid[i][1] = p;
 
 			rho_two = pow((p / cref), gamma_inv);
 			break;
@@ -424,8 +426,12 @@ double* Time_Step_Calculation::cfl_2d_eigenvalues() {
 			ur_x = grid->cellsgrid[x + y * grid->grid_size_total[0]][3];
 			ur_y = grid->cellsgrid[x + y * grid->grid_size_total[0]][5];
 
+			p = grid->cellsgrid[x + y * grid->grid_size_total[0]][1];
+			/*cout << "p now "<< p<<endl;
 			p = ct * pow(grid->cellsgrid[x + y * grid->grid_size_total[0]][0],gamma);
-			grid->cellsgrid[x + y * grid->grid_size_total[0]][1] = p;
+			cout << "p old "<< p<<endl;
+
+			grid->cellsgrid[x + y * grid->grid_size_total[0]][1] = p;*/
 			rho_two = pow((p / cref), gamma_inv);
 
 			u_x = u_x * rho;
@@ -497,8 +503,10 @@ void Time_Step_Calculation::cfl_2d_approx() {
 			ux = grid->cellsgrid[index][2];
 			uy = grid->cellsgrid[index][4];
 			uyr = grid->cellsgrid[index][5];
-			p = ct * pow(rho, gamma);
-			grid->cellsgrid[x + y * grid->grid_size_total[0]][1] = p;
+
+			p = grid->cellsgrid[x + y * grid->grid_size_total[0]][1];
+			/*p = ct * pow(rho, gamma);
+			grid->cellsgrid[x + y * grid->grid_size_total[0]][1] = p;*/
 			rho_two = pow((p / cref), gamma_inv);
 
 			v_max_step = fabs(ux) + fabs(uy) + AM_2d(gamma, p, rho) + XS_2d(rho, rho_two, rho_one, ccl, uxr, uxy);

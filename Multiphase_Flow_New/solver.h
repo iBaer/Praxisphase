@@ -37,7 +37,7 @@ public:
 	 * Abstrakte Methode zur berechnung des Flusses der jeweiligen numerischen Methode.
 	 * @return Matrix der Flüsse (1D)
 	 */
-	virtual void calc_method_flux(double dt) = 0;
+	virtual void calc_method_flux(double dt, Grid * grid) = 0;
 
 	/**
 	 * Konstanten Objekt welches für die berechnungen benötigt wird.
@@ -54,6 +54,8 @@ public:
 	 * @see Gleichungssystem
 	 */
 	Computation *computation;
+
+	Time_Step_Calculation* time_calculation;
 
 	string name;
 
@@ -81,7 +83,10 @@ public:
 
 	int split_method;
 
-	Time_Step_Calculation* time_calculation;
+    /**
+    * Anzahl der Gleichungen
+    */
+    int neqs;
 
 };
 

@@ -10,6 +10,7 @@
 #include "cfl_2d.h"
 #include "constants.h"
 #include "numerical_method.h"
+#include "adaptive_mesh.h"
 
 #include "time_step_calculation.h"
 
@@ -98,6 +99,12 @@ void Numerical_Method::start_method() {
 		if (output_per_step == 1)
 			write();
 
+		if(0){
+			Adaptive_Mesh* adaptive_mesh = new Adaptive_Mesh(solver, grid_main, constants, time_calculation);
+			adaptive_mesh->amr();
+			exit(0);
+		}
+
 		// compute time step
 		time_calculation->n = n;
 		time_calculation->time = time;
@@ -109,14 +116,13 @@ void Numerical_Method::start_method() {
 		if (dimension == 1){
 			int spliting_method = 1;
 			solver->split_method = spliting_method;
-			solver->calc_method_flux(dt);
+			solver->calc_method_flux(dt,grid_main);
 		}
 		else if (dimension == 2){
 			int spliting_method = with_splitting - 1;
 			solver->split_method = spliting_method;
-			solver->calc_method_flux(dt);
+			solver->calc_method_flux(dt,grid_main);
 		}
-		//adaptive_mesh->amr();
 		if(time != time_calculation->time)
 			time = time_calculation->time;
 
