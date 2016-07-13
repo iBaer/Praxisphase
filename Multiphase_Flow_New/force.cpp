@@ -12,7 +12,93 @@ using namespace std;
 Force::Force(Constants *constants, Computation *computation, Grid *grid) :
 		Solver("FORCE", constants, computation, grid) {
 
+	allocate_cache(grid);
+
 	// temporär
+	/*size_total[1] = grid->grid_size_total[1];
+	size_m1[1] = grid->grid_size_total[1] - 1;
+
+	uall = new double[neqs * size_total[0] * size_total[1]];
+	fall = new double[neqs * size_total[0] * size_total[1]];
+	gall = new double[neqs * size_total[0] * size_total[1]];
+	f_laxall = new double[neqs * size_total[0] * size_total[1]];
+	f_rieall = new double[neqs * size_total[0] * size_total[1]];
+	g_laxall = new double[neqs * size_total[0] * size_total[1]];
+	g_rieall = new double[neqs * size_total[0] * size_total[1]];
+
+	cs = new double**[neqs];
+	fd = new double**[neqs];
+	gd = new double**[neqs];
+	f_lax = new double**[neqs];
+	f_rie = new double**[neqs];
+	g_lax = new double**[neqs];
+	g_rie = new double**[neqs];
+
+	for (int i = 0; i < neqs; i++) {
+		cs[i] = new double*[size_total[0]];
+		fd[i] = new double*[size_total[0]];
+		gd[i] = new double*[size_total[0]];
+		f_lax[i] = new double*[size_total[0]];
+		f_rie[i] = new double*[size_total[0]];
+		g_lax[i] = new double*[size_total[0]];
+		g_rie[i] = new double*[size_total[0]];
+
+		for (int j = 0; j < size_total[0]; j++) {
+			cs[i][j] = uall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			fd[i][j] = fall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			gd[i][j] = gall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			f_lax[i][j] = f_laxall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			f_rie[i][j] = f_rieall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			g_lax[i][j] = g_laxall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			g_rie[i][j] = g_rieall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+		}
+	}
+
+	f_force = new double*[dimension];
+	for (int i=0;i<dimension;i++){
+		f_force[i] = new double[neqs * (size_m1[0]) * (size_m1[1])];
+	}*/
+
+}
+
+Force::~Force() {
+	delete_cache();
+
+}
+
+void Force::delete_cache(){
+	delete[] uall;
+	delete[] fall;
+	delete[] gall;
+	delete[] f_laxall;
+	delete[] f_rieall;
+	delete[] g_laxall;
+	delete[] g_rieall;
+
+	for (int i = 0; i < neqs; i++) {
+		delete[] cs[i];
+		delete[] fd[i];
+		delete[] gd[i];
+		delete[] f_lax[i];
+		delete[] f_rie[i];
+		delete[] g_lax[i];
+		delete[] g_rie[i];
+	}
+	delete[] cs;
+	delete[] fd;
+	delete[] gd;
+	delete[] f_lax;
+	delete[] f_rie;
+	delete[] g_lax;
+	delete[] g_rie;
+
+	for (int i = 0; i < dimension; i++) {
+		delete[] f_force[i];
+	}
+	delete[] f_force;
+}
+
+void Force::allocate_cache(Grid * grid){
 	size_total[1] = grid->grid_size_total[1];
 	size_m1[1] = grid->grid_size_total[1] - 1;
 
@@ -56,41 +142,8 @@ Force::Force(Constants *constants, Computation *computation, Grid *grid) :
 	for (int i=0;i<dimension;i++){
 		f_force[i] = new double[neqs * (size_m1[0]) * (size_m1[1])];
 	}
-
 }
 
-Force::~Force() {
-	delete[] uall;
-	delete[] fall;
-	delete[] gall;
-	delete[] f_laxall;
-	delete[] f_rieall;
-	delete[] g_laxall;
-	delete[] g_rieall;
-
-	for (int i = 0; i < neqs; i++) {
-		delete[] cs[i];
-		delete[] fd[i];
-		delete[] gd[i];
-		delete[] f_lax[i];
-		delete[] f_rie[i];
-		delete[] g_lax[i];
-		delete[] g_rie[i];
-	}
-	delete[] cs;
-	delete[] fd;
-	delete[] gd;
-	delete[] f_lax;
-	delete[] f_rie;
-	delete[] g_lax;
-	delete[] g_rie;
-
-	for (int i = 0; i < dimension; i++) {
-		delete[] f_force[i];
-	}
-	delete[] f_force;
-
-}
 
 /**
  *****************************************************************************************
@@ -104,8 +157,12 @@ Force::~Force() {
 void Force::calc_method_flux(double dt, Grid * grid) {
 	cout << "Berechne FORCE Fluss..." << endl;
 
-	//f_force = new double[neqs * (size_m1[0]) * (size_m1[1])];
-	this->grid = grid;
+	if (this->grid!=grid){
+		cout << "New grid! Reallocating cache!"<<endl;
+		this->grid = grid;
+		delete_cache();
+		allocate_cache(grid);
+	}
 
 	switch (dimension) {
 	case (1): {
@@ -229,7 +286,7 @@ void Force::solve_2d_unsplit(double dt){
 
 	for (int x = 0; x < grid->grid_size_total[0] - grid->orderofgrid; x++) {
 		for (int y = 0; y < grid->grid_size_total[1] - grid->orderofgrid; y++) {
-			pos = x + y * size_total[0];
+			pos = x + y * grid->grid_size_total[0];
 
 			u_rie_f->cellsgrid[pos][0] = 0.5 * (cs[0][x][y] + cs[0][x + 1][y]) + (dt / 2 * dx) * (fd[0][x][y] - fd[0][x + 1][y]);
 			u_rie_f->cellsgrid[pos][2] = (0.5 * (cs[1][x][y] + cs[1][x + 1][y]) + (dt / 2 * dx) * (fd[1][x][y] - fd[1][x + 1][y]))

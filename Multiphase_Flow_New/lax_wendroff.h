@@ -52,6 +52,8 @@ class Lax_Wendroff : public Solver
         */
         //TODO: aus "dir" -> "splitting"
         void calc_method_flux(double dt, Grid * grid);
+    	void allocate_cache(Grid * grid);
+    	void delete_cache();
 
         //int size_total[0];
         //int size_total[1];

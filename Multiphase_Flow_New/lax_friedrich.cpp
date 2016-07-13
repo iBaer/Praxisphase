@@ -16,7 +16,82 @@ Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Gri
 
 	//TODO: Konstruktor auch bei Force für 1D optimieren
 
+	allocate_cache(grid);
+	/*size_total[1] = grid->grid_size_total[1];
+	size_m1[1] = grid->grid_size_total[1] - 1;
 
+	uall = new double[neqs * size_total[0] * size_total[1]];
+	fall = new double[neqs * size_total[0] * size_total[1]];
+	gall = new double[neqs * size_total[0] * size_total[1]];
+
+	cs = new double**[neqs];
+	f = new double**[neqs];
+	g = new double**[neqs];
+
+	for (int i = 0; i < neqs; i++) {
+		cs[i] = new double*[size_total[0]];
+		f[i] = new double*[size_total[0]];
+		g[i] = new double*[size_total[0]];
+		for (int j = 0; j < size_total[0]; j++) {
+			cs[i][j] = uall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			f[i][j] = fall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			g[i][j] = gall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+		}
+	}
+
+	f_lax = new double*[dimension];
+	for (int i = 0; i < dimension; i++) {
+		f_lax[i] = new double[neqs * (size_m1[0]) * (size_m1[1])];
+	}
+
+	if(dimension==2){
+		split_grid = new Grid*[2];
+		split_grid[0] = new Grid(size_total[0],size_total[1], constants);
+		split_grid[1] = new Grid(size_total[0],size_total[1], constants);
+	}
+
+	with_halved_dt = 0;
+
+	set_grid = grid;*/
+}
+
+/**
+ *****************************************************************************************
+ * Destruktor
+ *****************************************************************************************/
+Lax_Friedrich::~Lax_Friedrich() {
+	delete_cache();
+}
+
+void Lax_Friedrich::delete_cache() {
+	delete[] uall;
+	delete[] fall;
+	delete[] gall;
+	for (int i = 0; i < neqs; i++) {
+		delete[] cs[i];
+		delete[] f[i];
+		delete[] g[i];
+	}
+	delete[] cs;
+	delete[] f;
+	delete[] g;
+
+	for (int i = 0; i < dimension; i++) {
+		delete[] f_lax[i];
+	}
+
+	delete[] f_lax;
+	if(dimension==2){
+		delete split_grid[0];
+		delete split_grid[1];
+		delete[] split_grid;
+	}
+}
+
+void Lax_Friedrich::allocate_cache(Grid * grid) {
+	// 1D Optimierung
+	size_total[0] = grid->grid_size_total[0];
+	size_m1[0] = grid->grid_size_total[0] - 1;
 	size_total[1] = grid->grid_size_total[1];
 	size_m1[1] = grid->grid_size_total[1] - 1;
 
@@ -55,33 +130,6 @@ Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Gri
 	set_grid = grid;
 }
 
-/**
- *****************************************************************************************
- * Destruktor
- *****************************************************************************************/
-Lax_Friedrich::~Lax_Friedrich() {
-	delete[] uall;
-	delete[] fall;
-	delete[] gall;
-	for (int i = 0; i < neqs; i++) {
-		delete[] cs[i];
-		delete[] f[i];
-		delete[] g[i];
-	}
-	delete[] cs;
-	delete[] f;
-	delete[] g;
-
-	for (int i = 0; i < dimension; i++) {
-		delete[] f_lax[i];
-	}
-
-	delete[] f_lax;
-	if(dimension==2){
-		delete[] split_grid;
-	}
-
-}
 
 /**
  *****************************************************************************************
@@ -93,7 +141,12 @@ Lax_Friedrich::~Lax_Friedrich() {
 void Lax_Friedrich::calc_method_flux(double dt, Grid * grid) {
 	cout << "Lax-Friedrich Fluss berechnen..." << endl;
 
-	this->grid = grid;
+	if (this->grid!=grid){
+		cout << "New grid! Reallocating cache!"<<endl;
+		this->grid = grid;
+		delete_cache();
+		allocate_cache(grid);
+	}
 
 	cout << "dt="<<dt<<endl;
 	//dt = time_calculation->halve_dt(dt);

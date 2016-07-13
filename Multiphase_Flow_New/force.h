@@ -28,6 +28,8 @@ class Force : public Solver
         * @return 4 Dimensionaler Vektor. Zusammenstellung: Gleichung, x-Position, y-Position , dimension
         */
         void calc_method_flux(double dt, Grid * grid);
+        void allocate_cache(Grid * grid);
+        void delete_cache();
 
   	  //int size_total[0];
   	  //int size_total[1];

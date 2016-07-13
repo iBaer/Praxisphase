@@ -97,6 +97,7 @@ void Adaptive_Mesh::amr() {
 	  }
 	  else cout << "Unable to open file";
 	solver->calc_method_flux(dt/2,clusters[0].grid_fine);
+	clusters[0].grid_fine->apply_boundary_conditions();
 	//TODO: Remove
 	 ofstream myfile2 ("example_fineflux1.txt");
 	  if (myfile2.is_open())
@@ -111,6 +112,7 @@ void Adaptive_Mesh::amr() {
 	  }
 	  else cout << "Unable to open file";
 	solver->calc_method_flux(dt/2,clusters[0].grid_fine);
+	clusters[0].grid_fine->apply_boundary_conditions();
 	//TODO: Remove
 	 ofstream myfile3 ("example_fineflux2.txt");
 	  if (myfile3.is_open())

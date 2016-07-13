@@ -13,7 +13,94 @@ using namespace std;
 Lax_Wendroff::Lax_Wendroff(Constants *constants, Computation *computation, Grid *grid) :
 		Solver("Lax-Wendroff", constants, computation, grid) {
 
+	allocate_cache(grid);
 	// temporär
+	/*size_total[1] = grid->grid_size_total[1];
+	size_m1[1] = grid->grid_size_total[1] - 1;
+
+	uall = new double[neqs * size_total[0] * size_total[1]];
+	fall = new double[neqs * size_total[0] * size_total[1]];
+	gall = new double[neqs * size_total[0] * size_total[1]];
+	f_laxall = new double[neqs * size_total[0] * size_total[1]];
+	f_rieall = new double[neqs * size_total[0] * size_total[1]];
+	g_laxall = new double[neqs * size_total[0] * size_total[1]];
+	g_rieall = new double[neqs * size_total[0] * size_total[1]];
+
+	cs = new double**[neqs];
+	fd = new double**[neqs];
+	gd = new double**[neqs];
+	f_lax_half = new double**[neqs];
+	f_rie = new double**[neqs];
+	g_lax_half = new double**[neqs];
+	g_rie = new double**[neqs];
+
+	for (int i = 0; i < neqs; i++) {
+		cs[i] = new double*[size_total[0]];
+		fd[i] = new double*[size_total[0]];
+		gd[i] = new double*[size_total[0]];
+		f_lax_half[i] = new double*[size_total[0]];
+		f_rie[i] = new double*[size_total[0]];
+		g_lax_half[i] = new double*[size_total[0]];
+		g_rie[i] = new double*[size_total[0]];
+
+		for (int j = 0; j < size_total[0]; j++) {
+			cs[i][j] = uall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			fd[i][j] = fall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			gd[i][j] = gall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			f_lax_half[i][j] = f_laxall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			f_rie[i][j] = f_rieall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			g_lax_half[i][j] = g_laxall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+			g_rie[i][j] = g_rieall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
+		}
+	}
+
+	f_laxwen = new double[neqs * (size_m1[0]) * (size_m1[1])];*/
+
+}
+
+/**
+ *****************************************************************************************
+ * Destruktor
+ *****************************************************************************************/
+Lax_Wendroff::~Lax_Wendroff() {
+	delete_cache();
+}
+
+void Lax_Wendroff::delete_cache(){
+	delete[] uall;
+	delete[] fall;
+	delete[] gall;
+	delete[] f_laxall;
+	delete[] f_rieall;
+	delete[] g_laxall;
+	delete[] g_rieall;
+
+	for (int i = 0; i < neqs; i++) {
+		delete[] cs[i];
+		delete[] fd[i];
+		delete[] gd[i];
+		delete[] f_lax_half[i];
+		delete[] f_rie[i];
+		delete[] g_lax_half[i];
+		delete[] g_rie[i];
+	}
+	delete[] cs;
+	delete[] fd;
+	delete[] gd;
+	delete[] f_lax_half;
+	delete[] f_rie;
+	delete[] g_lax_half;
+	delete[] g_rie;
+
+	delete[] f_laxwen;
+}
+
+void Lax_Wendroff::allocate_cache(Grid * grid){
+	//TODO: Eigene Funktion
+	//TODO: previous grid
+
+	size_total[0] = grid->grid_size_total[0];
+	size_m1[0] = grid->grid_size_total[0] - 1;
 	size_total[1] = grid->grid_size_total[1];
 	size_m1[1] = grid->grid_size_total[1] - 1;
 
@@ -54,41 +141,6 @@ Lax_Wendroff::Lax_Wendroff(Constants *constants, Computation *computation, Grid 
 	}
 
 	f_laxwen = new double[neqs * (size_m1[0]) * (size_m1[1])];
-
-}
-
-/**
- *****************************************************************************************
- * Destruktor
- *****************************************************************************************/
-Lax_Wendroff::~Lax_Wendroff() {
-	delete[] uall;
-	delete[] fall;
-	delete[] gall;
-	delete[] f_laxall;
-	delete[] f_rieall;
-	delete[] g_laxall;
-	delete[] g_rieall;
-
-	for (int i = 0; i < neqs; i++) {
-		delete[] cs[i];
-		delete[] fd[i];
-		delete[] gd[i];
-		delete[] f_lax_half[i];
-		delete[] f_rie[i];
-		delete[] g_lax_half[i];
-		delete[] g_rie[i];
-	}
-	delete[] cs;
-	delete[] fd;
-	delete[] gd;
-	delete[] f_lax_half;
-	delete[] f_rie;
-	delete[] g_lax_half;
-	delete[] g_rie;
-
-	delete[] f_laxwen;
-
 }
 
 /**
@@ -101,7 +153,12 @@ Lax_Wendroff::~Lax_Wendroff() {
 void Lax_Wendroff::calc_method_flux(double dt, Grid * grid) {
 	cout << "Lax-Wendroff Fluss berechnen..." << endl;
 
-	this->grid = grid;
+	if (this->grid!=grid){
+		cout << "New grid! Reallocating cache!"<<endl;
+		this->grid = grid;
+		delete_cache();
+		allocate_cache(grid);
+	}
 
 	switch (dimension) {
 	// Eine Dimension
