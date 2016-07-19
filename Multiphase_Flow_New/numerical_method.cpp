@@ -91,6 +91,7 @@ void Numerical_Method::start_method() {
 		write();
 
 	for (int n = 1; n <= step_limit && timedif > timetol; n++) {
+	//for (int n = 1; n < 500; n++) {
 		cout << n << " : " << step_limit << endl;
 
 		// set boundary conditions
@@ -99,7 +100,7 @@ void Numerical_Method::start_method() {
 		if (output_per_step == 1)
 			write();
 
-		if(0){
+		if(1){
 			Adaptive_Mesh* adaptive_mesh = new Adaptive_Mesh(solver, grid_main, constants, time_calculation);
 			adaptive_mesh->amr();
 			exit(0);

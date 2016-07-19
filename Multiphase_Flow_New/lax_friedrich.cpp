@@ -140,17 +140,19 @@ void Lax_Friedrich::allocate_cache(Grid * grid) {
  *****************************************************************************************/
 void Lax_Friedrich::calc_method_flux(double dt, Grid * grid) {
 	cout << "Lax-Friedrich Fluss berechnen..." << endl;
-
 	if (this->grid!=grid){
 		cout << "New grid! Reallocating cache!"<<endl;
 		this->grid = grid;
 		delete_cache();
 		allocate_cache(grid);
 	}
+	else{
+		cout << "Same grid as before, using old cache!"<<endl;
 
+	}
 	cout << "dt="<<dt<<endl;
-	//dt = time_calculation->halve_dt(dt);
-	cout << "dt="<<dt<<endl;
+	/*dt = time_calculation->halve_dt(dt);
+	cout << "dt="<<dt<<endl;*/
 	switch (dimension) {
 	// Eine Dimension
 	case (1): {

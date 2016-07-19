@@ -28,6 +28,7 @@ int main()
     cout << "Please select the numerical method for flux calculation:"<< endl;
     cout << "[0] Lax-Friedrich"<< endl;
     cout << "[1] FORCE"<< endl;
+    cout << "[2] Lax-Wendroff"<< endl;
 	cout << "Choice: ";
     cin >> flux_method;
     cout << endl;
@@ -95,10 +96,27 @@ int main()
     Numerical_Method num_meth(solver,&constants,&computation, &grid);
 
     /*** Wahl der Splitting Methode ***/
+    //TODO: Splitting Methoden von Klasse beziehen
 	if (constants.dimension >= 2) {
 		std::cout << "Splitting updates?" << endl;
-		cout << "[1] Unsplitting"<< endl;
-		cout << "[2] Splitting"<< endl;
+		if(flux_method==0){
+			cout << "[1] Unsplitting"<< endl;
+			cout << "[2] Splitting X->Y"<< endl;
+			cout << "[3] Splitting Y->X"<< endl;
+			cout << "[4] Splitting Mean"<< endl;
+
+		}
+		else if(flux_method==1){
+			cout << "[1] Unsplitting"<< endl;
+			cout << "[2] Splitting"<< endl;
+		}
+		else if(flux_method==2){
+			cout << "[1] Unsplitting"<< endl;
+		}
+		else{
+			cout << "No Splitting Method selected!"<<endl;
+			exit(EXIT_FAILURE);
+		}
 		cout << "Choice: ";
 		std::cin >> num_meth.with_splitting;
 		cout << endl;

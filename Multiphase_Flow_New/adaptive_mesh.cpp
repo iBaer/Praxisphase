@@ -10,7 +10,23 @@
 #include "grid.h"
 #include "solver.h"
 #include "constants.h"
+#include <sstream>
 #include <set>
+
+void Adaptive_Mesh::grid_to_file(string filename, Grid* grid){
+	 ofstream myfile (filename);
+	  if (myfile.is_open())
+	  {
+		for (int y = 0; y < grid->grid_size_total[1]; y++) {
+			for (int x = 0; x < grid->grid_size_total[0]; x++) {
+				int pos = x + y * grid->grid_size_total[0];
+				myfile << x << " " << y << " " << grid->cellsgrid[pos][3] << endl;
+			}
+		}
+	    myfile.close();
+	  }
+	  else cout << "Unable to open file";
+}
 
 Adaptive_Mesh::Adaptive_Mesh(Solver * solver, Grid *grid, Constants *constants, Time_Step_Calculation* time_calculation) {
 	// TODO Auto-generated constructor stub
@@ -22,8 +38,9 @@ Adaptive_Mesh::Adaptive_Mesh(Solver * solver, Grid *grid, Constants *constants, 
 	this->grid_doublestep = new Grid(grid_main->grid_size_total[0],grid_main->grid_size_total[1], constants);
 
 	this->time_calculation = time_calculation;
+	marked_cells = nullptr;
 	// TODO: Wegen rekursion noch ändern
-	marked_cells = new int[grid_main->cellsgrid_size]();
+	//marked_cells = new int[grid_main->cellsgrid_size]();
 
 }
 
@@ -38,95 +55,80 @@ Adaptive_Mesh::~Adaptive_Mesh() {
 void Adaptive_Mesh::amr() {
 	//TODO: Über Koordinaten statt "Zellnummer"
 
-	if(grid_main->copy_to(grid_twostep) == -1){
-		cout << "Failed to copy Main grid";
-		exit(EXIT_FAILURE);
-	}
-	if(grid_main->copy_to(grid_doublestep) == -1){
-		cout << "Failed to copy Main grid";
-		exit(EXIT_FAILURE);
-	}
-	// 1. Gröbstes Netz berechnen
-	double dt = 0;
-	dt = time_calculation->cfl_condition(grid_main);
+	// 1. Grobes Gitter berechnen
+	// 2. Zellen markieren und prüfen ob Feines Gitter generiert werden muss
+	for (int n = 1; n <= 50; n++) {
+		cout << "============ " << n << " : " << constants->maxnt << " ============" << endl;
+		//TODO: Fancy Output with std::string(level, '-') -> level = global!?
 
-	solver->calc_method_flux(dt/2,grid_twostep);
-	solver->calc_method_flux(dt/2,grid_twostep);
-	solver->calc_method_flux(dt,grid_doublestep);
+		marked_cells = new int[grid_main->cellsgrid_size]();	//TODO: Nicht global!?
 
-	// 2. Welche Zellen verfeinern
-	// Zellen markieren
-	double tolerance = 0.1;
-	grid_marker(marked_cells,grid_twostep, grid_doublestep, tolerance);
+		double dt = 0;
+		int do_refinement = 0;
+		do_refinement = is_adaptive_needed(grid_main, dt);
 
+		if (do_refinement) {
+			cout << "Adaptive Grid needed! Cluster Generation started!" << endl;
+			// 3. Feineres Gitter erzeugen
+			vector<Cluster_Square> clusters;
+			get_clusters(clusters);
 
-	// 3. Feineres Gitter erzeugen
-	int cluster_amount = binary_clustering(marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1]);
-	vector<Cluster_Square> clusters;	//TODO: Grid anhängen, das feinere Gitter (Cluster) haben kann
-	int with_adjacencies;
-	// Initiales Rechteck Cluster bilden
-	square_clustering(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1], cluster_amount);
-	// Bilde größere Rechtecke solange sich Cluster berühren
-	do{
-		with_adjacencies = cluster_adjacency_check(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1], cluster_amount);
-		if (with_adjacencies !=0 && cluster_amount>1)
-			square_cluster_merge(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1], cluster_amount);
-		else
-			with_adjacencies=0;
+			/*int cluster_amount = binary_clustering(marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1]);
+			vector<Cluster_Square> clusters;	//TODO: Grid anhängen, das feinere Gitter (Cluster) haben kann
+			// TODO: Grid Level speichern!?
+			int with_adjacencies;
+			// Initiales Rechteck Cluster bilden
+			square_clustering(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1], cluster_amount);
+			// Bilde größere Rechtecke solange sich Cluster berühren
+			if(cluster_amount>1){
+				do {
+					with_adjacencies = cluster_adjacency_check(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1],
+							cluster_amount);
+					cout << " ---> Adjencencies found: " << with_adjacencies << endl;
+					if (with_adjacencies != 0 && cluster_amount > 1)
+						square_cluster_merge(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1], cluster_amount);
+					else
+						break;
+				} while (with_adjacencies != 0 || cluster_amount <= 1);
+			}*/
 
-	} while(with_adjacencies!=0);
+			// Feines Gitter für alle jedes Cluster der Ebene
+			for (unsigned int i = 0; i < clusters.size(); i++) {
+				cout << "-- Creating fine grid #" << i << endl;
+				create_fine_grid(clusters[i], grid_main);	// TODO: grid_main nur auf Level 0!
 
-	// Feines Gitter für alle jedes Cluster der Ebene
-	for (unsigned int i = 0; i < clusters.size(); i++){
-		create_fine_grid(clusters[i], grid_main);	// TODO: grid_main nur auf Level 0!
-	}
-	// Flussberechnen auf feinen Gitter
-	// Boundary Condtions auf durchlässig, etc
+				// Flussberechnen auf feinen Gitter
+				// Boundary Condtions auf durchlässig, etc
 
-	//TODO: Remove
-	 ofstream myfile ("example_fineflux0.txt");
-	  if (myfile.is_open())
-	  {
-		for (int y = 0; y < clusters[0].grid_fine->grid_size_total[1]; y++) {
-			for (int x = 0; x < clusters[0].grid_fine->grid_size_total[0]; x++) {
-				int pos = x + y * clusters[0].grid_fine->grid_size_total[0];
-				myfile << x << " " << y << " " << clusters[0].grid_fine->cellsgrid[pos][0] << endl;
+				//TODO: Remove
+				//grid_to_file("example_fineflux0.txt", clusters[0].grid_fine);
+
+				solver->calc_method_flux(dt / 2, clusters[i].grid_fine);
+				clusters[i].grid_fine->apply_boundary_conditions();
+
+				//TODO: Remove
+				//grid_to_file("example_fineflux1.txt", clusters[0].grid_fine);
+
+				solver->calc_method_flux(dt / 2, clusters[i].grid_fine);
+				clusters[i].grid_fine->apply_boundary_conditions();
+
+				//TODO: Remove
+				//grid_to_file("example_fineflux2.txt", clusters[0].grid_fine);
+
+				fine_to_hoarse(clusters[i]);
+				std::ostringstream oss;
+				oss << "amr_refined" << n << ".txt";
+				string filename = oss.str();
+				grid_to_file(filename, grid_main);
+				cout << "Adjusted hoarse grid with adaptive grid #" << i << endl;
 			}
+			cout << "Hoarse grid adjusted! Next time step." << endl;
+			//cin.get();
+		} else {
+			cout << "No further refinement needed! Skipping to next time step!" << endl;
 		}
-	    myfile.close();
-	  }
-	  else cout << "Unable to open file";
-	solver->calc_method_flux(dt/2,clusters[0].grid_fine);
-	clusters[0].grid_fine->apply_boundary_conditions();
-	//TODO: Remove
-	 ofstream myfile2 ("example_fineflux1.txt");
-	  if (myfile2.is_open())
-	  {
-		for (int y = 0; y < clusters[0].grid_fine->grid_size_total[1]; y++) {
-			for (int x = 0; x < clusters[0].grid_fine->grid_size_total[0]; x++) {
-				int pos = x + y * clusters[0].grid_fine->grid_size_total[0];
-				myfile2 << x << " " << y << " " << clusters[0].grid_fine->cellsgrid[pos][0] << endl;
-			}
-		}
-	    myfile2.close();
-	  }
-	  else cout << "Unable to open file";
-	solver->calc_method_flux(dt/2,clusters[0].grid_fine);
-	clusters[0].grid_fine->apply_boundary_conditions();
-	//TODO: Remove
-	 ofstream myfile3 ("example_fineflux2.txt");
-	  if (myfile3.is_open())
-	  {
-		for (int y = 0; y < clusters[0].grid_fine->grid_size_total[1]; y++) {
-			for (int x = 0; x < clusters[0].grid_fine->grid_size_total[0]; x++) {
-				int pos = x + y * clusters[0].grid_fine->grid_size_total[0];
-				myfile3 << x << " " << y << " " << clusters[0].grid_fine->cellsgrid[pos][0] << endl;
-			}
-		}
-	    myfile3.close();
-	  }
-	  else cout << "Unable to open file";
-
+		delete[] marked_cells;
+	}
 	//----------------------------------------------
 
 	// 4. Rekursiv feinere Gitter berechnen
@@ -134,6 +136,102 @@ void Adaptive_Mesh::amr() {
 	// 5. Gröberes Gitter mit feinerem Gitter verbessern
 
 	// 6. Next
+}
+
+void Adaptive_Mesh::get_clusters(vector<Cluster_Square>& clusters){
+	// 3. Feineres Gitter erzeugen
+	int cluster_amount = binary_clustering(marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1]);
+	//vector<Cluster_Square> clusters;	//TODO: Grid anhängen, das feinere Gitter (Cluster) haben kann
+	// TODO: Grid Level speichern!?
+	int with_adjacencies;
+	// Initiales Rechteck Cluster bilden
+	square_clustering(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1], cluster_amount);
+	// Bilde größere Rechtecke solange sich Cluster berühren
+	if(cluster_amount>1){
+		do {
+			with_adjacencies = cluster_adjacency_check(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1],
+					cluster_amount);
+			cout << " ---> Adjencencies found: " << with_adjacencies << endl;
+			if (with_adjacencies != 0 && cluster_amount > 1)
+				square_cluster_merge(clusters, marked_cells, grid_main->grid_size_total[0], grid_main->grid_size_total[1], cluster_amount);
+			else
+				break;
+		} while (with_adjacencies != 0 || cluster_amount <= 1);
+	}
+}
+
+int Adaptive_Mesh::is_adaptive_needed(Grid* refinable_grid, double & dt){
+	// 1. Gröbstes Netz berechnen
+	if(refinable_grid->copy_to(grid_twostep) == -1){
+		cout << "Failed to copy Main grid";
+		exit(EXIT_FAILURE);
+	}
+	if(refinable_grid->copy_to(grid_doublestep) == -1){
+		cout << "Failed to copy Main grid";
+		exit(EXIT_FAILURE);
+	}
+
+	dt = 0;
+	dt = time_calculation->cfl_condition(refinable_grid);
+	//grid_to_file("0.txt", refinable_grid);
+
+	solver->calc_method_flux(dt/2,grid_twostep);
+	grid_twostep->apply_boundary_conditions();
+	//grid_to_file("1.txt", grid_twostep);
+	solver->calc_method_flux(dt/2,grid_twostep);
+	grid_twostep->apply_boundary_conditions();
+	//grid_to_file("2.txt", grid_twostep);
+
+	solver->calc_method_flux(dt,grid_doublestep);
+	grid_doublestep->apply_boundary_conditions();
+
+	// TEST
+	solver->calc_method_flux(dt,grid_main);
+	grid_main->apply_boundary_conditions();
+	// TEST END
+
+	//grid_to_file("3.txt", grid_doublestep);
+
+
+	// 2. Welche Zellen verfeinern
+	// Zellen markieren
+	// TODO: Toleranz eventuell als Parameter Input Konstante?
+	double tolerance = 0.1;
+	return grid_marker(marked_cells,grid_twostep, grid_doublestep, tolerance);
+}
+
+void Adaptive_Mesh::fine_to_hoarse(Cluster_Square& cluster){
+	Grid* hoarse = cluster.parent;
+	Grid* fine = cluster.grid_fine;
+
+	int x_half = 0;
+	int y_half = 0;
+	int pos = 0;
+	int fine_pos_00 = 0;
+	int fine_pos_01 = 0;
+	int fine_pos_10 = 0;
+	int fine_pos_11 = 0;
+
+	for (int x = cluster.pos_x_min; x <= cluster.pos_x_max; x++) {
+		y_half=0;
+		for (int y = cluster.pos_y_min; y <= cluster.pos_y_max; y++) {
+			pos = (x) + (y) * hoarse->grid_size_total[0];
+			fine_pos_00 = (x_half) + (y_half) * fine->grid_size_total[0];
+			fine_pos_01 = (x_half) + (y_half+1) * fine->grid_size_total[0];
+			fine_pos_10 = (x_half+1) + (y_half) * fine->grid_size_total[0];
+			fine_pos_11 = (x_half+1) + (y_half+1) * fine->grid_size_total[0];
+
+			for (int n = 0; n<=5; n++){
+				hoarse->cellsgrid[pos][n] =
+						0.25 * (fine->cellsgrid[fine_pos_00][n] + fine->cellsgrid[fine_pos_01][n] + fine->cellsgrid[fine_pos_10][n] + fine->cellsgrid[fine_pos_11][n]);
+
+
+			}
+			y_half=y_half+2;
+		}
+		x_half = x_half + 2;
+
+	}
 }
 
 void Adaptive_Mesh::create_fine_grid(Cluster_Square& cluster, Grid* parent_grid) {
@@ -242,7 +340,7 @@ void Adaptive_Mesh::create_fine_grid(Cluster_Square& cluster, Grid* parent_grid)
 	}
 
 	//TODO: Remove
-	 ofstream myfile ("example_amr.txt");
+	 ofstream myfile ("amr_finegrid.txt");
 	  if (myfile.is_open())
 	  {
 		for (int y = 0; y < adaptive_grid->grid_size_total[1]; y++) {
@@ -256,15 +354,17 @@ void Adaptive_Mesh::create_fine_grid(Cluster_Square& cluster, Grid* parent_grid)
 	  else cout << "Unable to open file";
 }
 
-void Adaptive_Mesh::grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_two, double tolerance){
+int Adaptive_Mesh::grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_two, double tolerance){
+	// Markiert Zellen mit -1
 	int pos = 0;
-
+	int is_marked = 0;
 	for (int y = 0; y < grid_one->grid_size_total[1]; y++) {
 		for (int x = 0; x < grid_one->grid_size_total[0]; x++) {
 				pos = x + y * grid_one->grid_size_total[0];
 				for(int k=0;k<6;k++){
 					if(fabs(grid_one->cellsgrid[pos][k]-grid_two->cellsgrid[pos][k]) > tolerance * fabs(grid_one->cellsgrid[pos][k])){
-						//cout << "Checked: "<< x<<","<<y<<endl;
+						//cout << "Checked: "<< x<<","<<y<<" for "<<k<<endl;
+						//cout << grid_one->cellsgrid[pos][k] << "-"<< grid_two->cellsgrid[pos][k] <<"="<< fabs(grid_one->cellsgrid[pos][k]-grid_two->cellsgrid[pos][k]) << " > " << tolerance*fabs(grid_one->cellsgrid[pos][k])<<endl;
 						for (int l = y-2; l<=y+2;l++){
 							for (int k = x-2; k<=x+2;k++){
 								pos = k + l * grid_one->grid_size_total[0];
@@ -273,6 +373,7 @@ void Adaptive_Mesh::grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_t
 									continue;
 								}
 								marked_cells[pos] = -1;
+								is_marked = 1;
 							}
 						}
 
@@ -283,7 +384,7 @@ void Adaptive_Mesh::grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_t
 	}
 
 	//TODO: Remove
-	 ofstream myfile ("example.txt");
+	 ofstream myfile ("amr_marked.txt");
 	  if (myfile.is_open())
 	  {
 		for (int y = 0; y < grid_one->grid_size_total[1]; y++) {
@@ -295,6 +396,8 @@ void Adaptive_Mesh::grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_t
 	    myfile.close();
 	  }
 	  else cout << "Unable to open file";
+
+	  return is_marked;
 }
 
 int Adaptive_Mesh::binary_clustering(int* &marked_cells, int x_max, int y_max){
@@ -318,7 +421,7 @@ int Adaptive_Mesh::binary_clustering(int* &marked_cells, int x_max, int y_max){
 
 
 	//TODO: Remove
-	 ofstream myfile ("example_cluster.txt");
+	 ofstream myfile ("amr_cluster.txt");
 	  if (myfile.is_open())
 	  {
 		for (int y = 0; y < grid_size[1]; y++) {
@@ -393,7 +496,7 @@ void Adaptive_Mesh::square_clustering(vector<Cluster_Square> &clusters, int* &ma
 	}
 
 	//TODO: Remove
-	 ofstream myfile ("example_squared.txt");
+	 ofstream myfile ("amr_cluster_squared.txt");
 	  if (myfile.is_open())
 	  {
 		for (int y = 0; y < y_max; y++) {
@@ -413,37 +516,29 @@ void Adaptive_Mesh::square_clustering(vector<Cluster_Square> &clusters, int* &ma
 int Adaptive_Mesh::cluster_adjacency_check(vector<Cluster_Square> &clusters, int* &marked_cells, int x_max, int y_max, int cluster_amount) {
 
 	int with_adjacencies = 0;
-	int y_touch = 0;
-	int x_touch = 0;
 
 	for (int n = 0; n < cluster_amount; n++) {
-		for (int l = n+1; l < cluster_amount; l++){
-			y_touch = 0;
-			x_touch = 0;
-			if(clusters[n].pos_x_min-1 > clusters[l].pos_x_min && clusters[n].pos_x_min-1 <= clusters[l].pos_x_max)
-				x_touch = 1;
-			else if(clusters[n].pos_x_max+1 < clusters[l].pos_x_max && clusters[n].pos_x_max+1 >= clusters[l].pos_x_min)
-				x_touch = 1;
-			else
-				continue;
-			if(clusters[n].pos_y_min-1 > clusters[l].pos_y_min && clusters[n].pos_y_min-1 <= clusters[l].pos_y_max)
-				y_touch = 1;
-			else if(clusters[n].pos_y_max+1 < clusters[l].pos_y_max && clusters[n].pos_y_max+1 >= clusters[l].pos_y_min)
-				y_touch = 1;
-			else
-				continue;
-
-			if(x_touch==1 && y_touch==1){
-				clusters[n].adjacencies.insert(l);
-				with_adjacencies++;
+		for (int l = n + 1; l < cluster_amount; l++) {
+			if (clusters[n].pos_x_min - 1 <= clusters[l].pos_x_max && clusters[n].pos_x_max + 1 >= clusters[l].pos_x_min) {
+				if (clusters[n].pos_y_min - 1 <= clusters[l].pos_y_max && clusters[n].pos_y_max + 1 >= clusters[l].pos_y_min) {
+					clusters[n].adjacencies.insert(l);
+					with_adjacencies++;
+				}
 			}
 		}
 	}
 
+	//TODO: Output Optional
 	for (int n = 0; n < cluster_amount; n++) {
-		cout << "Cluster #" << n + 1 << " adjacent to" << endl;
-		for (set<int>::iterator it = clusters[n].adjacencies.begin(); it != clusters[n].adjacencies.end(); ++it)
-			cout << "\t Cluster #" << *it+1 << endl;
+		cout << "Cluster #" << n + 1 << " adjacent to: ";
+		if(clusters[n].adjacencies.begin() == clusters[n].adjacencies.end())
+			cout << "NONE";
+		for (set<int>::iterator it = clusters[n].adjacencies.begin(); it != clusters[n].adjacencies.end(); ++it){
+			if(it != clusters[n].adjacencies.begin())
+				cout << ", ";
+			cout << "Cluster #" << *it+1;
+		}
+		cout << endl;
 	}
 
 	return with_adjacencies;
@@ -498,7 +593,7 @@ void Adaptive_Mesh::square_cluster_merge(vector<Cluster_Square> &clusters, int* 
 	delete[] cluster_to_destroy;
 
 	//TODO: Remove
-	 ofstream myfile ("example_squared_big.txt");
+	 ofstream myfile ("amr_cluster_combined.txt");
 	  if (myfile.is_open())
 	  {
 		for (int y = 0; y < y_max; y++) {

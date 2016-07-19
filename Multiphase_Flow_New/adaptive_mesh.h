@@ -19,14 +19,17 @@ public:
 	Adaptive_Mesh(Solver* solver, Grid *grid, Constants *constants, Time_Step_Calculation* time_calculation);
 	virtual ~Adaptive_Mesh();
 	void amr();
-	void grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_two, double tolerance);
+	int grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_two, double tolerance);
 	int binary_clustering(int* &marked_cells, int x_max, int y_max);
 	void clusterize(int* &clustered_cells, int* grid_size, int nth_cluster, int x, int y);
 	void square_clustering(vector<Cluster_Square> &clusters, int* &marked_cells, int x_max, int y_max, int cluster_amount);
 	int cluster_adjacency_check(vector<Cluster_Square> &clusters, int* &marked_cells, int x_max, int y_max, int cluster_amount);
 	void square_cluster_merge(vector<Cluster_Square> &clusters, int* &marked_cells, int x_max, int y_max, int &cluster_amount);
 	void create_fine_grid(Cluster_Square& cluster, Grid* parent_grid);
-
+	void grid_to_file(std::string filename, Grid* grid);
+	void fine_to_hoarse(Cluster_Square& cluster);
+	int is_adaptive_needed(Grid* refinable_grid, double& dt);
+	void get_clusters(vector<Cluster_Square>& clusters);
 
 	Solver* solver;
 	Grid* grid_main;

@@ -19,6 +19,7 @@ Cluster_Square::Cluster_Square() {
 
 Cluster_Square::~Cluster_Square() {
 	// TODO Auto-generated destructor stub
-
+	if (grid_fine != nullptr)
+		delete grid_fine;
 }
 
