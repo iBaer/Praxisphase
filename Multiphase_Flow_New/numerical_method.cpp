@@ -100,9 +100,10 @@ void Numerical_Method::start_method() {
 		if (output_per_step == 1)
 			write();
 
-		if(1){
+		if(10){
 			Adaptive_Mesh* adaptive_mesh = new Adaptive_Mesh(solver, grid_main, constants, time_calculation);
 			adaptive_mesh->amr();
+			delete adaptive_mesh;
 			exit(0);
 		}
 

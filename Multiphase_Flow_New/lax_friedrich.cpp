@@ -1,5 +1,6 @@
 #include "lax_friedrich.h"
 #include <stdlib.h> // exit
+#include <cstring>
 
 using namespace std;
 
@@ -15,44 +16,7 @@ Lax_Friedrich::Lax_Friedrich(Constants *constants, Computation *computation, Gri
 		Solver("Lax-Friedrich", constants, computation, grid) {
 
 	//TODO: Konstruktor auch bei Force für 1D optimieren
-
 	allocate_cache(grid);
-	/*size_total[1] = grid->grid_size_total[1];
-	size_m1[1] = grid->grid_size_total[1] - 1;
-
-	uall = new double[neqs * size_total[0] * size_total[1]];
-	fall = new double[neqs * size_total[0] * size_total[1]];
-	gall = new double[neqs * size_total[0] * size_total[1]];
-
-	cs = new double**[neqs];
-	f = new double**[neqs];
-	g = new double**[neqs];
-
-	for (int i = 0; i < neqs; i++) {
-		cs[i] = new double*[size_total[0]];
-		f[i] = new double*[size_total[0]];
-		g[i] = new double*[size_total[0]];
-		for (int j = 0; j < size_total[0]; j++) {
-			cs[i][j] = uall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			f[i][j] = fall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			g[i][j] = gall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-		}
-	}
-
-	f_lax = new double*[dimension];
-	for (int i = 0; i < dimension; i++) {
-		f_lax[i] = new double[neqs * (size_m1[0]) * (size_m1[1])];
-	}
-
-	if(dimension==2){
-		split_grid = new Grid*[2];
-		split_grid[0] = new Grid(size_total[0],size_total[1], constants);
-		split_grid[1] = new Grid(size_total[0],size_total[1], constants);
-	}
-
-	with_halved_dt = 0;
-
-	set_grid = grid;*/
 }
 
 /**
@@ -358,6 +322,33 @@ void Lax_Friedrich::solve_2d_unsplit(double dt) {
 			grid->cellsgrid[pos][5] = uyr;
 		}
 	}
+}
+
+// TODO: Muss außerhalb gelöscht werden
+void Lax_Friedrich::get_2d_half_flux(double*** half_flux, int& dimension, int& size) {
+
+	size = neqs * (size_m1[0]) * (size_m1[1]);
+	dimension = this->dimension;
+	double** tmp_flux = new double*[dimension];
+
+	for (int i = 0; i < dimension; i++) {
+		tmp_flux[i] = new double[size];
+	}
+
+	for (int i = 0; i < dimension; i++) {
+		for (int n = 0; n < size; n++) {
+			tmp_flux[i][n]= f_lax[i][n];
+		}
+	}
+
+	for (int i = 0; i < dimension; i++) {
+		for (int n = 0; n <= 5; n++) {
+			if(tmp_flux[i][n] != f_lax[i][n])
+				abort();
+		}
+	}
+
+	*half_flux = tmp_flux;
 }
 
 /**

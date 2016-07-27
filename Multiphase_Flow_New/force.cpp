@@ -14,56 +14,20 @@ Force::Force(Constants *constants, Computation *computation, Grid *grid) :
 
 	allocate_cache(grid);
 
-	// temporär
-	/*size_total[1] = grid->grid_size_total[1];
-	size_m1[1] = grid->grid_size_total[1] - 1;
-
-	uall = new double[neqs * size_total[0] * size_total[1]];
-	fall = new double[neqs * size_total[0] * size_total[1]];
-	gall = new double[neqs * size_total[0] * size_total[1]];
-	f_laxall = new double[neqs * size_total[0] * size_total[1]];
-	f_rieall = new double[neqs * size_total[0] * size_total[1]];
-	g_laxall = new double[neqs * size_total[0] * size_total[1]];
-	g_rieall = new double[neqs * size_total[0] * size_total[1]];
-
-	cs = new double**[neqs];
-	fd = new double**[neqs];
-	gd = new double**[neqs];
-	f_lax = new double**[neqs];
-	f_rie = new double**[neqs];
-	g_lax = new double**[neqs];
-	g_rie = new double**[neqs];
-
-	for (int i = 0; i < neqs; i++) {
-		cs[i] = new double*[size_total[0]];
-		fd[i] = new double*[size_total[0]];
-		gd[i] = new double*[size_total[0]];
-		f_lax[i] = new double*[size_total[0]];
-		f_rie[i] = new double*[size_total[0]];
-		g_lax[i] = new double*[size_total[0]];
-		g_rie[i] = new double*[size_total[0]];
-
-		for (int j = 0; j < size_total[0]; j++) {
-			cs[i][j] = uall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			fd[i][j] = fall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			gd[i][j] = gall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			f_lax[i][j] = f_laxall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			f_rie[i][j] = f_rieall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			g_lax[i][j] = g_laxall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-			g_rie[i][j] = g_rieall + (i * size_total[0] * size_total[1]) + (j * size_total[1]);
-		}
-	}
-
-	f_force = new double*[dimension];
-	for (int i=0;i<dimension;i++){
-		f_force[i] = new double[neqs * (size_m1[0]) * (size_m1[1])];
-	}*/
 
 }
 
 Force::~Force() {
 	delete_cache();
 
+}
+
+// TODO: Muss außerhalb gelöscht werden
+void Force::get_2d_half_flux(double*** half_flux, int& dimension, int& size) {
+
+	half_flux = NULL;
+	dimension = 0;
+	size = 0;
 }
 
 void Force::delete_cache(){

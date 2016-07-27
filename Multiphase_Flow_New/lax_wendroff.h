@@ -54,6 +54,7 @@ class Lax_Wendroff : public Solver
         void calc_method_flux(double dt, Grid * grid);
     	void allocate_cache(Grid * grid);
     	void delete_cache();
+        void get_2d_half_flux(double*** half_flux, int& dimension, int& size);
 
         //int size_total[0];
         //int size_total[1];

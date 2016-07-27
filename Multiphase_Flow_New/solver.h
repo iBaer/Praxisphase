@@ -40,7 +40,7 @@ public:
 	virtual void calc_method_flux(double dt, Grid * grid) = 0;
 	virtual void allocate_cache(Grid * grid) = 0;
 	virtual void delete_cache() = 0;
-
+	virtual void get_2d_half_flux(double*** half_flux, int& dimension, int& size) = 0;
 	/**
 	 * Konstanten Objekt welches für die berechnungen benötigt wird.
 	 * @see Konstanten

@@ -743,7 +743,7 @@ void Grid::init_2d_rarefaction_45() {
 	return;
 }*/
 
-void Grid::init_2d_shockwave_bubble() {
+/*void Grid::init_2d_shockwave_bubble() {
 	double pos_x_max = constants->pos_x_max;
 	double pos_x_min = constants->pos_x_min;
 	double pos_y_max = constants->pos_y_max; //2D
@@ -807,9 +807,9 @@ void Grid::init_2d_shockwave_bubble() {
 	double shockwave_pos = pos_x_min + shockwave_center * dx; // Nur Ausgabe
 	cout << "Shockwave centered at " << shockwave_pos << " with cell  " << shockwave_center << endl;
 	return;
-}
+}*/
 
-/*void Grid::init_2d_shockwave_bubble() {
+void Grid::init_2d_shockwave_bubble() {
 	double pos_x_max = constants->pos_x_max;
 	double pos_x_min = constants->pos_x_min;
 	double pos_y_max = constants->pos_y_max; //2D
@@ -859,7 +859,7 @@ void Grid::init_2d_shockwave_bubble() {
 
 	}
 	return;
-}*/
+}
 
 /**
  *****************************************************************************************

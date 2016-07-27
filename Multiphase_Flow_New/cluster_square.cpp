@@ -8,7 +8,6 @@
 #include "cluster_square.h"
 
 Cluster_Square::Cluster_Square() {
-	// TODO Auto-generated constructor stub
 	pos_x_min = -1;
 	pos_x_max = -1;
 	pos_y_min = -1;
@@ -18,7 +17,6 @@ Cluster_Square::Cluster_Square() {
 }
 
 Cluster_Square::~Cluster_Square() {
-	// TODO Auto-generated destructor stub
 	if (grid_fine != nullptr)
 		delete grid_fine;
 }

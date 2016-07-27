@@ -112,6 +112,7 @@ void Computation::compute_u_2d(double *** u, Grid * grid) {
 					//cout <<"U-"<<i<<" out x "<<x<<" | y "<<y<<endl;
 				}
 				if(isnan(u[i][x][y])){
+					cin.get();
 					cout<<"comp u["<<i<<","<<x<<","<<y<<"] = "<< d<<","<<ux<<","<<uxr<<","<<uy<<","<<uyr<<endl;
 				}
 			}
@@ -156,6 +157,7 @@ void Computation::compute_f_2d(double *** f, Grid * grid) {
 					//cout <<"F-"<<i<<" out x "<<x<<" | y "<<y<<endl;
 				}
 				if(isnan(f[i][x][y])){
+					cin.get();
 					cout<<"comp f["<<i<<","<<x<<","<<y<<"] = "<< d<<","<<p<<","<<ux<<","<<uxr<<","<<uy<<","<<uyr<<endl;
 				}
 			}
@@ -196,6 +198,7 @@ void Computation::compute_g_2d(double *** g, Grid * grid) {
 					//cout <<"G-"<<i<<" out x "<<x<<" | y "<<y<<endl;
 				}
 				if(isnan(g[i][x][y])){
+					cin.get();
 					cout<<"comp g["<<i<<","<<x<<","<<y<<"] = "<< d<<","<<p<<","<<ux<<","<<uxr<<","<<uy<<","<<uyr<<endl;
 				}
 			}

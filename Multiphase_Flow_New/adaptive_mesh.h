@@ -12,6 +12,7 @@
 #include "grid.h"
 #include "constants.h"
 #include "cluster_square.h"
+#include "cluster_builder.h"
 #include <set>
 
 class Adaptive_Mesh {
@@ -20,16 +21,11 @@ public:
 	virtual ~Adaptive_Mesh();
 	void amr();
 	int grid_marker(int* &marked_cells, Grid* grid_one, Grid* grid_two, double tolerance);
-	int binary_clustering(int* &marked_cells, int x_max, int y_max);
-	void clusterize(int* &clustered_cells, int* grid_size, int nth_cluster, int x, int y);
-	void square_clustering(vector<Cluster_Square> &clusters, int* &marked_cells, int x_max, int y_max, int cluster_amount);
-	int cluster_adjacency_check(vector<Cluster_Square> &clusters, int* &marked_cells, int x_max, int y_max, int cluster_amount);
-	void square_cluster_merge(vector<Cluster_Square> &clusters, int* &marked_cells, int x_max, int y_max, int &cluster_amount);
 	void create_fine_grid(Cluster_Square& cluster, Grid* parent_grid);
 	void grid_to_file(std::string filename, Grid* grid);
-	void fine_to_hoarse(Cluster_Square& cluster);
-	int is_adaptive_needed(Grid* refinable_grid, double& dt);
-	void get_clusters(vector<Cluster_Square>& clusters);
+	void fine_to_coarse(Cluster_Square& cluster, double dt);
+	void coarse_correction(Cluster_Square& cluster, double dt);
+	void calculate_grids(Grid* refinable_grid, int grid_level, double& dt);
 
 	Solver* solver;
 	Grid* grid_main;
@@ -37,9 +33,12 @@ public:
 	Grid* grid_doublestep;
 	Constants * constants;
 	Time_Step_Calculation* time_calculation;
+	Cluster_Builder* cluster_builder;
 
 	int* marked_cells;
-
+	//TODO: dx, dt sollte nur an einer Stelle im Programm bestimmt werden! -> Grid!?
+	double dx;
+	double dy;
 };
 
 #endif /* ADAPTIVE_MESH_H_ */

@@ -16,7 +16,6 @@
 using namespace std;
 
 Time_Step_Calculation::Time_Step_Calculation(int neqs, Grid * grid) {
-	// TODO Auto-generated constructor stub
 	this->constants = &Constants::instance();
 	this->grid = grid;
 

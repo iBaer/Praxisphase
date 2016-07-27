@@ -53,7 +53,6 @@ class Lax_Friedrich : public Solver
 
         void split_mean(Grid* grid_one, Grid* grid_two);
 
-
     protected:
         /**
         * Implementierung der virtuellen Methode zur Berechnung des Flußes.
@@ -65,6 +64,8 @@ class Lax_Friedrich : public Solver
         void calc_method_flux(double dt, Grid * grid);
     	void allocate_cache(Grid * grid);
     	void delete_cache();
+        void get_2d_half_flux(double*** half_flux, int& dimension, int& size);
+
 
         //int size_total[0];
         //int size_total[1];
@@ -113,6 +114,9 @@ class Lax_Friedrich : public Solver
         * [0] = Dimension, [1] = Zellen-Position, immer abstrahiert auf eine Dimension, bis zu 3D Richtung und Anzahl der Gleichungen
         */
     	double** f_lax;
+
+    	double** half_flux;
+
 
     	Grid ** split_grid;
 
